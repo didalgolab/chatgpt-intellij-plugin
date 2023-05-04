@@ -1,0 +1,45 @@
+<idea-plugin>
+    <id>com.didalgo.chatgpt</id>
+    <name>ChatGPT Tools</name>
+    <vendor email="consulting@didalgo.com" url="https://github.com/didalgo2">didalgo</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.intellij.plugins.markdown</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
+                    factoryClass="com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory"/>
+        <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel"
+                                 id="com.didalgo.chatgpt.settings.OpenAISettings"
+                                 displayName="ChatGPT Tools (by Didalgo)"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT3_35_TurboPanel"
+                                 id="com.didalgo.chatgpt.settings.GPT3-3.5-Turbo"
+                                 displayName="GPT 3.5 Turbo"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT4_Panel"
+                                 id="com.didalgo.chatgpt.settings.GPT4"
+                                 displayName="GPT 4"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.CustomActionsPanel"
+                                 id="com.didalgo.chatgpt.settings.commandActions"
+                                 displayName="Custom Actions"/>
+        <applicationService serviceInterface="com.didalgo.intellij.chatgpt.chat.ChatMessageComposer" serviceImplementation="com.didalgo.intellij.chatgpt.chat.DefaultChatMessageComposer"/>
+        <applicationService serviceInterface="com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer" serviceImplementation="com.didalgo.intellij.chatgpt.ui.TextEditorSelectionAwareSnippetizer"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.OpenAISettingsState"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.ChatGptHandler"/>
+        <projectService serviceImplementation="com.didalgo.intellij.chatgpt.jshell.DirectJShellService" serviceInterface="com.didalgo.intellij.chatgpt.jshell.JShellHandle"/>
+        <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
+        <postStartupActivity implementation="com.didalgo.intellij.chatgpt.core.StartUpActivity"/>
+        <iconMapper mappingFile="ChatGPTIconMappings.json"/>
+    </extensions>
+
+    <resource-bundle>messages.ChatGptBundle</resource-bundle>
+
+    <actions>
+        <group id="ChatGptEditorPopup">
+            <group id="ActionGroup2" class="com.intellij.openapi.actionSystem.DefaultActionGroup" popup="true" icon="/icons/toolWindow.svg">
+                <!-- -->
+            </group>
+            <add-to-group group-id="EditorPopupMenu1" anchor="first"/>
+            <separator/>
+        </group>
+    </actions>
+</idea-plugin>
