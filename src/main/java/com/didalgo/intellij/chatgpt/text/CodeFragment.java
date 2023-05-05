@@ -23,15 +23,15 @@ public interface CodeFragment extends CharSequence {
 
     String description();
 
-    static Of of(String content) {
+    static CodeFragment of(String content) {
         return of(content, "", "");
     }
 
-    static Of of(String content, String language) {
+    static CodeFragment of(String content, String language) {
         return of(content, language, "");
     }
 
-    static Of of(String content, String language, String description) {
+    static CodeFragment of(String content, String language, String description) {
         return new Of(content, language, description);
     }
 

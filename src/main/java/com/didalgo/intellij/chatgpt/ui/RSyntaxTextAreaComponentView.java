@@ -26,6 +26,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.AnActionButton;
 import com.intellij.util.IconUtil;
+import com.vladsch.flexmark.util.sequence.Escaping;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -88,6 +89,7 @@ public class RSyntaxTextAreaComponentView extends ComponentView {
         if (text.endsWith("\n"))
             text = text.substring(0, text.length() + (text.endsWith("\r\n")? -2: -1));
 
+        text = Escaping.unescapeHtml(text);
         return text;
     }
 

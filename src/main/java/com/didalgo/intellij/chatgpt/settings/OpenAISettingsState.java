@@ -47,8 +47,8 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     private volatile boolean enableAvatar = true;
     private volatile boolean enableLineWarp = true;
 
-    private volatile OpenAIConfig gpt35Config = new OpenAIConfig();
-    private volatile OpenAIConfig gpt4Config = new OpenAIConfig();
+    private volatile OpenAIConfig gpt35Config;
+    private volatile OpenAIConfig gpt4Config;
     @Transient
     private volatile String currentConfigID = ModelCategory.GPT_3_5;
 
@@ -167,7 +167,9 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     }
 
     public OpenAISettingsState() {
-        gpt35Config.setModelName(ModelType.GPT_3_5_TURBO.modelName());
-        gpt4Config.setModelName(ModelType.GPT_4.modelName());
+        setGpt35Config(new OpenAIConfig());
+        getGpt35Config().setModelName(ModelType.GPT_3_5_TURBO.modelName());
+        setGpt4Config(new OpenAIConfig());
+        getGpt4Config().setModelName(ModelType.GPT_4.modelName());
     }
 }

@@ -82,7 +82,7 @@ public class GPT3_35_TurboPanel implements Configurable {
         OpenAISettingsState.OpenAIConfig config = state.getGpt35Config();
 
         return !config.getApiKey().equals(AES.encrypt(apiKeyField.getText())) ||
-                !config.getModelName().equals(comboCombobox.getSelectedItem().toString()) ||
+                !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
                 config.isEnableContext() != enableContextCheckBox.isSelected() ||
                 config.isEnableTokenConsumption() != enableTokenConsumptionCheckBox.isSelected() ||
                 config.isEnableGPT35StreamResponse() != enableStreamResponseCheckBox.isSelected() ||

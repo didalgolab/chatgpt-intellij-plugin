@@ -6,10 +6,14 @@ package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.core.ChatCompletionParser;
+import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
+import com.didalgo.intellij.chatgpt.text.TextFragment;
+import com.didalgo.intellij.chatgpt.ui.action.tool.SettingsAction;
 import com.didalgo.intellij.chatgpt.ui.listener.SubmitListener;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaButtonUI;
+import com.intellij.notification.BrowseNotificationAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -21,7 +25,6 @@ import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import io.reactivex.disposables.Disposable;
-import okhttp3.Call;
 import okhttp3.internal.http2.StreamResetException;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
@@ -46,7 +49,7 @@ public class MainPanel implements ChatMessageListener {
     private final OnePixelSplitter splitter;
     private final Project myProject;
     private JPanel actionPanel;
-    private Object requestHolder;
+    private volatile Object requestHolder;
     private final MainConversationHandler conversationHandler;
     private final ChatLink chatLink;
 
@@ -125,21 +128,17 @@ public class MainPanel implements ChatMessageListener {
             throw new ChatExchangeAbortException("Preset check failed");
         }
 
-        // Reset the question container
-        setSearchText("");
-        aroundRequest(true);
+        TextFragment userMessage = TextFragment.of(event.getUserMessage().getContent());
+        SwingUtilities.invokeLater(() -> {
+            setSearchText("");
+            aroundRequest(true);
 
-        MessageGroupComponent contentPanel = getContentPanel();
-
-        // TBR: If required, attach editor's selected code
-        String userMessage = event.getUserMessage().getContent();
-
-        // Add the message component to container
-        question = new MessageComponent(escapeHtml(userMessage),true);
-        answer = new MessageComponent("Thinking...",false);
-        contentPanel.add(question);
-        contentPanel.add(answer);
-
+            MessageGroupComponent contentPanel = getContentPanel();
+            question = new MessageComponent(userMessage,true);
+            answer = new MessageComponent(TextFragment.of("Thinking..."),false);
+            contentPanel.add(question);
+            contentPanel.add(answer);
+        });
     }
 
     private volatile MessageComponent question, answer;
@@ -147,40 +146,38 @@ public class MainPanel implements ChatMessageListener {
     @Override
     public void exchangeStarted(ChatMessageEvent.Started event) {
         setRequestHolder(event.getSubscription());
-        contentPanel.updateLayout();
-        contentPanel.scrollToBottom();
+
+        SwingUtilities.invokeLater(() -> {
+            contentPanel.updateLayout();
+            contentPanel.scrollToBottom();
+        });
     }
 
     protected boolean presetCheck() {
         OpenAISettingsState instance = OpenAISettingsState.getInstance();
-        if (com.didalgo.intellij.chatgpt.util.StringUtil.isEmpty(instance.getConfigForCategory(getChatLink().getConversationContext().getGroup()).getApiKey())) {
-            Notifications.Bus.notify(
-                    new Notification(ChatGptBundle.message("group.id"),
-                            "Wrong setting",
-                            "Please configure an API Key first.",
-                            NotificationType.ERROR));
+        String group = getChatLink().getConversationContext().getGroup();
+        if (com.didalgo.intellij.chatgpt.util.StringUtil.isEmpty(instance.getConfigForCategory(group).getApiKey())) {
+            Notification notification = new Notification(ChatGptBundle.message("group.id"),
+                    ChatGptBundle.message("notify.config.title"),
+                    ChatGptBundle.message("notify.config.text"),
+                    NotificationType.ERROR);
+            notification.addAction(new SettingsAction(ChatGptBundle.message("notify.config.action.config"), OpenAISettingsPanel.getTargetPanelClassForCategory(group)));
+            notification.addAction(new BrowseNotificationAction(ChatGptBundle.message("notify.config.action.browse"), ChatGptBundle.message("notify.config.action.browse.url")));
+            Notifications.Bus.notify(notification);
             return false;
         }
         return true;
     }
 
-    protected String escapeHtml(String text) {
-        return text.replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\n", "\n<br>");
-    }
-
     @Override
     public void responseArriving(ChatMessageEvent.ResponseArriving event) {
         try {
-            ChatCompletionParser.ParseResult parseResult = ChatCompletionParser.
+            TextFragment parseResult = ChatCompletionParser.
                     parseGPT35TurboWithStream(event.getPartialResponseChoices());
 
-            // Copy action only needed source content
-            answer.setSourceContent(parseResult.getSource());
-            answer.setContent(parseResult.getHtml());
+            answer.setContent(parseResult);
         } catch (Exception e) {
-            answer.setContent(e.getMessage());
+            answer.setErrorContent(e.getMessage());
         }
     }
 
@@ -193,8 +190,7 @@ public class MainPanel implements ChatMessageListener {
     @Override
     public void exchangeFailed(ChatMessageEvent.Failed event) {
         if (answer != null) {
-            answer.setSourceContent(event.getCause().getMessage());
-            answer.setContent(event.getCause().getMessage());
+            answer.setErrorContent(event.getCause().getMessage());
         }
         aroundRequest(false);
     }
@@ -206,12 +202,12 @@ public class MainPanel implements ChatMessageListener {
 
     public void responseArrivalFailed(ChatMessageEvent.Failed event) {
         if (event.getCause() instanceof StreamResetException) {
-            answer.setContent("Request failure, cause: " + event.getCause().getMessage());
+            answer.setErrorContent("*Request failure*, cause: " + event.getCause().getMessage());
             aroundRequest(false);
             event.getCause().printStackTrace();
             return;
         }
-        answer.setContent("Response failure, cause: " + event.getCause().getMessage() + ", please try again. <br><br> Tips: if proxy is enabled, please check if the proxy server is working.");
+        answer.setErrorContent("*Response failure*, cause: " + event.getCause().getMessage() + ", please try again.\n\n Tips: if proxy is enabled, please check if the proxy server is working.");
         aroundRequest(false);
         contentPanel.scrollToBottom();
     }

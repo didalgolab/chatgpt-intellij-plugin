@@ -7,7 +7,6 @@ package com.didalgo.intellij.chatgpt.settings;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.OpenAIServiceHolder;
 import com.didalgo.intellij.chatgpt.text.encryption.AES;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBTextField;
@@ -84,7 +83,7 @@ public class GPT4_Panel implements Configurable {
         OpenAISettingsState.OpenAIConfig config = state.getGpt4Config();
 
         return !config.getApiKey().equals(AES.encrypt(apiKeyField.getText())) ||
-                !config.getModelName().equals(comboCombobox.getSelectedItem().toString()) ||
+                !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
                 config.isEnableContext() != enableContextCheckBox.isSelected() ||
                 config.isEnableTokenConsumption() != enableTokenConsumptionCheckBox.isSelected() ||
                 config.isEnableGPT35StreamResponse() != enableStreamResponseCheckBox.isSelected() ||

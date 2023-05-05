@@ -5,6 +5,7 @@
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory;
+import com.didalgo.intellij.chatgpt.ModelCategory;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -155,5 +156,19 @@ public class OpenAISettingsPanel implements Configurable {
 
         contentOrderHelpLabel.setFont(JBUI.Fonts.smallFont());
         contentOrderHelpLabel.setForeground(UIUtil.getContextHelpForeground());
+    }
+
+    /**
+     * Returns the appropriate settings panel {@code Class} for the given model category.
+     *
+     * @param category the model category to fetch the settings panel for
+     * @return the appropriate {@code Class} for the settings panel
+     */
+    public static Class<? extends Configurable> getTargetPanelClassForCategory(String category) {
+        return switch (category) {
+            case ModelCategory.GPT_3_5 -> GPT3_35_TurboPanel.class;
+            case ModelCategory.GPT_4 -> GPT4_Panel.class;
+            default -> OpenAISettingsPanel.class;
+        };
     }
 }

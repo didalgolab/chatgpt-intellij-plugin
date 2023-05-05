@@ -4,11 +4,11 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
+import com.didalgo.intellij.chatgpt.text.TextFragment;
 import com.intellij.util.ui.ExtendableHTMLViewFactory;
 import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.HtmlPanel;
 import com.intellij.util.ui.UIUtil;
-import com.didalgo.intellij.chatgpt.util.StringUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +17,8 @@ import javax.swing.text.html.HTML;
 import java.awt.*;
 
 public class MessagePanel extends HtmlPanel {
+
+    private volatile TextFragment text;
 
     public MessagePanel() {
         setEditorKit(new HTMLEditorKitBuilder()
@@ -36,11 +38,9 @@ public class MessagePanel extends HtmlPanel {
         return view;
     }
 
-    private String message = "";
-
     @Override
     protected @NotNull @Nls String getBody() {
-        return StringUtil.isEmpty(message) ? "" : message;
+        return (text == null)? "" : text.toHtml();
     }
 
     @Override
@@ -48,8 +48,8 @@ public class MessagePanel extends HtmlPanel {
         return UIUtil.getLabelFont();
     }
 
-    public void updateMessage(String updateMessage) {
-        this.message = updateMessage;
+    public void updateMessage(TextFragment updateMessage) {
+        this.text = updateMessage;
         update();
     }
 }

@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
+import com.didalgo.intellij.chatgpt.text.TextFragment;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,7 +31,6 @@ import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -42,7 +42,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
 
     private final MyAdjustmentListener scrollListener = new MyAdjustmentListener();
     private final MessageComponent tips =
-            new MessageComponent("Go ahead, asketh me anything, I dare thee.",false);
+            new MessageComponent(TextFragment.of("Go ahead, asketh me anything, I dare thee."),false);
     private JBTextField systemRole;
     private static final String systemRoleText = "You are an expert in software development.";
     private final Project project;
@@ -171,7 +171,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
 
     public void scrollToBottom() {
         JScrollBar verticalScrollBar = myScrollPane.getVerticalScrollBar();
-        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        verticalScrollBar.setValue(Integer.MAX_VALUE);
     }
 
     public void updateLayout() {

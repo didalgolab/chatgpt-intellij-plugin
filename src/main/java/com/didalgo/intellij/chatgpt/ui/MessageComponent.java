@@ -5,6 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.text.TextFragment;
 import com.didalgo.intellij.chatgpt.util.ImgUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
@@ -19,7 +20,6 @@ import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.util.ui.*;
 import com.didalgo.intellij.chatgpt.ChatGptIcons;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
-import com.didalgo.intellij.chatgpt.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +42,10 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
     private final MessagePanel component = new MessagePanel();
 
-    private final String question;
+    private TextFragment text;
 
-    private String answer;
-
-    public MessageComponent(String content, boolean me) {
-        question = content;
+    public MessageComponent(TextFragment text, boolean me) {
+        this.text = text;
         setDoubleBuffered(true);
         setOpaque(true);
         setBackground(me ? new JBColor(0xEAEEF7, 0x45494A) : new JBColor(0xE0EEF7, 0x2d2f30 /*2d2f30*/));
@@ -71,7 +69,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         JPanel centerPanel = new JPanel(new VerticalLayout(JBUI.scale(8)));
         centerPanel.setOpaque(false);
         centerPanel.setBorder(JBUI.Borders.emptyLeft(JBUI.scale(5)));
-        centerPanel.add(createContentComponent(content));
+        centerPanel.add(createContentComponent(text));
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel actionPanel = new JPanel(new BorderLayout());
@@ -82,12 +80,12 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         copyAction.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                Transferable transferable = new StringSelection(me ? question : answer);
+                Transferable transferable = new StringSelection(getText().markdown());
                 CopyPasteManager.getInstance().setContents(transferable);
                 Notifications.Bus.notify(
                         new Notification(ChatGptBundle.message("group.id"),
-                                "Copy successfully",
-                                "ChatGPT reply content has been successfully copied to the clipboard.",
+                                "Copied successfully",
+                                "ChatGPT " + (me? "prompt":"reply") + " content has been successfully copied to the clipboard.",
                                 NotificationType.INFORMATION));
             }
         });
@@ -95,7 +93,11 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         add(actionPanel, BorderLayout.EAST);
     }
 
-    public Component createContentComponent(String content) {
+    public TextFragment getText() {
+        return text;
+    }
+
+    public Component createContentComponent(TextFragment content) {
 
         component.setEditable(false);
         component.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, java.lang.Boolean.TRUE);
@@ -104,7 +106,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         component.setBorder(null);
 
         configureHtmlEditorKit2(component, false);
-        component.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, StringUtil.unescapeXmlEntities(StringUtil.stripHtml(content, " ")));
+        component.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, getText().markdown());
 
         component.updateMessage(content);
 
@@ -140,10 +142,11 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         return JBColor.namedColor("Notification.linkForeground", JBUI.CurrentTheme.Link.Foreground.ENABLED);
     }
 
-    private final AtomicReference<String> content = new AtomicReference<>();
+    private final AtomicReference<TextFragment> content = new AtomicReference<>();
     private final Timer updateContentTimer = new Timer(20, this::updateIncrementalContent);
 
-    public void setContent(String content) {
+    public void setContent(TextFragment content) {
+        this.text = content;
         this.content.set(content);
         if (!updateContentTimer.isRunning()) {
             updateContentTimer.setRepeats(false);
@@ -151,8 +154,13 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         }
     }
 
+    public void setErrorContent(String errorMessage) {
+        setContent(TextFragment.of(errorMessage));
+        component.setForeground(JBColor.RED);
+    }
+
     protected void updateIncrementalContent(ActionEvent event) {
-        String message = null;
+        TextFragment message = null;
         try {
             message = content.get();
             if (message != null) {
@@ -163,10 +171,6 @@ public class MessageComponent extends JBPanel<MessageComponent> {
             LOG.error("ChatGPT Exception in processing response: response: {}, error: {}", message, e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public void setSourceContent(String source) {
-        answer = source;
     }
 
     public void scrollToBottom() {
