@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
 
+import com.didalgo.intellij.chatgpt.util.Language;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -47,8 +48,11 @@ public class RSyntaxTextAreaComponentView extends ComponentView {
     private static final Logger log = LoggerFactory.getLogger(RSyntaxTextAreaComponentView.class);
     private static Theme defaultTheme;
 
-    public RSyntaxTextAreaComponentView(Element element) {
+    private Language language;
+
+    public RSyntaxTextAreaComponentView(Element element, Language language) {
         super(element);
+        this.language = language;
     }
 
     @Override
@@ -116,7 +120,7 @@ public class RSyntaxTextAreaComponentView extends ComponentView {
 
     protected Component createComponent0() {
         RSyntaxTextArea textArea = new MyRSyntaxTextArea();
-        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        textArea.setSyntaxEditingStyle(language.mimeType());
         textArea.setEditable(false);
         textArea.setCodeFoldingEnabled(true);
         textArea.setAnimateBracketMatching(false);
