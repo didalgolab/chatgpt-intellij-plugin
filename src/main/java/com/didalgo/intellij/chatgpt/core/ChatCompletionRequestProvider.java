@@ -20,6 +20,8 @@ public final class ChatCompletionRequestProvider {
         var model = ctx.getModelType();
         return ChatCompletionRequest
                 .builder()
+                .temperature(0.35)
+                .topP(0.35)
                 .model(model.modelName())
                 .messages(ctx.getChatMessages(model))
                 .logitBias(new TreeMap<>());
