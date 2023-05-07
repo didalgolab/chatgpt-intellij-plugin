@@ -135,6 +135,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         }).build();
         String color = ColorUtil.toHtmlColor(notificationColor ? getLinkButtonForeground() : JBUI.CurrentTheme.Link.Foreground.ENABLED);
         kit.getStyleSheet().addRule("a {color: " + color + "}");
+        kit.getStyleSheet().addRule("p {margin:0 0 7px 0}");
         editorPane.setEditorKit(kit);
     }
 

@@ -31,9 +31,7 @@ import org.reactivestreams.Subscription;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
@@ -66,25 +64,7 @@ public class MainPanel implements ChatMessageListener {
         splitter = new OnePixelSplitter(true,.98f);
         splitter.setDividerWidth(1);
 
-        searchTextArea = new ExpandableTextField(
-                text -> StringUtil.split(text, NewlineFilter.NEWLINE_REPLACEMENT.toString()),
-                lines -> String.join(NewlineFilter.NEWLINE_REPLACEMENT.toString(), lines)) {
-
-            @Override
-            public String getText() {
-                return NewlineFilter.normalize(super.getText());
-            }
-
-            @Override
-            public String getText(int offs, int len) throws BadLocationException {
-                return NewlineFilter.normalize(super.getText(offs, len));
-            }
-
-            @Override
-            public String getSelectedText() {
-                return NewlineFilter.normalize(super.getSelectedText());
-            }
-        };
+        searchTextArea = new ExpandableTextFieldExt();
         var searchTextDocument = (AbstractDocument) searchTextArea.getDocument();
         searchTextDocument.setDocumentFilter(new NewlineFilter());
         searchTextDocument.putProperty("filterNewlines", Boolean.FALSE);
@@ -175,9 +155,9 @@ public class MainPanel implements ChatMessageListener {
             TextFragment parseResult = ChatCompletionParser.
                     parseGPT35TurboWithStream(event.getPartialResponseChoices());
 
-            answer.setContent(parseResult);
+            SwingUtilities.invokeLater(() -> answer.setContent(parseResult));
         } catch (Exception e) {
-            answer.setErrorContent(e.getMessage());
+            SwingUtilities.invokeLater(() -> answer.setErrorContent(e.getMessage()));
         }
     }
 
@@ -210,38 +190,6 @@ public class MainPanel implements ChatMessageListener {
         answer.setErrorContent("*Response failure*, cause: " + event.getCause().getMessage() + ", please try again.\n\n Tips: if proxy is enabled, please check if the proxy server is working.");
         aroundRequest(false);
         contentPanel.scrollToBottom();
-    }
-
-    private static class NewlineFilter extends DocumentFilter {
-        private static final Character NEWLINE_REPLACEMENT = '\u23CE';
-
-        @Override
-        public void insertString(FilterBypass fb, int offset, String text,
-                                 AttributeSet attr) throws BadLocationException {
-            text = denormalize(text);
-            super.insertString(fb, offset, text, attr);
-        }
-
-        @Override
-        public void replace(FilterBypass fb, int offset, int length, String text,
-                            AttributeSet attrs) throws BadLocationException {
-            text = denormalize(text);
-            super.replace(fb, offset, length, text, attrs);
-        }
-
-        public static String denormalize(String text) {
-            if (text == null || text.isEmpty()) {
-                return text;
-            }
-            return text.replace('\n', NEWLINE_REPLACEMENT).replace("\r", "");
-        }
-
-        public static String normalize(String text) {
-            if (text == null || text.isEmpty()) {
-                return text;
-            }
-            return text.replace(NEWLINE_REPLACEMENT, '\n');
-        }
     }
 
     public Project getProject() {
