@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.ui;
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.text.TextFragment;
+import com.didalgo.intellij.chatgpt.util.ScrollingTools;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -40,7 +41,6 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
                                       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     private int myScrollValue = 0;
 
-    private final MyAdjustmentListener scrollListener = new MyAdjustmentListener();
     private final MessageComponent tips =
             new MessageComponent(TextFragment.of("Go ahead, asketh me anything, I dare thee."),false);
     private JBTextField systemRole;
@@ -56,6 +56,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
         setBackground(UIUtil.getListBackground());
 
         myScrollPane.getVerticalScrollBar().putClientProperty(JBScrollPane.IGNORE_SCROLLBAR_IN_INSETS, Boolean.TRUE);
+        ScrollingTools.installAutoScrollToBottom(myScrollPane);
 
         JPanel mainPanel = new JPanel(new BorderLayout(0, JBUI.scale(8)));
         mainPanel.setOpaque(false);
@@ -170,16 +171,15 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
     }
 
     public void scrollToBottom() {
-        JScrollBar verticalScrollBar = myScrollPane.getVerticalScrollBar();
-        verticalScrollBar.setValue(Integer.MAX_VALUE);
+        ScrollingTools.scrollToBottom(myScrollPane);
     }
 
     public void updateLayout() {
         LayoutManager layout = myList.getLayout();
         int componentCount = myList.getComponentCount();
-        for (int i = 0 ; i< componentCount ; i++) {
+        for (int i = 0; i < componentCount; i++) {
             layout.removeLayoutComponent(myList.getComponent(i));
-            layout.addLayoutComponent(null,myList.getComponent(i));
+            layout.addLayoutComponent(null, myList.getComponent(i));
         }
     }
 
@@ -209,27 +209,6 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
     @Override
     public boolean isNull() {
         return !isVisible();
-    }
-
-    static class MyAdjustmentListener implements AdjustmentListener {
-
-        @Override
-        public void adjustmentValueChanged(AdjustmentEvent e) {
-            JScrollBar source = (JScrollBar) e.getSource();
-            if (!source.getValueIsAdjusting()) {
-                source.setValue(source.getMaximum());
-            }
-        }
-    }
-
-    public void addScrollListener() {
-        myScrollPane.getVerticalScrollBar().
-                addAdjustmentListener(scrollListener);
-    }
-
-    public void removeScrollListener() {
-        myScrollPane.getVerticalScrollBar().
-                removeAdjustmentListener(scrollListener);
     }
 
     @Override

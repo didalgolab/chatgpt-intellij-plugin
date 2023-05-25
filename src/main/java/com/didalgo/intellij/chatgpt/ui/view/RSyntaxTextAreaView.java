@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Mariusz Bernacki <consulting@didalgo.com>
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.didalgo.intellij.chatgpt.ui;
+package com.didalgo.intellij.chatgpt.ui.view;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -43,14 +43,14 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.*;
 import java.io.IOException;
 
-public class RSyntaxTextAreaComponentView extends ComponentView {
+public class RSyntaxTextAreaView extends ComponentView {
 
-    private static final Logger log = LoggerFactory.getLogger(RSyntaxTextAreaComponentView.class);
+    private static final Logger log = LoggerFactory.getLogger(RSyntaxTextAreaView.class);
     private static Theme defaultTheme;
 
     private Language language;
 
-    public RSyntaxTextAreaComponentView(Element element, Language language) {
+    public RSyntaxTextAreaView(Element element, Language language) {
         super(element);
         this.language = language;
     }

@@ -21,9 +21,9 @@ public final class ChatCompletionRequestProvider {
         return ChatCompletionRequest
                 .builder()
                 .temperature(0.35)
-                .topP(0.35)
+                .topP(0.95)
                 .model(model.modelName())
-                .messages(ctx.getChatMessages(model))
+                .messages(ctx.getChatMessages(model, userMessage))
                 .logitBias(new TreeMap<>());
     }
 }

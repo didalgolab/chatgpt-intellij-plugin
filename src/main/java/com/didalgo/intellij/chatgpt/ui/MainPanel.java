@@ -127,10 +127,7 @@ public class MainPanel implements ChatMessageListener {
     public void exchangeStarted(ChatMessageEvent.Started event) {
         setRequestHolder(event.getSubscription());
 
-        SwingUtilities.invokeLater(() -> {
-            contentPanel.updateLayout();
-            contentPanel.scrollToBottom();
-        });
+        SwingUtilities.invokeLater(contentPanel::updateLayout);
     }
 
     protected boolean presetCheck() {
@@ -163,8 +160,9 @@ public class MainPanel implements ChatMessageListener {
 
     @Override
     public void responseArrived(ChatMessageEvent.ResponseArrived event) {
-        aroundRequest(false);
-        contentPanel.scrollToBottom();
+        SwingUtilities.invokeLater(() -> {
+            aroundRequest(false);
+        });
     }
 
     @Override
@@ -188,8 +186,10 @@ public class MainPanel implements ChatMessageListener {
             return;
         }
         answer.setErrorContent("*Response failure*, cause: " + event.getCause().getMessage() + ", please try again.\n\n Tips: if proxy is enabled, please check if the proxy server is working.");
-        aroundRequest(false);
-        contentPanel.scrollToBottom();
+        SwingUtilities.invokeLater(() -> {
+            aroundRequest(false);
+            contentPanel.scrollToBottom();
+        });
     }
 
     public Project getProject() {
@@ -217,13 +217,11 @@ public class MainPanel implements ChatMessageListener {
         progressBar.setVisible(status);
         button.setEnabled(!status);
         if (status) {
-            contentPanel.addScrollListener();
             actionPanel.remove(button);
-            actionPanel.add(stopGenerating,BorderLayout.EAST);
+            actionPanel.add(stopGenerating, BorderLayout.EAST);
         } else {
-            contentPanel.removeScrollListener();
             actionPanel.remove(stopGenerating);
-            actionPanel.add(button,BorderLayout.EAST);
+            actionPanel.add(button, BorderLayout.EAST);
         }
         actionPanel.revalidate();
         actionPanel.repaint();

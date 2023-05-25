@@ -5,6 +5,10 @@
 package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.text.TextFragment;
+import com.didalgo.intellij.chatgpt.ui.view.JButtonView;
+import com.didalgo.intellij.chatgpt.ui.view.RSyntaxTextAreaEnclosingView;
+import com.didalgo.intellij.chatgpt.ui.view.RSyntaxTextAreaView;
+import com.didalgo.intellij.chatgpt.ui.view.ViewUtils;
 import com.didalgo.intellij.chatgpt.util.Language;
 import com.didalgo.intellij.chatgpt.util.StandardLanguage;
 import com.intellij.util.ui.ExtendableHTMLViewFactory;
@@ -14,6 +18,7 @@ import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.HTML;
 import java.awt.*;
@@ -34,11 +39,71 @@ public class MessagePanel extends HtmlPanel {
         Object elementName = attrs.getAttribute(AbstractDocument.ElementNameAttribute);
         Object o = (elementName != null) ? null : attrs.getAttribute(StyleConstants.NameAttribute);
 
+        if (ViewUtils.containsSyntaxTextAreaView(view)) {
+            return new RSyntaxTextAreaEnclosingView(view);
+        }
+
+        String elementText = getElementText(elem);
+        if (elementText.equals("[Selected code]")) {
+
+            JButton button = new JButton(elementText);
+            button.setOpaque(false);
+            button.setEnabled(false);
+            button.setToolTipText("```java\n    aaaa\n```".replace("\n", "<br>").replace(" ", "&nbsp;"));
+            return new JButtonView(elem, button);
+        }
+
         if (attrs.getAttribute(StyleConstants.NameAttribute) == HTML.Tag.PRE) {
-            return new RSyntaxTextAreaComponentView(elem, getLanguage(elem).orElse(StandardLanguage.NONE));
+            String startTag = getCodeBlockStartTag(elem);
+            if (startTag.equals("[Selected code]") || startTag.equals("[//]: # (Selected code)") || startTag.contains("Selected code")) {
+                JButton button = new JButton(startTag);
+                button.setOpaque(false);
+                button.setEnabled(false);
+                button.setToolTipText("```java\n    aaaa\n```".replace("\n", "<br>").replace(" ", "&nbsp;"));
+                //return new JButtonView(elem, button);
+            }
+
+            return new RSyntaxTextAreaView(elem, getLanguage(elem).orElse(StandardLanguage.NONE));
+        }
+
+        for (int i = 0; i < view.getViewCount(); i++) {
+            if (view.getView(i) instanceof RSyntaxTextAreaView) {
+                "FOUND SYNTAXTESTAREA".toString();
+            }
+        }
+        if (HTML.Tag.HTML.equals(o)) {
+            "".toString();
         }
 
         return view;
+    }
+
+    private boolean isSelectedCode(String startTag) {
+        return startTag.equals("[Selected code]");
+    }
+
+    private String getCodeBlockStartTag(Element block) {
+        Element parent = block.getParentElement();
+        try {
+            for (int i = 1; i < parent.getElementCount(); i++)
+                if (parent.getElement(i) == block) {
+                    Element previousSibling = parent.getElement(i - 1);
+                    Document document = previousSibling.getDocument();
+                    return document.getText(previousSibling.getStartOffset(), previousSibling.getEndOffset()).strip();
+                }
+        } catch (BadLocationException ignore) {
+            return "";
+        }
+        return "";
+    }
+
+    private String getElementText(Element elem) {
+        try {
+            Document document = elem.getDocument();
+            return document.getText(elem.getStartOffset(), elem.getEndOffset()).strip();
+        } catch (BadLocationException ignore) {
+            return "";
+        }
     }
 
     protected Optional<Language> getLanguage(Element elem) {

@@ -24,5 +24,5 @@ public interface ConversationContext {
 
     ModelType getModelType();
 
-    List<ChatMessage> getChatMessages(ModelType model);
+    List<ChatMessage> getChatMessages(ModelType model, ChatMessage userMessage);
 }

@@ -18,8 +18,8 @@ public class ActionsUtil {
         AnAction existingActionGroup = actionManager.getAction("ActionGroup2");
         if (existingActionGroup instanceof DefaultActionGroup group) {
             group.removeAll();
-            group.add(new CustomPromptAction());
             group.add(new TokenCountAction());
+            group.add(new CustomPromptAction());
             group.addSeparator();
             group.add(new ExplainAction());
             group.add(new FindBugAction());

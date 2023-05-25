@@ -88,7 +88,7 @@ public class ChatLinkState implements ConversationContext {
     }
 
     @Override
-    public List<ChatMessage> getChatMessages(ModelType model) {
+    public List<ChatMessage> getChatMessages(ModelType model, ChatMessage userMessage) {
         var chatMessages = new LinkedList<ChatMessage>();
 
         // First add current system message

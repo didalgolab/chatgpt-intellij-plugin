@@ -86,7 +86,10 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
         private volatile boolean enableTokenConsumption = true;
         private volatile boolean enableGPT35StreamResponse = true;
         private volatile boolean enableCustomizeGpt35TurboUrl = false;
-        private volatile String gpt35TurboUrl = "https://api.openai.com/v1/chat/completions";
+        private volatile String gpt35TurboUrl = DEFAULT_API_ENDPOINT;
+        private volatile List<String> apiEndpointUrlHistory = List.of(gpt35TurboUrl);
+
+        private static final String DEFAULT_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
         @Override
         public int hashCode() {

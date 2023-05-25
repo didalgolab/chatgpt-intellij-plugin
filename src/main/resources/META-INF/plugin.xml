@@ -6,6 +6,14 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>
 
+    <extensionPoints>
+        <extensionPoint name="chatGptExtension" interface="com.didalgo.intellij.chatgpt.ChatGptExtension" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.didalgo.chatgpt">
+        <chatGptExtension implementation="com.didalgo.intellij.chatgpt.extensions.IdeScriptingExtension"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
                     factoryClass="com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory"/>
@@ -25,6 +33,8 @@
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer" serviceImplementation="com.didalgo.intellij.chatgpt.ui.TextEditorSelectionAwareSnippetizer"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.OpenAISettingsState"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.ChatGptHandler"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.spi.OpenAiServiceFactory"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.spi.OpenAiServiceProviderRegistry"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.jshell.DirectJShellService" serviceInterface="com.didalgo.intellij.chatgpt.jshell.JShellHandle"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
         <postStartupActivity implementation="com.didalgo.intellij.chatgpt.core.StartUpActivity"/>

@@ -20,6 +20,7 @@ import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.util.ui.*;
 import com.didalgo.intellij.chatgpt.ChatGptIcons;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,37 +45,38 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
     private TextFragment text;
 
-    public MessageComponent(TextFragment text, boolean me) {
+    public MessageComponent(TextFragment text, boolean fromUser) {
         this.text = text;
         setDoubleBuffered(true);
         setOpaque(true);
-        setBackground(me ? new JBColor(0xEAEEF7, 0x45494A) : new JBColor(0xE0EEF7, 0x2d2f30 /*2d2f30*/));
-        setBackground(me ? new JBColor(0xF7F7F7, 0x3C3F41) : new JBColor(0xEBEBEB, 0x4C4E50 /*2d2f30*/));
-        setBorder(JBUI.Borders.empty(10, 10, 10, 0));
+        setBackground(fromUser ? new JBColor(0xEAEEF7, 0x45494A) : new JBColor(0xE0EEF7, 0x2d2f30 /*2d2f30*/));
+        setBackground(fromUser ? new JBColor(0xF7F7F7, 0x3C3F41) : new JBColor(0xEBEBEB, 0x4C4E50 /*2d2f30*/));
+        setBorder(JBUI.Borders.empty(JBUI.scale(4), JBUI.scale(1)));
         setLayout(new BorderLayout(JBUI.scale(2), 0));
 
         if (OpenAISettingsState.getInstance().isEnableAvatar()) {
             JPanel iconPanel = new JPanel(new BorderLayout());
+            iconPanel.setBorder(JBUI.Borders.empty(JBUI.scale(7), JBUI.scale(7), JBUI.scale(7), 0));
             iconPanel.setOpaque(false);
             Image imageIcon;
             try {
-                imageIcon = me ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.OPEN_AI);
+                imageIcon = fromUser ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.OPEN_AI);
             } catch (Exception e) {
-                imageIcon = me ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.AI);
+                imageIcon = fromUser ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.AI);
             }
             Image scale = ImageUtil.scaleImage(imageIcon, 30, 30);
             iconPanel.add(new JBLabel(new ImageIcon(scale)), BorderLayout.NORTH);
             add(iconPanel, BorderLayout.WEST);
         }
-        JPanel centerPanel = new JPanel(new VerticalLayout(JBUI.scale(8)));
+        JPanel centerPanel = new JPanel(new VerticalLayout(JBUI.scale(0)));
         centerPanel.setOpaque(false);
         centerPanel.setBorder(JBUI.Borders.emptyLeft(JBUI.scale(5)));
-        centerPanel.add(createContentComponent(text));
+        centerPanel.add(createContentComponent(text, fromUser));
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setOpaque(false);
-        actionPanel.setBorder(JBUI.Borders.emptyRight(JBUI.scale(12)));
+        actionPanel.setBorder(JBUI.Borders.empty(JBUI.scale(7), 0, 0, JBUI.scale(10)));
         JLabel copyAction = new JLabel(AllIcons.Actions.Copy);
         copyAction.setCursor(new Cursor(Cursor.HAND_CURSOR));
         copyAction.addMouseListener(new MouseAdapter() {
@@ -85,7 +87,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
                 Notifications.Bus.notify(
                         new Notification(ChatGptBundle.message("group.id"),
                                 "Copied successfully",
-                                "ChatGPT " + (me? "prompt":"reply") + " content has been successfully copied to the clipboard.",
+                                "ChatGPT " + (fromUser? "prompt":"reply") + " content has been successfully copied to the clipboard.",
                                 NotificationType.INFORMATION));
             }
         });
@@ -97,9 +99,17 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         return text;
     }
 
-    public Component createContentComponent(TextFragment content) {
+    public String toDisplayText(TextFragment text, boolean fromUser) {
+        if (!fromUser)
+            return text.toHtml();
 
-        component.setEditable(false);
+        return StringEscapeUtils.escapeHtml(text.markdown())
+                .replace("\n", "<br>")
+                .replace("\r", "");
+    }
+
+    public Component createContentComponent(TextFragment content, boolean fromUser) {
+
         component.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, java.lang.Boolean.TRUE);
         component.setContentType("text/html; charset=UTF-8");
         component.setOpaque(false);
@@ -107,9 +117,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
         configureHtmlEditorKit2(component, false);
         component.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, getText().markdown());
-
-        component.updateMessage(content);
-
+        component.updateMessage(fromUser? TextFragment.of(content.markdown(), toDisplayText(content, true)) : content);
         component.setEditable(false);
         if (component.getCaret() != null) {
             component.setCaretPosition(0);
@@ -124,18 +132,15 @@ public class MessageComponent extends JBPanel<MessageComponent> {
     public void configureHtmlEditorKit2(@NotNull JEditorPane editorPane, boolean notificationColor) {
         HTMLEditorKit kit = new HTMLEditorKitBuilder()
                 .withViewFactoryExtensions((e, v) -> component.createView(e, v), ExtendableHTMLViewFactory.Extensions.WORD_WRAP)
-                .withFontResolver(new CSSFontResolver() {
-            @Override
-            public @NotNull Font getFont(@NotNull Font defaultFont, @NotNull AttributeSet attributeSet) {
-                if ("a".equalsIgnoreCase(String.valueOf(attributeSet.getAttribute(AttributeSet.NameAttribute)))) {
-                    return UIUtil.getLabelFont();
-                }
-                return defaultFont;
-            }
-        }).build();
+                .withFontResolver((defaultFont, attributeSet) -> {
+                    if ("a".equalsIgnoreCase(String.valueOf(attributeSet.getAttribute(AttributeSet.NameAttribute))))
+                        return UIUtil.getLabelFont();
+                    else
+                        return defaultFont;
+                }).build();
         String color = ColorUtil.toHtmlColor(notificationColor ? getLinkButtonForeground() : JBUI.CurrentTheme.Link.Foreground.ENABLED);
         kit.getStyleSheet().addRule("a {color: " + color + "}");
-        kit.getStyleSheet().addRule("p {margin:0 0 7px 0}");
+        kit.getStyleSheet().addRule("p {margin:4px 0}");
         editorPane.setEditorKit(kit);
     }
 
@@ -172,12 +177,5 @@ public class MessageComponent extends JBPanel<MessageComponent> {
             LOG.error("ChatGPT Exception in processing response: response: {}, error: {}", message, e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public void scrollToBottom() {
-        SwingUtilities.invokeLater(() -> {
-            Rectangle bounds = getBounds();
-            scrollRectToVisible(bounds);
-        });
     }
 }

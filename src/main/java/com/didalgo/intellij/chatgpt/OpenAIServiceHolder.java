@@ -4,12 +4,10 @@
  */
 package com.didalgo.intellij.chatgpt;
 
-import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
-import com.didalgo.intellij.chatgpt.text.encryption.AES;
+import com.didalgo.intellij.chatgpt.spi.OpenAiServiceFactory;
+import com.intellij.openapi.application.ApplicationManager;
 import com.theokanning.openai.service.OpenAiService;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +27,8 @@ public class OpenAIServiceHolder {
         services.forEach(OpenAiService::shutdownExecutor);
     }
 
-    protected static OpenAiService createOpenAiService(String category) {
-        var globalSettings = OpenAISettingsState.getInstance();
-        var modelConfiguration = globalSettings.getConfigForCategory(category);
-
-        return new OpenAiService(AES.decrypt(modelConfiguration.getApiKey()),
-                Duration.of(Long.parseLong(globalSettings.getReadTimeout()), ChronoUnit.MILLIS));
+    protected static OpenAiService createOpenAiService(String group) {
+        return ApplicationManager.getApplication().getService(OpenAiServiceFactory.class)
+                .create(group);
     }
 }

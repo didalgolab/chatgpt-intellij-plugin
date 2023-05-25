@@ -8,8 +8,10 @@ import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.OpenAIServiceHolder;
 import com.didalgo.intellij.chatgpt.text.encryption.AES;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +34,9 @@ public class GPT3_35_TurboPanel implements Configurable {
     private JLabel tokenLabel;
     private JPanel urlTitledBox;
     private JCheckBox enableCustomizeGpt35TurboUrlCheckBox;
-    private JTextField customizeServerField;
+    private TextFieldWithHistory customizeServerField;
     private JPanel customizeServerOptions;
+    private JLabel apiEndpointLabel;
 
 
     public GPT3_35_TurboPanel() {
@@ -56,6 +59,7 @@ public class GPT3_35_TurboPanel implements Configurable {
 
     private void enableCustomizeServerOptions(boolean enabled) {
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
+        apiEndpointLabel.setEnabled(false);
     }
 
     @Override
@@ -68,6 +72,7 @@ public class GPT3_35_TurboPanel implements Configurable {
         enableTokenConsumptionCheckBox.setSelected(config.isEnableTokenConsumption());
         enableStreamResponseCheckBox.setSelected(config.isEnableGPT35StreamResponse());
         enableCustomizeGpt35TurboUrlCheckBox.setSelected(config.isEnableCustomizeGpt35TurboUrl());
+        customizeServerField.setHistory(config.getApiEndpointUrlHistory());
         customizeServerField.setText(config.getGpt35TurboUrl());
     }
 
@@ -102,6 +107,9 @@ public class GPT3_35_TurboPanel implements Configurable {
         config.setEnableGPT35StreamResponse(enableStreamResponseCheckBox.isSelected());
         config.setEnableCustomizeGpt35TurboUrl(enableCustomizeGpt35TurboUrlCheckBox.isSelected());
         config.setGpt35TurboUrl(customizeServerField.getText());
+        if (!config.getApiEndpointUrlHistory().contains(config.getGpt35TurboUrl()))
+            customizeServerField.addCurrentTextToHistory();
+        config.setApiEndpointUrlHistory(customizeServerField.getHistory());
         OpenAIServiceHolder.refresh();
     }
 
@@ -125,10 +133,15 @@ public class GPT3_35_TurboPanel implements Configurable {
     }
 
     private void initHelp() {
-        contextLabel.setFont(JBUI.Fonts.smallFont());
-        contextLabel.setForeground(UIUtil.getContextHelpForeground());
+        JBFont smallFont = JBUI.Fonts.smallFont();
+        Color smallFontForeground = UIUtil.getContextHelpForeground();
+        contextLabel.setFont(smallFont);
+        contextLabel.setForeground(smallFontForeground);
 
-        tokenLabel.setFont(JBUI.Fonts.smallFont());
-        tokenLabel.setForeground(UIUtil.getContextHelpForeground());
+        tokenLabel.setFont(smallFont);
+        tokenLabel.setForeground(smallFontForeground);
+
+        apiEndpointLabel.setFont(smallFont);
+        apiEndpointLabel.setForeground(smallFontForeground);
     }
 }
