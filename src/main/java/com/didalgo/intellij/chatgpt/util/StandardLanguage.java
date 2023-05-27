@@ -53,7 +53,7 @@ public enum StandardLanguage implements Language {
     PERL(List.of("perl", "pl"), "text/perl", List.of("pl", "pm")),
     PHP(List.of("php"), "text/php", List.of("php")),
     PROTO(List.of("proto"), "text/proto", List.of("proto")),
-    PROPERTIES_FILE(List.of("properties_file"), "text/properties", List.of("properties")),
+    PROPERTIES_FILE(List.of("properties"), "text/properties", List.of("properties")),
     PYTHON(List.of("python", "py"), "text/python", List.of("py")),
     RUBY(List.of("ruby", "rb", "jruby", "macruby", "rake", "rbx"), "text/ruby", List.of("rb")),
     SAS(List.of("sas"), "text/sas", List.of("sas")),
@@ -61,9 +61,9 @@ public enum StandardLanguage implements Language {
     SQL(List.of("sql", "cql", "mssql", "mysql", "plsql", "postgres", "postgresql", "pgsql", "sqlite"), "text/sql", List.of("sql")),
     TCL(List.of("tcl"), "text/tcl", List.of("tcl")),
     TYPESCRIPT(List.of("typescript", "ts"), "text/typescript", List.of("ts")),
-    UNIX_SHELL(List.of("unix_shell", "bash", "sh", "shell", "zsh"), "text/unix", List.of("sh")),
-    VISUAL_BASIC(List.of("visual_basic"), "text/vb", List.of("vb")),
-    WINDOWS_BATCH(List.of("windows_batch"), "text/bat", List.of("bat", "cmd")),
+    UNIX_SHELL(List.of("sh", "bash", "shell", "zsh"), "text/unix", List.of("sh", "ksh", "bash")),
+    VISUAL_BASIC(List.of("vbnet"), "text/vb", List.of("vb")),
+    WINDOWS_BATCH(List.of("batch", "bat"), "text/bat", List.of("bat", "cmd")),
     XML(List.of("xml"), "text/xml", List.of("xml")),
     YAML(List.of("yaml", "yml"), "text/yaml", List.of("yml", "yaml"));
 

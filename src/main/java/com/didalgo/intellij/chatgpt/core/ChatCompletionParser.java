@@ -21,18 +21,4 @@ public class ChatCompletionParser {
         parseResult.toHtml(); // pre-compute and cache HTML content in the current thread
         return parseResult;
     }
-
-    public static class ParseResult {
-        private String markdown;
-        private String html;
-
-        public String getMarkdown() {
-            return markdown;
-        }
-
-        public String getHtml() {
-            return html;
-        }
-    }
-
 }

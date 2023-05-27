@@ -14,7 +14,7 @@ public interface ConversationContext {
 
     void clear();
 
-    String getGroup();
+    String getModelPage();
 
     List<CodeFragment> getLastPostedCodeFragments();
 

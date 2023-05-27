@@ -27,9 +27,9 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.AnActionButton;
 import com.intellij.util.IconUtil;
+import com.intellij.util.ui.JBUI;
 import com.vladsch.flexmark.util.sequence.Escaping;
 import org.fife.ui.rsyntaxtextarea.*;
-import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -75,11 +75,11 @@ public class RSyntaxTextAreaView extends ComponentView {
 
     protected void updateText() {
         Component comp = getComponent();
-        if (comp instanceof RTextScrollPane scrollPane)
-            updateText(scrollPane.getTextArea());
+        if (comp instanceof RTextScrollPane scrollPane && scrollPane.getTextArea() instanceof RSyntaxTextArea textArea)
+            updateText(scrollPane, textArea);
     }
 
-    protected void updateText(RTextArea textArea) {
+    protected void updateText(RTextScrollPane scrollPane, RSyntaxTextArea textArea) {
         try {
             textArea.setText(getText());
         } catch (BadLocationException e) {
@@ -130,9 +130,17 @@ public class RSyntaxTextAreaView extends ComponentView {
         Theme theme = getDefaultTheme();
         if (theme != null)
             theme.apply(textArea);
-        updateText(textArea);
 
-        RTextScrollPane scrollPane = new RTextScrollPane(textArea);
+        RTextScrollPane scrollPane = new RTextScrollPane(textArea) {
+            @Override
+            public Dimension getPreferredSize() {
+                Container cont = RSyntaxTextAreaView.this.getContainer();
+                if (cont != null && (getWidth() == 0 || getWidth() > cont.getWidth())) {
+                    setSize(RSyntaxTextAreaView.this.getContainer().getWidth(), Integer.MAX_VALUE / 2);
+                }
+                return textArea.getUI().getPreferredSize(this);
+            }
+        };
         scrollPane.setLineNumbersEnabled(false);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(6, 0, 5, 0));
@@ -143,7 +151,7 @@ public class RSyntaxTextAreaView extends ComponentView {
 
         Icon icon1 = IconUtil.scale(IconLoader.getIcon("/icons/expui/action/copy_dark.svg", RSyntaxTextArea.class), null, 1.25f);
         JButton copyAction = new JButton(icon1);
-        copyAction.setMargin(new Insets(0, 0, 0, 0));
+        copyAction.setMargin(JBUI.emptyInsets());
         copyAction.setCursor(new Cursor(Cursor.HAND_CURSOR));
         copyAction.setFocusable(false);
 
@@ -183,6 +191,7 @@ public class RSyntaxTextAreaView extends ComponentView {
             }
         });
 
+        updateText(scrollPane, textArea);
         return scrollPane;
     }
 

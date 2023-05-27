@@ -43,7 +43,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
     private final MessagePanel component = new MessagePanel();
 
-    private TextFragment text;
+    private volatile TextFragment text;
 
     public MessageComponent(TextFragment text, boolean fromUser) {
         this.text = text;
@@ -103,9 +103,28 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         if (!fromUser)
             return text.toHtml();
 
-        return StringEscapeUtils.escapeHtml(text.markdown())
-                .replace("\n", "<br>")
-                .replace("\r", "");
+        String markdown = text.markdown();
+        StringBuilder buf = new StringBuilder(markdown.length());
+        char ch;
+        boolean onLineStart = true;
+        for (int i = 0; i < markdown.length(); i++) {
+            switch (ch = markdown.charAt(i)) {
+                case '\r' -> { }
+                case '\n' -> {
+                    onLineStart = true;
+                    buf.append("<br>");
+                }
+                default -> {
+                    if (onLineStart && Character.isWhitespace(ch)) {
+                        buf.append("&nbsp;");
+                    } else {
+                        onLineStart = false;
+                        buf.append(ch);
+                    }
+                }
+            }
+        }
+        return buf.toString();
     }
 
     public Component createContentComponent(TextFragment content, boolean fromUser) {

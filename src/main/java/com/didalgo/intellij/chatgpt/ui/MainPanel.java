@@ -20,7 +20,6 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
@@ -31,7 +30,6 @@ import org.reactivestreams.Subscription;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
@@ -109,13 +107,13 @@ public class MainPanel implements ChatMessageListener {
         }
 
         TextFragment userMessage = TextFragment.of(event.getUserMessage().getContent());
+        question = new MessageComponent(userMessage, true);
+        answer = new MessageComponent(TextFragment.of("Thinking..."), false);
         SwingUtilities.invokeLater(() -> {
             setSearchText("");
             aroundRequest(true);
 
             MessageGroupComponent contentPanel = getContentPanel();
-            question = new MessageComponent(userMessage,true);
-            answer = new MessageComponent(TextFragment.of("Thinking..."),false);
             contentPanel.add(question);
             contentPanel.add(answer);
         });
@@ -132,13 +130,13 @@ public class MainPanel implements ChatMessageListener {
 
     protected boolean presetCheck() {
         OpenAISettingsState instance = OpenAISettingsState.getInstance();
-        String group = getChatLink().getConversationContext().getGroup();
-        if (com.didalgo.intellij.chatgpt.util.StringUtil.isEmpty(instance.getConfigForCategory(group).getApiKey())) {
+        String page = getChatLink().getConversationContext().getModelPage();
+        if (com.didalgo.intellij.chatgpt.util.StringUtil.isEmpty(instance.getConfigForPage(page).getApiKey())) {
             Notification notification = new Notification(ChatGptBundle.message("group.id"),
                     ChatGptBundle.message("notify.config.title"),
                     ChatGptBundle.message("notify.config.text"),
                     NotificationType.ERROR);
-            notification.addAction(new SettingsAction(ChatGptBundle.message("notify.config.action.config"), OpenAISettingsPanel.getTargetPanelClassForCategory(group)));
+            notification.addAction(new SettingsAction(ChatGptBundle.message("notify.config.action.config"), OpenAISettingsPanel.getTargetPanelClassForPage(page)));
             notification.addAction(new BrowseNotificationAction(ChatGptBundle.message("notify.config.action.browse"), ChatGptBundle.message("notify.config.action.browse.url")));
             Notifications.Bus.notify(notification);
             return false;
@@ -151,10 +149,9 @@ public class MainPanel implements ChatMessageListener {
         try {
             TextFragment parseResult = ChatCompletionParser.
                     parseGPT35TurboWithStream(event.getPartialResponseChoices());
-
-            SwingUtilities.invokeLater(() -> answer.setContent(parseResult));
+            answer.setContent(parseResult);
         } catch (Exception e) {
-            SwingUtilities.invokeLater(() -> answer.setErrorContent(e.getMessage()));
+            answer.setErrorContent(e.getMessage());
         }
     }
 

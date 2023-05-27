@@ -147,8 +147,8 @@ public class ChatLinkState implements ConversationContext {
     }
 
     @Override
-    public String getGroup() {
-        return getModelConfiguration().getGroup();
+    public String getModelPage() {
+        return getModelConfiguration().getFacetName();
     }
 
     @Override

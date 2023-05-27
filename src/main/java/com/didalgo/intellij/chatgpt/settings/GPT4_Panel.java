@@ -33,8 +33,9 @@ public class GPT4_Panel implements Configurable {
     private JLabel tokenLabel;
     private JPanel urlTitledBox;
     private JCheckBox enableCustomizeGpt4UrlCheckBox;
-    private JTextField customizeServerField;
+    private com.intellij.ui.TextFieldWithHistory customizeServerField;
     private JPanel customizeServerOptions;
+    private JLabel apiEndpointLabel;
 
 
     public GPT4_Panel() {

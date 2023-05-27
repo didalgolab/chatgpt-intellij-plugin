@@ -27,129 +27,71 @@ public class ChatGptHandler {
             Line 3
             
             [Selected code]
-            ```java
-            for (int i = 0; i < 10; i++) {
-                System.out.println("2+2=5");
-                System.out.println("2+2=6");
-                System.out.println("2+2=7");
-                System.out.println("2+2=8");
-                System.out.println("2+2=9");
-                System.out.println("2+2=10");
-                System.out.println("2+2=11");
-                System.out.println("2+2=12");
-                System.out.println("2+2=13");
-                System.out.println("2+2=14");
-                System.out.println("2+2=15");
-                System.out.println("2+2=16");
-                System.out.println("2+2=17");
-                System.out.println("2+2=18");
-                System.out.println("2+2=19");
-                System.out.println("2+2=20");
-                System.out.println("2+2=21");
-                System.out.println("2+2=22");
-                System.out.println("2+2=23");
-                System.out.println("2+2=24");
-                System.out.println("2+2=25");
-                System.out.println("2+2=26");
-                System.out.println("2+2=27");
-                System.out.println("2+2=28");
-                System.out.println("2+2=29");
-                System.out.println("2+2=30");
-                System.out.println("2+2=31");
-                System.out.println("2+2=32");
-                System.out.println("2+2=33");
-                System.out.println("2+2=34");
-                System.out.println("2+2=35");
-                System.out.println("2+2=36");
-                System.out.println("2+2=37");
-                System.out.println("2+2=38");
-                System.out.println("2+2=39");
-                System.out.println("2+2=40");
-                System.out.println("2+2=41");
-                System.out.println("2+2=42");
-                System.out.println("2+2=43");
-                System.out.println("2+2=44");
-                System.out.println("2+2=45");
-                System.out.println("2+2=46");
-                System.out.println("2+2=47");
-                System.out.println("2+2=48");
-                System.out.println("2+2=49");
-                System.out.println("2+2=50");
-                System.out.println("2+2=51");
-                System.out.println("2+2=52");
-                System.out.println("2+2=53");
-                System.out.println("2+2=54");
-                System.out.println("2+2=55");
-                System.out.println("2+2=56");
-                System.out.println("2+2=57");
-                System.out.println("2+2=58");
-                System.out.println("2+2=59");
-                System.out.println("2+2=60");
-                System.out.println("2+2=61");
-                System.out.println("2+2=62");
-                System.out.println("2+2=63");
-                System.out.println("2+2=64");
-                System.out.println("2+2=65");
-                System.out.println("2+2=66");
-                System.out.println("2+2=67");
-                System.out.println("2+2=68");
-                System.out.println("2+2=69");
-                System.out.println("2+2=70");
-                System.out.println("2+2=71");
-                System.out.println("2+2=72");
-                System.out.println("2+2=73");
-                System.out.println("2+2=74");
-                System.out.println("2+2=75");
-                System.out.println("2+2=76");
-                System.out.println("2+2=77");
-                System.out.println("2+2=78");
-                System.out.println("2+2=79");
-                System.out.println("2+2=80");
-                System.out.println("2+2=81");
-                System.out.println("2+2=82");
-                System.out.println("2+2=83");
-                System.out.println("2+2=84");
-                System.out.println("2+2=85");
-                System.out.println("2+2=86");
-                System.out.println("2+2=87");
-                System.out.println("2+2=88");
-                System.out.println("2+2=89");
-                System.out.println("2+2=90");
-                System.out.println("2+2=91");
-                System.out.println("2+2=92");
-                System.out.println("2+2=93");
-                System.out.println("2+2=94");
-                System.out.println("2+2=95");
-                System.out.println("2+2=96");
-                System.out.println("2+2=97");
-                System.out.println("2+2=98");
-                System.out.println("2+2=99");
-                System.out.println("2+2=100");
-            }
+            ```properties
+            # Gradle Releases -> https://github.com/gradle/gradle/releases
+            gradleVersion = 7.6
+            
+            # IntelliJ Platform Artifacts Repositories
+            # -> https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
+            pluginGroup = com.didalgo.chatgpt
+            pluginName = ChatGPT Tools
+            pluginSinceBuild = 222.2680.4
+            pluginUntilBuild = 231.*
+            pluginVersion = 0.1.15-222.231
+            
+            # IntelliJ Platform Properties -> https://github.com/JetBrains/gradle-intellij-plugin#intellij-platform-properties
+            # 'IC' - IntelliJ IDEA Community Edition.
+            # 'IU' - IntelliJ IDEA Ultimate Edition.
+            # 'CL' - CLion.
+            # 'PY' - PyCharm Professional Edition.
+            # 'PC' - PyCharm Community Edition.
+            # 'RD' - Rider.
+            # 'GO' - GoLand.
+            # 'JPS' - JPS-only.
+            platformDownloadSources = true
+            platformPlugins = org.intellij.plugins.markdown
+            platformType = IC
+            platformVersion = 2023.1
+            
+            # Opt-out flag for bundling Kotlin standard library.
+            # See https://plugins.jetbrains.com/docs/intellij/kotlin.html#kotlin-standard-library for details.
+            # suppress inspection "UnusedProperty"
+            kotlin.stdlib.default.dependency = false
+            
+            # Java language level used to compile sources and to generate the files for - Java 11 is required since 2020.3
+            javaVersion = 17
+            
+            org.gradle.jvmargs = '-Dfile.encoding=UTF-8'
             ```
-            """.strip();
+            """.repeat(1).strip();
 
     private Flowable<ChatCompletionChunk> streamTestChatCompletion(String markdown) {
         if (markdown == null || markdown.isEmpty()) {
-            throw new IllegalArgumentException("Hey, buddy, you can't pass a null or empty markdown. What are you trying to pull?");
+            throw new IllegalArgumentException("Hej, ziomeczku, nie możesz przekazać pustego lub nullowego markdownu. Co próbujesz osiągnąć?");
         }
 
         return Flowable.range(0, markdown.length())
-                .concatMap(index -> Flowable.just(markdown.charAt(index))
-                        .map(character -> {
-                            ChatCompletionChunk chunk = new ChatCompletionChunk();
-                            ChatCompletionChoice choice = new ChatCompletionChoice();
-                            choice.setIndex(0);
-                            choice.setMessage(new ChatMessage(ChatMessageRole.ASSISTANT.value(), String.valueOf(character)));
-                            chunk.setChoices(Collections.singletonList(choice));
-                            return chunk;
-                        })
-                        .delay(10, TimeUnit.MILLISECONDS, Schedulers.computation())
-                );
+                .buffer(5)
+                .concatMap(indices -> {
+                    int startIndex = indices.get(0);
+                    int endIndex = indices.get(indices.size() - 1) + 1;
+                    String chunk = markdown.substring(startIndex, endIndex);
+                    ChatCompletionChunk completionChunk = new ChatCompletionChunk();
+                    List<ChatCompletionChoice> choices = new ArrayList<>();
+                        ChatCompletionChoice choice = new ChatCompletionChoice();
+                        choice.setIndex(0);
+                        choice.setMessage(new ChatMessage(ChatMessageRole.ASSISTANT.value(), chunk));
+                        choices.add(choice);
+                    completionChunk.setChoices(choices);
+                    return Flowable.just(completionChunk)
+                            .delay(25, TimeUnit.MILLISECONDS, Schedulers.computation())
+                            .observeOn(Schedulers.computation());
+                })
+                .observeOn(Schedulers.computation());
     }
 
     public Flowable<?> handle(ConversationContext ctx, ChatMessageEvent.Started event, ChatMessageListener listener) {
-        var openAiService = OpenAIServiceHolder.getOpenAiService(ctx.getGroup());
+        var openAiService = OpenAIServiceHolder.getOpenAiService(ctx.getModelPage());
         var partialResponseChoices = Collections.synchronizedSortedMap(new TreeMap<Integer, StringBuffer>());
 
         return openAiService.streamChatCompletion(event.getRequest().orElseThrow(() -> new IllegalArgumentException("ChatCompletionRequest is required")))

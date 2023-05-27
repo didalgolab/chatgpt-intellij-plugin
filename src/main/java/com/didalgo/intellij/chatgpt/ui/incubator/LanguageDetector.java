@@ -27,20 +27,4 @@ public class LanguageDetector {
         }
         return "Unknown";
     }
-
-    public static void main(String[] args) {
-        String javaCode = "public class HelloWorld {\n" +
-                "    public static void main(String[] args) {\n" +
-                "        System.out.println(\"Hello, World!\");\n" +
-                "    }\n" +
-                "}";
-
-        String pythonCode = "def hello_world():\n" +
-                "    print(\"Hello, World!\")\n" +
-                "\n" +
-                "hello_world()";
-
-        System.out.println("Java code detected as: " + detectLanguage(javaCode));
-        System.out.println("Python code detected as: " + detectLanguage(pythonCode));
-    }
 }

@@ -58,7 +58,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
         myScrollPane.getVerticalScrollBar().putClientProperty(JBScrollPane.IGNORE_SCROLLBAR_IN_INSETS, Boolean.TRUE);
         ScrollingTools.installAutoScrollToBottom(myScrollPane);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(0, JBUI.scale(8)));
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 0));
         mainPanel.setOpaque(false);
         mainPanel.setBorder(JBUI.Borders.emptyLeft(0));
 
@@ -147,7 +147,6 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
             int value = e.getValue();
             if (myScrollValue == 0 && value > 0 || myScrollValue > 0 && value == 0) {
                 myScrollValue = value;
-                repaint();
             }
             else {
                 myScrollValue = value;
@@ -158,8 +157,6 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
     }
 
     public void add(MessageComponent messageComponent) {
-        // The component should be immediately added to the container and displayed in the UI
-
         SwingUtilities.invokeLater(() -> {
             myList.add(messageComponent);
             updateLayout();

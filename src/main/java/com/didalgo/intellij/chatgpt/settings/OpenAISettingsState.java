@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory;
-import com.didalgo.intellij.chatgpt.ModelCategory;
+import com.didalgo.intellij.chatgpt.ModelPage;
 import com.didalgo.intellij.chatgpt.chat.ChatLinkStateConfiguration;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -50,7 +50,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     private volatile OpenAIConfig gpt35Config;
     private volatile OpenAIConfig gpt4Config;
     @Transient
-    private volatile String currentConfigID = ModelCategory.GPT_3_5;
+    private volatile String activePage = ModelPage.GPT_3_5.name();
 
 
     private volatile List<CustomAction> customActionsPrefix = new CopyOnWriteArrayList<>();
@@ -62,12 +62,12 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     }
 
     public void setGpt35Config(OpenAIConfig gpt35Config) {
-        gpt35Config.group = ModelCategory.GPT_3_5;
+        gpt35Config.facetName = ModelPage.GPT_3_5.name();
         this.gpt35Config = gpt35Config;
     }
 
     public void setGpt4Config(OpenAIConfig gpt4Config) {
-        gpt4Config.group = ModelCategory.GPT_4;
+        gpt4Config.facetName = ModelPage.GPT_4.name();
         this.gpt4Config = gpt4Config;
     }
 
@@ -79,7 +79,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     @Setter
     @Tag("ApiConfig")
     public static class OpenAIConfig implements ChatLinkStateConfiguration {
-        private volatile String group;
+        private volatile String facetName;
         private volatile String apiKey = Optional.ofNullable(System.getenv("OPENAI_API_KEY")).orElse("");
         private volatile String modelName;
         private volatile boolean enableContext = true;
@@ -93,14 +93,14 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
 
         @Override
         public int hashCode() {
-            return Objects.hash(group, apiKey, modelName, enableContext, enableTokenConsumption,
+            return Objects.hash(facetName, apiKey, modelName, enableContext, enableTokenConsumption,
                     enableGPT35StreamResponse, enableCustomizeGpt35TurboUrl, gpt35TurboUrl);
         }
 
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof OpenAIConfig that) {
-                return Objects.equals(group, that.group)
+                return Objects.equals(facetName, that.facetName)
                         && Objects.equals(apiKey, that.apiKey)
                         && Objects.equals(modelName, that.modelName)
                         && Objects.equals(enableContext, that.enableContext)
@@ -112,14 +112,13 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
             return false;
         }
 
-        @Override
         @Transient
-        public final String getGroup() {
-            return group;
+        public final String getFacetName() {
+            return facetName;
         }
 
-        private void setGroup(String group) {
-            this.group = group;
+        private void setFacetName(String facetName) {
+            this.facetName = facetName;
         }
 
         @Override
@@ -137,21 +136,21 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     }
 
     @Transient
-    public OpenAIConfig getConfigForCategory(String category) {
-        return switch (category) {
-            case ModelCategory.GPT_3_5 -> gpt35Config;
-            case ModelCategory.GPT_4 -> gpt4Config;
-            default -> throw new IllegalArgumentException("Invalid category: " + category);
+    public OpenAIConfig getConfigForPage(String page) {
+        return switch (page) {
+            case ModelPage.Of.GPT_3_5 -> gpt35Config;
+            case ModelPage.Of.GPT_4 -> gpt4Config;
+            default -> throw new IllegalArgumentException("Invalid Model Page: " + page);
         };
     }
 
     @Transient
-    public OpenAIConfig getCurrentConfig() {
-        return getConfigForCategory(currentConfigID);
+    public OpenAIConfig getActiveConfig() {
+        return getConfigForPage(activePage);
     }
 
-    public void setCurrentConfigID(String id) {
-        this.currentConfigID = id;
+    public void setActivePage(String page) {
+        this.activePage = page;
     }
 
     @Nullable

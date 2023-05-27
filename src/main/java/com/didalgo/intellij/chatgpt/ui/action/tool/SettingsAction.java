@@ -26,8 +26,12 @@ public class SettingsAction extends DumbAwareAction {
         this.panelToSelect = panelToSelect;
     }
 
+    public Class<? extends Configurable> getPanelToSelect() {
+        return panelToSelect;
+    }
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(e.getProject(), panelToSelect);
+        ShowSettingsUtil.getInstance().showSettingsDialog(e.getProject(), getPanelToSelect());
     }
 }

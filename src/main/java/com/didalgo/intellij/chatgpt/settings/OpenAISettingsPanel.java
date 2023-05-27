@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory;
-import com.didalgo.intellij.chatgpt.ModelCategory;
+import com.didalgo.intellij.chatgpt.ModelPage;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -161,13 +161,13 @@ public class OpenAISettingsPanel implements Configurable {
     /**
      * Returns the appropriate settings panel {@code Class} for the given model category.
      *
-     * @param category the model category to fetch the settings panel for
+     * @param page the model category to fetch the settings panel for
      * @return the appropriate {@code Class} for the settings panel
      */
-    public static Class<? extends Configurable> getTargetPanelClassForCategory(String category) {
-        return switch (category) {
-            case ModelCategory.GPT_3_5 -> GPT3_35_TurboPanel.class;
-            case ModelCategory.GPT_4 -> GPT4_Panel.class;
+    public static Class<? extends Configurable> getTargetPanelClassForPage(String page) {
+        return switch (page) {
+            case ModelPage.Of.GPT_3_5 -> GPT3_35_TurboPanel.class;
+            case ModelPage.Of.GPT_4 -> GPT4_Panel.class;
             default -> OpenAISettingsPanel.class;
         };
     }

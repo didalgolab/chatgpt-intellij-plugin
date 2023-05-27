@@ -19,6 +19,8 @@ import javax.swing.event.ChangeListener;
  */
 public class ScrollingTools {
 
+    private static final int AUTOSCROLL_EDGE_LEEWAY = 20;
+
     public static void installAutoScrollToBottom(JScrollPane scrollPane) {
         final AtomicBoolean wasScrolledToBottom = new AtomicBoolean(true);
 
@@ -29,7 +31,7 @@ public class ScrollingTools {
             @Override
             public void componentResized(ComponentEvent e) {
                 if (wasScrolledToBottom.get()) {
-                    scrollToBottom(scrollPane, viewport, view);
+                    scrollToBottom(scrollPane);
                 }
             }
         };
@@ -45,17 +47,13 @@ public class ScrollingTools {
                 int newValue = scrollPane.getVerticalScrollBar().getValue();
                 if (oldValue != newValue) {
                     oldValue = newValue;
-                    wasScrolledToBottom.set(scrollPane.getVerticalScrollBar().getValue() + viewport.getViewRect().height >= view.getHeight());
+                    wasScrolledToBottom.set(scrollPane.getVerticalScrollBar().getValue() + viewport.getViewRect().height >= view.getHeight() - AUTOSCROLL_EDGE_LEEWAY);
                 }
             }
         });
     }
 
     public static void scrollToBottom(JScrollPane scrollPane) {
-        scrollToBottom(scrollPane, scrollPane.getViewport(), scrollPane.getViewport().getView());
-    }
-
-    private static void scrollToBottom(JScrollPane scrollPane, JViewport viewport, Component view) {
-        scrollPane.getVerticalScrollBar().setValue(Math.max(0, view.getHeight() - viewport.getViewRect().height));
+        scrollPane.getVerticalScrollBar().setValue(Integer.MAX_VALUE/2);
     }
 }

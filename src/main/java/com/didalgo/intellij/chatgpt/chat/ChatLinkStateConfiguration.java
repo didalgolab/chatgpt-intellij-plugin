@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public interface ChatLinkStateConfiguration {
 
-    String getGroup();
+    String getFacetName();
 
     String getModelName();
 

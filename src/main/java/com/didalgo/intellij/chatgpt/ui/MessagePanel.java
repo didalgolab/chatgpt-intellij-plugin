@@ -5,12 +5,12 @@
 package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.text.TextFragment;
-import com.didalgo.intellij.chatgpt.ui.view.JButtonView;
 import com.didalgo.intellij.chatgpt.ui.view.RSyntaxTextAreaEnclosingView;
 import com.didalgo.intellij.chatgpt.ui.view.RSyntaxTextAreaView;
 import com.didalgo.intellij.chatgpt.ui.view.ViewUtils;
 import com.didalgo.intellij.chatgpt.util.Language;
 import com.didalgo.intellij.chatgpt.util.StandardLanguage;
+import com.intellij.ui.JBColor;
 import com.intellij.util.ui.ExtendableHTMLViewFactory;
 import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.HtmlPanel;
@@ -32,6 +32,8 @@ public class MessagePanel extends HtmlPanel {
         setEditorKit(new HTMLEditorKitBuilder()
                 .withViewFactoryExtensions((e, v) -> createView(e, v), ExtendableHTMLViewFactory.Extensions.WORD_WRAP)
                 .build());
+        setOpaque(true);
+        setBackground(JBColor.YELLOW);
     }
 
     protected View createView(Element elem, View view) {
@@ -50,7 +52,7 @@ public class MessagePanel extends HtmlPanel {
             button.setOpaque(false);
             button.setEnabled(false);
             button.setToolTipText("```java\n    aaaa\n```".replace("\n", "<br>").replace(" ", "&nbsp;"));
-            return new JButtonView(elem, button);
+            //return new JButtonView(elem, button);
         }
 
         if (attrs.getAttribute(StyleConstants.NameAttribute) == HTML.Tag.PRE) {

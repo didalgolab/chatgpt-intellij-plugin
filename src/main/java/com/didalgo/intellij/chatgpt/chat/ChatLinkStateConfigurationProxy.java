@@ -14,8 +14,8 @@ class ChatLinkStateConfigurationProxy implements ChatLinkStateConfiguration {
     }
 
     @Override
-    public String getGroup() {
-        return getDelegate().getGroup();
+    public String getFacetName() {
+        return getDelegate().getFacetName();
     }
 
     @Override

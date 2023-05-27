@@ -19,8 +19,8 @@ public class DefaultOpenAiServiceProvider implements OpenAiServiceProvider {
     }
 
     @Override
-    public OpenAiService createService(String group, OpenAISettingsState settings) {
-        var modelSettings = settings.getConfigForCategory(group);
+    public OpenAiService createService(String page, OpenAISettingsState settings) {
+        var modelSettings = settings.getConfigForPage(page);
 
         return new OpenAiService(AES.decrypt(modelSettings.getApiKey()),
                 Duration.of(Long.parseLong(settings.getReadTimeout()), ChronoUnit.MILLIS));
