@@ -24,12 +24,14 @@ public class ChatGptHandler {
             Line 1
             Line 2
             
-            Line 3
+            <body lang="pl"><p>Line&nbsp;3 &copy; &lt;br&gt;</p></body>
+            `&copy; INLINE &lt;br&gt;` shows copyright mark
             
             [Selected code]
             ```properties
             # Gradle Releases -> https://github.com/gradle/gradle/releases
             gradleVersion = 7.6
+            extraCode = <body lang="pl"><p>Line&nbsp;3 &copy; &lt;br&gt;</p></body>
             
             # IntelliJ Platform Artifacts Repositories
             # -> https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html

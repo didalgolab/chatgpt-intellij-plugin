@@ -114,9 +114,22 @@ public class MessageComponent extends JBPanel<MessageComponent> {
                     onLineStart = true;
                     buf.append("<br>");
                 }
+                case '<' -> {
+                    onLineStart = false;
+                    buf.append("&lt;");
+                }
+                case '>' -> {
+                    onLineStart = false;
+                    buf.append("&gt;");
+                }
+                case '&' -> {
+                    onLineStart = false;
+                    buf.append("&amp;");
+                }
                 default -> {
                     if (onLineStart && Character.isWhitespace(ch)) {
                         buf.append("&nbsp;");
+                        if (ch == '\t') buf.append("&nbsp;&nbsp;&nbsp;");
                     } else {
                         onLineStart = false;
                         buf.append(ch);

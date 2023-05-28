@@ -46,7 +46,7 @@ public class AzureOpenAiServiceProvider implements OpenAiServiceProvider {
     @Override
     public OpenAiService createService(String group, OpenAISettingsState settings) {
         var modelSettings = settings.getConfigForPage(group);
-        var completionUrl = modelSettings.getGpt35TurboUrl();
+        var completionUrl = modelSettings.getApiEndpointUrl();
         var deploymentId = extractDeploymentId(completionUrl);
         var apiVersion = extractApiVersion(completionUrl);
         var baseUrl = extractBaseUrl(completionUrl);

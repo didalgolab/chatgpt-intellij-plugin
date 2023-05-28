@@ -10,6 +10,7 @@ import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.sequence.Escaping;
 
 import java.util.List;
 
@@ -37,7 +38,6 @@ public final class TextFragmentToHtmlFormatter implements TextFragmentFormatter 
         HtmlRenderer renderer = htmlRenderer;
         if (renderer == null)
             renderer = htmlRenderer = HtmlRenderer.builder()
-                    .escapeHtml(true)
                     .softBreak("<br>")
                     .extensions(List.of(TablesExtension.create()))
                     .build();
@@ -47,7 +47,8 @@ public final class TextFragmentToHtmlFormatter implements TextFragmentFormatter 
 
     @Override
     public String format(TextFragment markdown) {
-        Node document = getMarkdownParser().parse(markdown.markdown());
+        String escaped = Escaping.escapeHtml(markdown.markdown(), false);
+        Node document = getMarkdownParser().parse(escaped);
         return getHtmlRenderer().render(document);
     }
 }

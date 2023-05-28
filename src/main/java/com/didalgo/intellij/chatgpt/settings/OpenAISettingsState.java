@@ -84,17 +84,17 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
         private volatile String modelName;
         private volatile boolean enableContext = true;
         private volatile boolean enableTokenConsumption = true;
-        private volatile boolean enableGPT35StreamResponse = true;
-        private volatile boolean enableCustomizeGpt35TurboUrl = false;
-        private volatile String gpt35TurboUrl = DEFAULT_API_ENDPOINT;
-        private volatile List<String> apiEndpointUrlHistory = List.of(gpt35TurboUrl);
+        private volatile boolean enableStreamResponse = true;
+        private volatile boolean enableCustomApiEndpointUrl = false;
+        private volatile String apiEndpointUrl = DEFAULT_API_ENDPOINT;
+        private volatile List<String> apiEndpointUrlHistory = List.of(apiEndpointUrl);
 
         private static final String DEFAULT_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
         @Override
         public int hashCode() {
             return Objects.hash(facetName, apiKey, modelName, enableContext, enableTokenConsumption,
-                    enableGPT35StreamResponse, enableCustomizeGpt35TurboUrl, gpt35TurboUrl);
+                    enableStreamResponse, enableCustomApiEndpointUrl, apiEndpointUrl);
         }
 
         @Override
@@ -105,9 +105,9 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
                         && Objects.equals(modelName, that.modelName)
                         && Objects.equals(enableContext, that.enableContext)
                         && Objects.equals(enableTokenConsumption, that.enableTokenConsumption)
-                        && Objects.equals(enableGPT35StreamResponse, that.enableGPT35StreamResponse)
-                        && Objects.equals(enableCustomizeGpt35TurboUrl, that.enableCustomizeGpt35TurboUrl)
-                        && Objects.equals(gpt35TurboUrl, that.gpt35TurboUrl);
+                        && Objects.equals(enableStreamResponse, that.enableStreamResponse)
+                        && Objects.equals(enableCustomApiEndpointUrl, that.enableCustomApiEndpointUrl)
+                        && Objects.equals(apiEndpointUrl, that.apiEndpointUrl);
             }
             return false;
         }
