@@ -90,10 +90,10 @@ public class RSyntaxTextAreaView extends ComponentView {
     public String getText() throws BadLocationException {
         var element = getElement();
         var text = getDocument().getText(element.getStartOffset(), element.getEndOffset() - element.getStartOffset());
-        //if (text.endsWith("\n"))
-        //    text = text.substring(0, text.length() + (text.endsWith("\r\n")? -2: -1));
+        if (text.endsWith("\n"))
+            text = text.substring(0, text.length() + (text.endsWith("\r\n")? -2: -1));
 
-        text = Escaping.unescapeHtml(text);
+        //text = Escaping.unescapeHtml(text);
         return text;
     }
 
@@ -124,8 +124,7 @@ public class RSyntaxTextAreaView extends ComponentView {
         textArea.setEditable(false);
         textArea.setCodeFoldingEnabled(true);
         textArea.setAnimateBracketMatching(false);
-        textArea.setAntiAliasingEnabled(false);
-        textArea.setFractionalFontMetricsEnabled(false);
+        textArea.setAntiAliasingEnabled(true);
         textArea.setLineWrap(true);
         textArea.setSize(4000, 4000);
         textArea.setMarkOccurrences(true);

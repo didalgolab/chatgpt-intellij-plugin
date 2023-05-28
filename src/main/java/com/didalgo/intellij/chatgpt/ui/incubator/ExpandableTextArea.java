@@ -1,44 +1,49 @@
-package com.didalgo.intellij.chatgpt.ui;
+package com.didalgo.intellij.chatgpt.ui.incubator;
 
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.Expandable;
 import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.fields.ExpandableSupport;
-import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.util.Function;
+import com.intellij.util.execution.ParametersListUtil;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.SwingUndoUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
-public class ExpandableTextFieldExt extends ExpandableTextField {
-
+public class ExpandableTextArea extends ExtendableTextArea implements Expandable {
     private final ExpandableSupport support;
 
-    public ExpandableTextFieldExt() {
-        this(
-                text -> StringUtil.split(text, NewlineFilter.NEWLINE_REPLACEMENT.toString(), true, false),
-                lines -> String.join(NewlineFilter.NEWLINE_REPLACEMENT.toString(), lines));
+    /**
+     * Creates an expandable text field with the default line parser/joiner,
+     * that uses a whitespaces to split a string to several lines.
+     */
+    public ExpandableTextArea() {
+        this(ParametersListUtil.DEFAULT_LINE_PARSER, ParametersListUtil.DEFAULT_LINE_JOINER);
     }
 
-    public ExpandableTextFieldExt(@NotNull Function<? super String, ? extends List<String>> parser, @NotNull Function<? super List<String>, String> joiner) {
-        super(parser, joiner);
+    /**
+     * Creates an expandable text field with the specified line parser/joiner.
+     *
+     * @see ParametersListUtil
+     */
+    public ExpandableTextArea(@NotNull Function<? super String, ? extends List<String>> parser, @NotNull Function<? super List<String>, String> joiner) {
         Function<? super String, String> onShow = text -> StringUtil.join(parser.fun(text), "\n");
-        Function<? super String, String> onHide = text -> joiner.fun(asList(/*MOD AGAINST IDEA CORE*/text.split("\r?\n")/*END MOD*/));
+        Function<? super String, String> onHide = text -> joiner.fun(asList(StringUtil.splitByLines(text)));
         support = new ExpandableSupport<JTextComponent>(this, onShow, onHide) {
             @NotNull
             @Override
@@ -97,35 +102,40 @@ public class ExpandableTextFieldExt extends ExpandableTextField {
                 };
             }
         };
+        setMonospaced(true);
         setExtensions(createExtensions());
     }
 
-    @Override
-    public String getText() {
-        return NewlineFilter.normalize(super.getText());
+    @NotNull
+    protected JTextArea createTextArea(@Nls @NotNull String text, boolean editable, Color background, Color foreground, Font font) {
+        JTextArea area = new JTextArea(text);
+
+        area.putClientProperty(Expandable.class, this);
+        area.setEditable(editable);
+        area.setBackground(background);
+        area.setForeground(foreground);
+        area.setFont(font);
+        area.setWrapStyleWord(true);
+        area.setLineWrap(true);
+
+        SwingUndoUtil.addUndoRedoActions(area);
+
+        return area;
     }
 
-    @Override
-    public String getText(int offs, int len) throws BadLocationException {
-        return NewlineFilter.normalize(super.getText(offs, len));
-    }
-
-    @Override
-    public String getSelectedText() {
-        return NewlineFilter.normalize(super.getSelectedText());
+    public void setMonospaced(boolean monospaced) {
+        putClientProperty("monospaced", monospaced);
     }
 
     @NotNull
     protected List<ExtendableTextComponent.Extension> createExtensions() {
-        return (support == null)? emptyList(): singletonList(support.createExpandExtension());
+        return singletonList(support.createExpandExtension());
     }
 
-    @Override
     public String getTitle() {
         return support.getTitle();
     }
 
-    @Override
     public void setTitle(@NlsContexts.PopupTitle String title) {
         support.setTitle(title);
     }
@@ -155,6 +165,7 @@ public class ExpandableTextFieldExt extends ExpandableTextField {
         try {
             destination.setCaretPosition(source.getCaretPosition());
         }
-        catch (Exception ignored) { }
+        catch (Exception ignored) {
+        }
     }
 }

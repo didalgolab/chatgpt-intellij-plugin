@@ -37,7 +37,7 @@ import static java.awt.event.InputEvent.*;
 
 public class MainPanel implements ChatMessageListener {
 
-    private final ExpandableTextField searchTextArea;
+    private final ExpandableTextField searchTextField;
     private final JButton button;
     private final JButton stopGenerating;
     private final MessageGroupComponent contentPanel;
@@ -51,6 +51,8 @@ public class MainPanel implements ChatMessageListener {
 
     public static final KeyStroke SUBMIT_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, CTRL_DOWN_MASK);
 
+    public static final KeyStroke PASTE_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V, CTRL_DOWN_MASK);
+
     public MainPanel(@NotNull Project project, ChatLinkStateConfiguration configuration) {
         myProject = project;
         conversationHandler = new MainConversationHandler(this);
@@ -62,13 +64,14 @@ public class MainPanel implements ChatMessageListener {
         splitter = new OnePixelSplitter(true,.98f);
         splitter.setDividerWidth(1);
 
-        searchTextArea = new ExpandableTextFieldExt();
-        var searchTextDocument = (AbstractDocument) searchTextArea.getDocument();
+        searchTextField = new ExpandableTextFieldExt();
+        var searchTextDocument = (AbstractDocument) searchTextField.getDocument();
         searchTextDocument.setDocumentFilter(new NewlineFilter());
         searchTextDocument.putProperty("filterNewlines", Boolean.FALSE);
-        searchTextArea.setMonospaced(false);
-        searchTextArea.addActionListener(listener);
-        searchTextArea.registerKeyboardAction(listener, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
+        searchTextField.setMonospaced(false);
+        searchTextField.addActionListener(listener);
+        searchTextField.registerKeyboardAction(listener, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
+        searchTextField.getEmptyText().setText("Type a prompt here");
         button = new JButton(ChatGptBundle.message("ui.toolwindow.send"), IconLoader.getIcon("/icons/send.svg", MainPanel.class));
         button.addActionListener(listener);
         button.setUI(new DarculaButtonUI());
@@ -87,7 +90,7 @@ public class MainPanel implements ChatMessageListener {
         actionPanel = new JPanel(new BorderLayout());
         progressBar = new JProgressBar();
         progressBar.setVisible(false);
-        actionPanel.add(searchTextArea, BorderLayout.CENTER);
+        actionPanel.add(searchTextField, BorderLayout.CENTER);
         actionPanel.add(button, BorderLayout.EAST);
         contentPanel = new MessageGroupComponent(chatLink, project);
         contentPanel.add(progressBar, BorderLayout.SOUTH);
@@ -194,11 +197,11 @@ public class MainPanel implements ChatMessageListener {
     }
 
     public String getSearchText() {
-        return searchTextArea.getText();
+        return searchTextField.getText();
     }
 
     public void setSearchText(String t) {
-        searchTextArea.setText(t);
+        searchTextField.setText(t);
     }
 
     public MessageGroupComponent getContentPanel() {

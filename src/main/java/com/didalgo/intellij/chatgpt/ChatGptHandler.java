@@ -25,7 +25,7 @@ public class ChatGptHandler {
             Line 2
             
             <body lang="pl"><p>Line&nbsp;3 &copy; &lt;br&gt;</p></body>
-            `&copy; INLINE &lt;br&gt;` shows copyright mark
+            &copy; <b>BEFORE</b> `&copy; <i>INLINE</i> &lt;br&gt;` shows copyright mark
             
             [Selected code]
             ```properties

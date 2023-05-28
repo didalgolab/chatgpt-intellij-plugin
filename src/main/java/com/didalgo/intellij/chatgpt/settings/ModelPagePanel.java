@@ -10,7 +10,6 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
-import org.apache.commons.collections.ListUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -107,7 +106,7 @@ public abstract class ModelPagePanel implements Configurable {
         config.setApiEndpointUrl(customizeServerField.getText());
         if (!config.getApiEndpointUrlHistory().contains(config.getApiEndpointUrl()))
             customizeServerField.addCurrentTextToHistory();
-        config.setApiEndpointUrlHistory(ListUtils.union(customizeServerField.getHistory(), config.getApiEndpointUrlHistory()));
+        config.setApiEndpointUrlHistory(customizeServerField.getHistory());
         OpenAIServiceHolder.refresh();
     }
 

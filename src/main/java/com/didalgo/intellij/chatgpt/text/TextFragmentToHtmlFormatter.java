@@ -49,6 +49,33 @@ public final class TextFragmentToHtmlFormatter implements TextFragmentFormatter 
     public String format(TextFragment markdown) {
         String escaped = Escaping.escapeHtml(markdown.markdown(), false);
         Node document = getMarkdownParser().parse(escaped);
-        return getHtmlRenderer().render(document);
+        String html = getHtmlRenderer().render(document);
+        return unescapeCode(html);
+    }
+
+    private static String unescapeCode(String html) {
+        StringBuilder result = new StringBuilder();
+        int position = 0;
+        int startCode, endCode;
+
+        while ((startCode = html.indexOf("<code", position)) != -1) {
+            startCode = html.indexOf(">", startCode);
+            if (startCode == -1) {
+                break;
+            }
+
+            endCode = html.indexOf("</code>", startCode);
+            if (endCode == -1) {
+                break;
+            }
+
+            result.append(html, position, startCode + 1);
+            String codeFragment = html.substring(startCode + 1, endCode);
+            result.append(Escaping.unescapeHtml(codeFragment));
+            position = endCode;
+        }
+
+        result.append(html.substring(position));
+        return result.toString();
     }
 }
