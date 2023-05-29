@@ -17,7 +17,6 @@ public class NewlineFilter extends DocumentFilter {
     @Override
     public void replace(FilterBypass fb, int offset, int length, String text,
                         AttributeSet attrs) throws BadLocationException {
-        text = denormalize(text);
         super.replace(fb, offset, length, text, attrs);
     }
 

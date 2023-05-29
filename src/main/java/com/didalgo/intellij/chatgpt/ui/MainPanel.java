@@ -64,10 +64,11 @@ public class MainPanel implements ChatMessageListener {
         splitter = new OnePixelSplitter(true,.98f);
         splitter.setDividerWidth(1);
 
-        searchTextField = new ExpandableTextFieldExt();
+        searchTextField = new ExpandableTextFieldExt(project);
         var searchTextDocument = (AbstractDocument) searchTextField.getDocument();
         searchTextDocument.setDocumentFilter(new NewlineFilter());
         searchTextDocument.putProperty("filterNewlines", Boolean.FALSE);
+        searchTextDocument.addDocumentListener(new ExpandableTextFieldExt.ExpandOnMultiLinePaste(searchTextField));
         searchTextField.setMonospaced(false);
         searchTextField.addActionListener(listener);
         searchTextField.registerKeyboardAction(listener, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
