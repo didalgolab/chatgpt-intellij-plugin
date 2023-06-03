@@ -5,6 +5,7 @@
 package com.didalgo.intellij.chatgpt.core;
 
 import com.didalgo.intellij.chatgpt.chat.ConversationContext;
+import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import com.intellij.openapi.components.Service;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest.ChatCompletionRequestBuilder;
@@ -18,10 +19,13 @@ public final class ChatCompletionRequestProvider {
     public ChatCompletionRequestBuilder chatCompletionRequest(ConversationContext ctx, ChatMessage userMessage) {
         ctx.addChatMessage(userMessage);
         var model = ctx.getModelType();
+        var config = OpenAISettingsState.getInstance().getConfigurationPage(ctx.getModelPage());
+
         return ChatCompletionRequest
                 .builder()
-                .temperature(0.35)
-                .topP(0.95)
+                .stream(config.isEnableStreamResponse())
+                .temperature(config.getTemperature())
+                .topP(config.getTopP())
                 .model(model.modelName())
                 .messages(ctx.getChatMessages(model, userMessage))
                 .logitBias(new TreeMap<>());

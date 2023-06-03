@@ -1,1 +1,1 @@
-rootProject.name = "ChatGPT"
+rootProject.name = "chatgpt-intellij-plugin"

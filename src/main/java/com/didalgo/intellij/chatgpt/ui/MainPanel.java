@@ -4,6 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
+import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.core.ChatCompletionParser;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
@@ -23,17 +24,22 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.theokanning.openai.completion.chat.ChatMessage;
 import io.reactivex.disposables.Disposable;
 import okhttp3.internal.http2.StreamResetException;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import static java.awt.event.InputEvent.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class MainPanel implements ChatMessageListener {
 
@@ -51,9 +57,7 @@ public class MainPanel implements ChatMessageListener {
 
     public static final KeyStroke SUBMIT_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, CTRL_DOWN_MASK);
 
-    public static final KeyStroke PASTE_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V, CTRL_DOWN_MASK);
-
-    public MainPanel(@NotNull Project project, ChatLinkStateConfiguration configuration) {
+    public MainPanel(@NotNull Project project, ConfigurationPage configuration) {
         myProject = project;
         conversationHandler = new MainConversationHandler(this);
         chatLink = new ChatLinkService(project, conversationHandler, configuration.withSystemPrompt(() -> getContentPanel().getSystemMessage()));
@@ -63,6 +67,7 @@ public class MainPanel implements ChatMessageListener {
 
         splitter = new OnePixelSplitter(true,.98f);
         splitter.setDividerWidth(1);
+        splitter.putClientProperty(HyperlinkListener.class, listener);
 
         searchTextField = new ExpandableTextFieldExt(project);
         var searchTextDocument = (AbstractDocument) searchTextField.getDocument();
@@ -104,6 +109,10 @@ public class MainPanel implements ChatMessageListener {
         return chatLink;
     }
 
+    public ModelType getModelType() {
+        return getChatLink().getConversationContext().getModelType();
+    }
+
     @Override
     public void exchangeStarting(ChatMessageEvent.Starting event) throws ChatExchangeAbortException {
         if (!presetCheck()) {
@@ -111,8 +120,8 @@ public class MainPanel implements ChatMessageListener {
         }
 
         TextFragment userMessage = TextFragment.of(event.getUserMessage().getContent());
-        question = new MessageComponent(userMessage, true);
-        answer = new MessageComponent(TextFragment.of("Thinking..."), false);
+        question = new MessageComponent(userMessage, null);
+        answer = new MessageComponent(TextFragment.of("Thinking..."), getModelType());
         SwingUtilities.invokeLater(() -> {
             setSearchText("");
             aroundRequest(true);
@@ -135,7 +144,7 @@ public class MainPanel implements ChatMessageListener {
     protected boolean presetCheck() {
         OpenAISettingsState instance = OpenAISettingsState.getInstance();
         String page = getChatLink().getConversationContext().getModelPage();
-        if (com.didalgo.intellij.chatgpt.util.StringUtil.isEmpty(instance.getConfigForPage(page).getApiKey())) {
+        if (StringUtils.isEmpty(instance.getConfigurationPage(page).getApiKey())) {
             Notification notification = new Notification(ChatGptBundle.message("group.id"),
                     ChatGptBundle.message("notify.config.title"),
                     ChatGptBundle.message("notify.config.text"),
@@ -150,28 +159,35 @@ public class MainPanel implements ChatMessageListener {
 
     @Override
     public void responseArriving(ChatMessageEvent.ResponseArriving event) {
-        try {
-            TextFragment parseResult = ChatCompletionParser.
-                    parseGPT35TurboWithStream(event.getPartialResponseChoices());
-            answer.setContent(parseResult);
-        } catch (Exception e) {
-            answer.setErrorContent(e.getMessage());
-        }
+        setContent(event.getPartialResponseChoices());
     }
 
     @Override
     public void responseArrived(ChatMessageEvent.ResponseArrived event) {
+        setContent(event.getResponseChoices());
         SwingUtilities.invokeLater(() -> {
             aroundRequest(false);
         });
     }
 
+    public void setContent(List<ChatMessage> content) {
+        TextFragment parseResult = ChatCompletionParser.parseGPT35TurboWithStream(content);
+        answer.setContent(parseResult);
+    }
+
     @Override
     public void exchangeFailed(ChatMessageEvent.Failed event) {
         if (answer != null) {
-            answer.setErrorContent(event.getCause().getMessage());
+            answer.setErrorContent(getErrorMessage(event.getCause()));
         }
         aroundRequest(false);
+    }
+
+    private String getErrorMessage(Throwable cause) {
+        if (cause == null)
+            return "";
+        return (isEmpty(cause.getMessage()) ? "" : cause.getMessage() + "; ")
+                + getErrorMessage(cause.getCause());
     }
 
     @Override

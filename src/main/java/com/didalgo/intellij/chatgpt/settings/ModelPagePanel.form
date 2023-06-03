@@ -38,7 +38,7 @@
               <text value="API Key:"/>
             </properties>
           </component>
-          <component id="c4985" class="com.intellij.ui.components.JBTextField" binding="apiKeyField">
+          <component id="19455" class="com.intellij.ui.components.JBPasswordField" binding="apiKeyField">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -50,7 +50,7 @@
           </component>
         </children>
       </grid>
-      <grid id="f957d" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+      <grid id="f957d" layout-manager="GridBagLayout">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="4" use-parent-layout="false"/>
         </constraints>
@@ -58,13 +58,19 @@
         <border type="none"/>
         <children>
           <component id="7896b" class="javax.swing.JLabel">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Model:"/>
             </properties>
           </component>
           <component id="fa746" class="javax.swing.JComboBox" binding="comboCombobox">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <model>
                 <item value="gpt-3.5-turbo"/>
@@ -78,6 +84,40 @@
                 <item value="code-davinci-002"/>
               </model>
             </properties>
+          </component>
+          <component id="b73a" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Temperature:"/>
+              <toolTipText resource-bundle="messages/ChatGptBundle" key="ui.setting.temperature.tooltip"/>
+            </properties>
+          </component>
+          <component id="d0844" class="javax.swing.JSpinner" binding="temperatureSpinner">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="b4a89" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="Top P:"/>
+              <toolTipText resource-bundle="messages/ChatGptBundle" key="ui.setting.topp.tooltip"/>
+            </properties>
+          </component>
+          <component id="f57e0" class="javax.swing.JSpinner" binding="topPSpinner">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
           </component>
         </children>
       </grid>

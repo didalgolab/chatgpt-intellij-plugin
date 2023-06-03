@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.didalgo.chatgpt</id>
-    <name>ChatGPT Tools</name>
+    <name>ChatGPT Integration</name>
     <vendor email="consulting@didalgo.com" url="https://github.com/didalgo2">didalgo</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -15,11 +15,11 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
+        <toolWindow id="com.didalgo.ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
                     factoryClass="com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory"/>
         <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel"
                                  id="com.didalgo.chatgpt.settings.OpenAISettings"
-                                 displayName="ChatGPT Tools (by Didalgo)"/>
+                                 displayName="ChatGPT Integration"/>
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT3_35_TurboPanel"
                                  id="com.didalgo.chatgpt.settings.GPT3-3.5-Turbo"
                                  displayName="GPT 3.5 Turbo"/>

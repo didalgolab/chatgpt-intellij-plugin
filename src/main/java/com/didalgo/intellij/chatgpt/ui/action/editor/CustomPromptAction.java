@@ -30,7 +30,6 @@ import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.ui.scale.JBUIScale;
 import com.intellij.util.ui.JBUI;
-import com.didalgo.intellij.chatgpt.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -207,7 +206,7 @@ public class CustomPromptAction extends GenericEditorAction {
                 String name = Messages.showInputDialog(project, "Enter a name for the custom action:", "Save Custom Action", null, defaultName, null);
                 if (name != null && !name.isEmpty()) {
                     ChatLink.forProject(project).pushMessage(question.getText(), List.of(CodeFragment.of(editor.getDocument().getText())));
-                    if (!StringUtil.isEmpty(question.getText())) {
+                    if (!StringUtils.isEmpty(question.getText())) {
                         List<CustomAction> customActionsPrefix = OpenAISettingsState.getInstance().getCustomActionsPrefix();
                         customActionsPrefix.add(new CustomAction(name, question.getText()));
                     }

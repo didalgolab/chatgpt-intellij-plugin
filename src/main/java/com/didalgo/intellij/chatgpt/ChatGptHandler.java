@@ -10,8 +10,11 @@ import com.didalgo.intellij.chatgpt.chat.ConversationContext;
 import com.intellij.openapi.diagnostic.Logger;
 import com.theokanning.openai.completion.chat.*;
 import io.reactivex.Flowable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import org.apache.commons.lang3.StringUtils;
+import org.reactivestreams.Subscription;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +39,7 @@ public class ChatGptHandler {
             # IntelliJ Platform Artifacts Repositories
             # -> https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
             pluginGroup = com.didalgo.chatgpt
-            pluginName = ChatGPT Tools
+            pluginName = ChatGPT Integration
             pluginSinceBuild = 222.2680.4
             pluginUntilBuild = 231.*
             pluginVersion = 0.1.15-222.231
@@ -92,38 +95,87 @@ public class ChatGptHandler {
                 .observeOn(Schedulers.computation());
     }
 
-    public Flowable<?> handle(ConversationContext ctx, ChatMessageEvent.Started event, ChatMessageListener listener) {
+    public Flowable<?> handle(ConversationContext ctx, ChatMessageEvent.Initiating event, ChatMessageListener listener) {
         var openAiService = OpenAIServiceHolder.getOpenAiService(ctx.getModelPage());
-        var partialResponseChoices = Collections.synchronizedSortedMap(new TreeMap<Integer, StringBuffer>());
+        var flowHandler = new ChatCompletionHandler(listener);
+        var request = event.getRequest().orElseThrow(() -> new IllegalArgumentException("ChatCompletionRequest is required"));
 
-        return openAiService.streamChatCompletion(event.getRequest().orElseThrow(() -> new IllegalArgumentException("ChatCompletionRequest is required")))
-//        return streamTestChatCompletion(TEST_MARKDOWN)
-                .doOnSubscribe(subscription -> listener.exchangeStarted(event.started(subscription)))
-                .doOnError(t -> listener.exchangeFailed(event.failed(t)))
-                .doOnComplete(() -> {
-                    var assistantMessages = toResponseChoices(partialResponseChoices);
-                    if (!assistantMessages.isEmpty()) {
-                        ctx.addChatMessage(assistantMessages.get(0));
-                    }
-                    listener.responseArrived(event.responseArrived(assistantMessages));
-                })
-                .doOnNext(chunk -> {
-                    if (chunk.getChoices().isEmpty()) {
-                        return;
-                    }
-                    chunk.getChoices().forEach(choice -> {
-                        partialResponseChoices.computeIfAbsent(choice.getIndex(), __ -> new StringBuffer())
-                                .append(StringUtils.defaultIfEmpty(choice.getMessage().getContent(), ""));
-                    });
-                    listener.responseArriving(
-                            event.responseArriving(chunk,
-                                    toResponseChoices(partialResponseChoices)));
-                });
+        if (Boolean.TRUE.equals(request.getStream())) {
+            return openAiService.streamChatCompletion(request)
+            //return streamTestChatCompletion(TEST_MARKDOWN)
+                    .doOnSubscribe(flowHandler.onSubscribe(event))
+                    .doOnError(flowHandler.onError())
+                    .doOnComplete(flowHandler.onComplete(ctx))
+                    .doOnNext(flowHandler.onNextChunk());
+        } else {
+            return Flowable.fromCallable(() -> openAiService.createChatCompletion(request))
+                    .doOnSubscribe(flowHandler.onSubscribe(event))
+                    .doOnError(flowHandler.onError())
+                    .doOnComplete(flowHandler.onComplete(ctx))
+                    .doOnNext(flowHandler.onNext());
+        }
     }
 
-    protected List<ChatMessage> toResponseChoices(SortedMap<Integer, StringBuffer> partialResponseChoices) {
-        List<ChatMessage> responseChoices = new ArrayList<>(partialResponseChoices.size());
-        partialResponseChoices.forEach((key, value) -> responseChoices.add(new ChatMessage(ChatMessageRole.ASSISTANT.value(), value.toString())));
-        return responseChoices;
+    static class ChatCompletionHandler {
+        private final ChatMessageListener listener;
+        private final SortedMap<Integer, StringBuffer> partialResponseChoices;
+        private volatile ChatMessageEvent.Started event;
+
+        public ChatCompletionHandler(ChatMessageListener listener) {
+            this.listener = listener;
+            this.partialResponseChoices = Collections.synchronizedSortedMap(new TreeMap<>());
+        }
+
+        public Consumer<Subscription> onSubscribe(ChatMessageEvent.Initiating event) {
+            return subscription -> {
+                listener.exchangeStarted(this.event = event.started(subscription));
+            };
+        }
+
+        public Action onComplete(ConversationContext ctx) {
+            return () -> {
+                var assistantMessages = toMessages(partialResponseChoices);
+                if (!assistantMessages.isEmpty()) {
+                    ctx.addChatMessage(assistantMessages.get(0));
+                }
+                listener.responseArrived(event.responseArrived(assistantMessages));
+            };
+        }
+
+        public Consumer<ChatCompletionChunk> onNextChunk() {
+            return chunk -> {
+                if (!chunk.getChoices().isEmpty()) {
+                    listener.responseArriving(event.responseArriving(chunk, formResponse(chunk.getChoices())));
+                }
+            };
+        }
+
+        public Consumer<ChatCompletionResult> onNext() {
+            return result -> {
+                if (!result.getChoices().isEmpty()) {
+                    listener.responseArrived(event.responseArrived(formResponse(result.getChoices())));
+                }
+            };
+        }
+
+        public Consumer<Throwable> onError() {
+            return cause -> {
+                listener.exchangeFailed(event.failed(cause));
+            };
+        }
+
+        private List<ChatMessage> formResponse(List<ChatCompletionChoice> choices) {
+            choices.forEach(choice -> {
+                partialResponseChoices.computeIfAbsent(choice.getIndex(), __ -> new StringBuffer())
+                        .append(StringUtils.defaultIfEmpty(choice.getMessage().getContent(), ""));
+            });
+            return toMessages(partialResponseChoices);
+        }
+
+        private List<ChatMessage> toMessages(SortedMap<Integer, StringBuffer> partialResponseChoices) {
+            List<ChatMessage> responseChoices = new ArrayList<>(partialResponseChoices.size());
+            partialResponseChoices.forEach((key, value) -> responseChoices.add(new ChatMessage(ChatMessageRole.ASSISTANT.value(), value.toString())));
+            return responseChoices;
+        }
     }
 }

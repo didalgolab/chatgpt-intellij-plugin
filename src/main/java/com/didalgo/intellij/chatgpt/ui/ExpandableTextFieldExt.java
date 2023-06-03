@@ -1,8 +1,8 @@
 package com.didalgo.intellij.chatgpt.ui;
 
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.textarea.TextComponentEditor;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.text.StringUtil;
@@ -16,6 +16,7 @@ import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.util.Function;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -26,11 +27,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Objects;
 
+import static com.didalgo.intellij.chatgpt.ui.NewlineFilter.NEWLINE_REPLACEMENT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -38,13 +39,13 @@ import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
 public class ExpandableTextFieldExt extends ExpandableTextField implements DataProvider {
-
+    private static final KeyStroke SHIFT_ENTER = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK);
     private final ExpandableSupport support;
     private final Project project;
 
     public ExpandableTextFieldExt(Project project) {
         this(project,
-                text -> StringUtil.split(text, NewlineFilter.NEWLINE_REPLACEMENT.toString(), true, false),
+                text -> StringUtil.split(text, NEWLINE_REPLACEMENT.toString(), true, false),
                 lines -> String.join("\n", lines));
     }
 
@@ -63,6 +64,7 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
                 Dimension size = new Dimension(height * 32, height * 16);
 
                 JTextArea area = createTextArea(onShow.fun(field.getText()), field.isEditable(), field.getBackground(), field.getForeground(), font);
+                new MyShiftEnterAction(area).registerCustomShortcutSet(new CustomShortcutSet(SHIFT_ENTER), area);
 
                 copyCaretPosition(field, area);
 
@@ -179,19 +181,23 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
         catch (Exception ignored) { }
     }
 
-    private TextComponentEditor editor;
+    private TextComponentEditor hostEditor;
 
-    public TextComponentEditor getEditor() {
-        if (editor == null) {
-            editor = new ExpandableTextComponentEditorImpl(project, this);
+    public TextComponentEditor getHostEditor() {
+        if (hostEditor == null) {
+            hostEditor = createHostEditor();
         }
-        return editor;
+        return hostEditor;
+    }
+
+    protected TextComponentEditor createHostEditor() {
+        return new ExpandableTextComponentEditorImpl(project, this);
     }
 
     @Override
     public @Nullable Object getData(@NotNull @NonNls String dataId) {
-        if (CommonDataKeys.EDITOR.is(dataId)) {
-            return getEditor();
+        if (CommonDataKeys.HOST_EDITOR.is(dataId)) {
+            return getHostEditor();
         }
         return null;
     }
@@ -207,19 +213,39 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
         public void removeUpdate(@NotNull DocumentEvent e) { }
 
         @Override
-        public void changedUpdate(@NotNull DocumentEvent e) { }
-
-        @Override
         protected void textChanged(@NotNull DocumentEvent e) {
             try {
                 String newText = e.getDocument().getText(e.getOffset(), e.getLength());
-                if (newText.indexOf(NewlineFilter.NEWLINE_REPLACEMENT) >= 0) {
-                    SwingUtilities.invokeLater(() -> {
-                        if (!expandable.isExpanded())
-                            expandable.expand();
-                    });
+                if (newText.indexOf(NEWLINE_REPLACEMENT) >= 0 && !StringUtils.containsOnly(newText, NEWLINE_REPLACEMENT)) {
+                    if (!expandable.isExpanded())
+                        SwingUtilities.invokeLater(expandable::expand);
                 }
             } catch (BadLocationException ignored) { }
+        }
+    }
+
+    private final class MyShiftEnterAction extends DumbAwareAction {
+        private JTextArea area;
+
+        private MyShiftEnterAction(JTextArea area) {
+            this.area = area;
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setEnabled(isExpanded());
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            int caretPosition = area.getCaretPosition();
+            area.insert("\n", caretPosition);
+            area.setCaretPosition(caretPosition + 1);
         }
     }
 }

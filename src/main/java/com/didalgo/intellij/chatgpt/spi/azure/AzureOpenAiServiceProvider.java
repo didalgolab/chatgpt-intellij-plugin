@@ -7,7 +7,6 @@ package com.didalgo.intellij.chatgpt.spi.azure;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import com.didalgo.intellij.chatgpt.spi.OpenAiServiceConfiguratorInterceptor;
 import com.didalgo.intellij.chatgpt.spi.OpenAiServiceProvider;
-import com.didalgo.intellij.chatgpt.text.encryption.AES;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.theokanning.openai.service.OpenAiService;
 import okhttp3.OkHttpClient;
@@ -45,13 +44,13 @@ public class AzureOpenAiServiceProvider implements OpenAiServiceProvider {
 
     @Override
     public OpenAiService createService(String group, OpenAISettingsState settings) {
-        var modelSettings = settings.getConfigForPage(group);
+        var modelSettings = settings.getConfigurationPage(group);
         var completionUrl = modelSettings.getApiEndpointUrl();
         var deploymentId = extractDeploymentId(completionUrl);
         var apiVersion = extractApiVersion(completionUrl);
         var baseUrl = extractBaseUrl(completionUrl);
         var timeout = Duration.of(Long.parseLong(settings.getReadTimeout()), ChronoUnit.MILLIS);
-        var token = AES.decrypt(modelSettings.getApiKey());
+        var token = modelSettings.getApiKey();
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

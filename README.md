@@ -1,9 +1,5 @@
-# ChatGPT Tools
+# ChatGPT Integration
 Yet another JetBrains extension that allows you to use ChatGPT inside your favourite IDE
-
-### About ChatGPT
-
-[ChatGPT](https://chat.openai.com/chat) is a powerful language model developed by OpenAI that can generate natural language text in a given context. It's based on a neural network trained on vast amounts of human language data, making it capable of performing a wide range of tasks, including dialogue and text generation. ChatGPT is particularly useful for natural language processing (NLP) and dialogue systems.
 
 ### About this project
 
@@ -12,7 +8,7 @@ This project is a plugin that provides integration with OpenAI ChatGPT API to ru
 ## Features
 
 - [x] Ask ChatGPT (supports GPT-3.5-Turbo API, GPT-4 API and Online Chat simultaneously)
-- [x] API keys stored on disk are encrypted
+- [x] Password-Safe storage of API keys
 - [x] Azure OpenAI endpoints support
 - [x] Select a code fragment in the editor and Ask ChatGPT (selected code will be automatically appended to the prompt)
 - [x] One-click copy code from ChatGPT's answer back to the editor

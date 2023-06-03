@@ -5,16 +5,18 @@
 package com.didalgo.intellij.chatgpt.ui.listener;
 
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
-import com.didalgo.intellij.chatgpt.jshell.JShellHandle;
-import com.didalgo.intellij.chatgpt.jshell.execution.DirectExecutionControlProvider;
 import com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer;
 import com.intellij.openapi.project.Project;
-import jdk.jshell.JShell;
 
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.event.*;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-public class SubmitListener implements ActionListener {
+public class SubmitListener implements ActionListener, HyperlinkListener {
 
     private final ChatLink chatLink;
     private final Supplier<String> prompt;
@@ -28,26 +30,29 @@ public class SubmitListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String text = prompt.get();
+        submitPrompt(prompt.get());
+    }
 
-        if (false) {
-            ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(JShell.class.getClassLoader());
-                JShell jShell = JShell.builder()
-                        .executionEngine(new DirectExecutionControlProvider(), null)
-                        .build();
-                JShellHandle handle = new JShellHandle();
-
-                jShell.close();
-
-            } finally {
-                Thread.currentThread().setContextClassLoader(originalClassLoader);
-            }
-            return;
-        }
-
+    public void submitPrompt(String prompt) {
         Project project = chatLink.getProject();
-        chatLink.pushMessage(text, snippetizer.fetchSnippets(project));
+        chatLink.pushMessage(prompt, snippetizer.fetchSnippets(project));
+    }
+
+    @Override
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            String prompt = extractPromptFromUrl(URI.create(e.getDescription()));
+            if (!prompt.isEmpty())
+                submitPrompt(prompt);
+        }
+    }
+
+    public static String extractPromptFromUrl(URI uri) {
+        final String PROMPT_QUERY_PARAM = "prompt=";
+        if ("assistant".equals(uri.getScheme()) && uri.getQuery() != null && uri.getQuery().startsWith(PROMPT_QUERY_PARAM)) {
+            String prompt = uri.getQuery().substring(PROMPT_QUERY_PARAM.length());
+            return URLDecoder.decode(prompt, StandardCharsets.UTF_8);
+        }
+        return "";
     }
 }

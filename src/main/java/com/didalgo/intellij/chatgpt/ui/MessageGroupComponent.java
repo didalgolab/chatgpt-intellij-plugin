@@ -35,16 +35,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import static com.didalgo.intellij.chatgpt.settings.OpenAISettingsState.BASE_PROMPT;
+
 public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implements NullableComponent, SystemMessageHolder {
     private final JPanel myList = new JPanel(new VerticalLayout(0));
     private final JBScrollPane myScrollPane = new JBScrollPane(myList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                                       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     private int myScrollValue = 0;
-
-    private final MessageComponent tips =
-            new MessageComponent(TextFragment.of("Go ahead, asketh me anything, I dare thee."),false);
     private JBTextField systemRole;
-    private static final String systemRoleText = "You are an expert in software development.";
     private final Project project;
     private final ChatLink chatLink;
 
@@ -85,14 +83,14 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
             toolbarActions.add(new AnAction(AllIcons.Actions.MenuSaveall) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
-                    instance.gpt35RoleText = systemRole.getText().isEmpty() ? systemRoleText : systemRole.getText();
+                    instance.gpt35RoleText = systemRole.getText().isEmpty() ? BASE_PROMPT : systemRole.getText();
                 }
             });
             toolbarActions.add(new AnAction(AllIcons.Actions.Rollback) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
-                    systemRole.setText(systemRoleText);
-                    instance.gpt35RoleText = systemRoleText;
+                    systemRole.setText(BASE_PROMPT);
+                    instance.setGpt35RoleText(BASE_PROMPT);
                 }
             });
             ActionToolbarImpl actonPanel = new ActionToolbarImpl("System Role Toolbar",toolbarActions,true);
@@ -125,7 +123,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 myList.removeAll();
-                myList.add(tips);
+                myList.add(createAssistantTips());
                 myList.updateUI();
                 chatLink.getConversationContext().clear();
             }
@@ -153,7 +151,21 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
             }
         });
 
-        myList.add(tips);
+        myList.add(createAssistantTips());
+    }
+
+    protected MessageComponent createAssistantTips() {
+        var modelType = chatLink.getConversationContext().getModelType();
+        return new MessageComponent(TextFragment.of("""
+                Hi, I'm your annoying AI-powered pair programmer. How can I assist you today?
+                
+                Here are some suggestions to get you started:
+                [✦ Explain the selected code](assistant://?prompt=Explain+the+selected+code)
+                [✦ Convert this Oracle SQL to PostgreSQL](assistant://?prompt=Convert+this+Oracle+SQL+to+PostgreSQL)
+                [✦ What for can I use atomics in Java?](assistant://?prompt=What+for+can+I+use+atomics+in+Java%3F)
+                [✦ Explain the LazyHolder pattern in Java](assistant://?prompt=Explain+the+LazyHolder+pattern+in+Java)
+                [✦ Suggest Java library's method for doing OCR](assistant://?prompt=Suggest+Java+library%27s+method+for+doing+OCR)
+                """), modelType);
     }
 
     public void add(MessageComponent messageComponent) {

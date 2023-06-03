@@ -4,6 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
+import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -26,7 +27,8 @@ public class TextEditorSelectionAwareSnippetizer implements ContextAwareSnippeti
 
                 String text;
                 if (selectionModel.hasSelection() && (text = selectionModel.getSelectedText()) != null && !text.isBlank()) {
-                    selectedFragments.add(CodeFragment.of(text, editor.getFile().getExtension()));
+                    String fileUrl = editor.getFile().getUrl();
+                    selectedFragments.add(CodeFragment.of(text, editor.getFile().getExtension(), ChatGptBundle.message("code.fragment.title", fileUrl)));
                 }
             }
         }

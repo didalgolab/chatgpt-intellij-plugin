@@ -6,3 +6,4 @@ build
 verifier*
 .keys/
 .run
+private/

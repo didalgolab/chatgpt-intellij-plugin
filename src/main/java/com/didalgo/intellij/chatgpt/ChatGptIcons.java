@@ -9,8 +9,10 @@ import com.intellij.openapi.util.IconLoader;
 import javax.swing.*;
 
 public class ChatGptIcons {
-    public static final Icon ME = IconLoader.getIcon("/images/me.png", ChatGptIcons.class);
-    public static final Icon AI = IconLoader.getIcon("/images/ai.png", ChatGptIcons.class);
+    public static final Icon USER = IconLoader.getIcon("/icons/user.svg", ChatGptIcons.class);
+    public static final Icon ROBOT = IconLoader.getIcon("/icons/robot.svg", ChatGptIcons.class);
+    public static final Icon ROBOT_GREEN_EYE = IconLoader.getIcon("/icons/robot-green-eye.svg", ChatGptIcons.class);
+    public static final Icon ROBOT_PINK_EYE = IconLoader.getIcon("/icons/robot-pink-eye.svg", ChatGptIcons.class);
     public static final Icon OPEN_AI = IconLoader.getIcon("/images/openai.png", ChatGptIcons.class);
     public static final Icon OPEN_AI_BLACK = IconLoader.getIcon("/images/openai-black.svg", ChatGptIcons.class);
     public static final Icon TOOL_WINDOW = IconLoader.getIcon("/icons/toolWindow.svg", ChatGptIcons.class);

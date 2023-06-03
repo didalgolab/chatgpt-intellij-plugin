@@ -28,7 +28,6 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.AnActionButton;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.JBUI;
-import com.vladsch.flexmark.util.sequence.Escaping;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NonNls;
@@ -139,8 +138,10 @@ public class RSyntaxTextAreaView extends ComponentView {
                 Container cont = RSyntaxTextAreaView.this.getContainer();
                 if (cont != null && (getWidth() == 0 || getWidth() > cont.getWidth())) {
                     setSize(RSyntaxTextAreaView.this.getContainer().getWidth(), Integer.MAX_VALUE / 2);
+                    doLayout();
+                    getViewport().doLayout();
                 }
-                return textArea.getUI().getPreferredSize(this);
+                return super.getPreferredSize();
             }
         };
         scrollPane.setLineNumbersEnabled(false);
