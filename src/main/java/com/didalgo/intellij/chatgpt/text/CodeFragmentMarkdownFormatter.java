@@ -27,10 +27,11 @@ public final class CodeFragmentMarkdownFormatter implements CodeFragmentFormatte
         sb.append(content).append('\n');
         sb.append(fenceBlockDelim);
 
-        String description = cf.description();
-        if (!description.isEmpty()) {
-            sb.append('\n').append('_').append(Escaping.escapeMarkdown(description)).append('_');
-        }
+        // TODO: Everything below is already rendered just before fenced block as its title.
+        //String description = cf.description();
+        //if (!description.isEmpty()) {
+        //    sb.append('\n').append('_').append(Escaping.escapeMarkdown(description)).append('_');
+        //}
 
         return sb.toString();
     }

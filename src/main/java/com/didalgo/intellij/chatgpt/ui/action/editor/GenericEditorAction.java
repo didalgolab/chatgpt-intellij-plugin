@@ -4,6 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui.action.editor;
 
+import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.intellij.openapi.editor.Editor;
@@ -32,6 +33,7 @@ public class GenericEditorAction extends AbstractEditorAction {
     @Override
     protected void actionPerformed(Project project, Editor editor, String selectedText) {
         var fileExtension = editor.getVirtualFile().getExtension();
-        ChatLink.forProject(project).pushMessage(prompt, List.of(CodeFragment.of(selectedText, fileExtension)));
+        var fileUrl = editor.getVirtualFile().getUrl();
+        ChatLink.forProject(project).pushMessage(prompt, List.of(CodeFragment.of(selectedText, fileExtension, ChatGptBundle.message("code.fragment.title", fileUrl))));
     }
 }

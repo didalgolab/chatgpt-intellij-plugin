@@ -25,14 +25,14 @@ public class ChatLinkState implements ConversationContext {
     private final LinkedList<ChatMessage> chatMessages = new LinkedList<>();
     private volatile List<CodeFragment> lastSentCodeFragments = List.of();
     private volatile TextSubstitutor textSubstitutor = TextSubstitutor.NONE;
-    private final ChatLinkStateConfiguration configuration;
+    private final ConfigurationPage configuration;
 
 
-    public ChatLinkState(ChatLinkStateConfiguration configuration) {
+    public ChatLinkState(ConfigurationPage configuration) {
         this.configuration = configuration;
     }
 
-    public ChatLinkStateConfiguration getModelConfiguration() {
+    public ConfigurationPage getModelConfiguration() {
         var configuration = this.configuration;
         if (configuration == null)
             throw new UnsupportedOperationException("ModelConfiguration is not supported by this ChatLink instance");
@@ -148,7 +148,7 @@ public class ChatLinkState implements ConversationContext {
 
     @Override
     public String getModelPage() {
-        return getModelConfiguration().getFacetName();
+        return getModelConfiguration().getModelPage();
     }
 
     @Override

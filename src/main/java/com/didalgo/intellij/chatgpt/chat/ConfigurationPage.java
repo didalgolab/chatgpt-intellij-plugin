@@ -2,16 +2,18 @@ package com.didalgo.intellij.chatgpt.chat;
 
 import java.util.function.Supplier;
 
-public interface ChatLinkStateConfiguration {
+public interface ConfigurationPage {
 
-    String getFacetName();
+    String getModelPage();
 
     String getModelName();
 
     Supplier<String> getSystemPrompt();
 
-    default ChatLinkStateConfiguration withSystemPrompt(Supplier<String> systemPrompt) {
-        return new ChatLinkStateConfigurationProxy(this) {
+    boolean isEnableStreamResponse();
+
+    default ConfigurationPage withSystemPrompt(Supplier<String> systemPrompt) {
+        return new ConfigurationPageProxy(this) {
             @Override
             public Supplier<String> getSystemPrompt() {
                 return systemPrompt;

@@ -12,7 +12,7 @@ This project is a plugin that provides integration with OpenAI ChatGPT API to ru
 ## Features
 
 - [x] Ask ChatGPT (supports GPT-3.5-Turbo API, GPT-4 API and Online Chat simultaneously)
-- [x] API keys stored on disk are encrypted
+- [x] Password-Safe storage of API keys
 - [x] Azure OpenAI endpoints support
 - [x] Select a code fragment in the editor and Ask ChatGPT (selected code will be automatically appended to the prompt)
 - [x] One-click copy code from ChatGPT's answer back to the editor

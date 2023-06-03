@@ -51,10 +51,16 @@ public class StandardTextSubstitutor implements TextSubstitutor {
     private void resolvePlaceholder(StringBuilder sb, int placeholderStartIndex, int placeholderEndIndex, String placeholder) {
         if (placeholder.equals("NOW")) {
             sb.replace(placeholderStartIndex, placeholderEndIndex, currentDateTime());
+        } else if (placeholder.equals("LANG")) {
+            sb.replace(placeholderStartIndex, placeholderEndIndex, currentLanguage());
         }
     }
 
     protected String currentDateTime() {
         return ZonedDateTime.now().format(DATE_TIME_FORMATTER);
+    }
+
+    protected String currentLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 }

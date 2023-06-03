@@ -18,7 +18,7 @@ public class ChatLinkService extends AbstractChatLink {
     private final ConversationHandler conversationHandler;
     private final ChatLinkState conversationContext;
 
-    public ChatLinkService(Project project, ConversationHandler engine, ChatLinkStateConfiguration configuration) {
+    public ChatLinkService(Project project, ConversationHandler engine, ConfigurationPage configuration) {
         this.project = project;
         this.conversationHandler = engine;
         this.conversationContext = new ChatLinkState(configuration);

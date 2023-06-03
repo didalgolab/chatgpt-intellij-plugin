@@ -5,7 +5,6 @@
 package com.didalgo.intellij.chatgpt.spi;
 
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
-import com.didalgo.intellij.chatgpt.text.encryption.AES;
 import com.theokanning.openai.service.OpenAiService;
 
 import java.time.Duration;
@@ -20,9 +19,9 @@ public class DefaultOpenAiServiceProvider implements OpenAiServiceProvider {
 
     @Override
     public OpenAiService createService(String page, OpenAISettingsState settings) {
-        var modelSettings = settings.getConfigForPage(page);
+        var modelSettings = settings.getConfigurationPage(page);
 
-        return new OpenAiService(AES.decrypt(modelSettings.getApiKey()),
+        return new OpenAiService(modelSettings.getApiKey(),
                 Duration.of(Long.parseLong(settings.getReadTimeout()), ChronoUnit.MILLIS));
     }
 }

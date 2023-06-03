@@ -11,6 +11,7 @@ import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,11 +27,14 @@ public class ChatMessageUtils {
     }
 
     public static String composeAll(String prompt, List<CodeFragment> codeFragments) {
-        var buf = new StringBuilder("[Selected code]");
+        var buf = new StringBuilder();
         for (var codeFragment : codeFragments) {
+            buf.append(StringUtils.isEmpty(codeFragment.description()) ? "[Selected code]" : codeFragment.description());
             buf.append('\n').append(codeFragment.toMarkdownString());
         }
-        buf.append("\n\n---\n\n").append(prompt);
+        if (!prompt.isEmpty())
+            buf.append("\n\n---\n\n").append(prompt);
+
         return buf.toString();
     }
 

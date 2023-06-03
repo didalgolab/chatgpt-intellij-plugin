@@ -4,9 +4,9 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
+import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.text.TextFragment;
-import com.didalgo.intellij.chatgpt.util.ImgUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -17,10 +17,10 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.panels.VerticalLayout;
+import com.intellij.util.IconUtil;
 import com.intellij.util.ui.*;
 import com.didalgo.intellij.chatgpt.ChatGptIcons;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +45,9 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
     private volatile TextFragment text;
 
-    public MessageComponent(TextFragment text, boolean fromUser) {
+    public MessageComponent(TextFragment text, ModelType model) {
         this.text = text;
+        var fromUser = (model == null);
         setDoubleBuffered(true);
         setOpaque(true);
         setBackground(fromUser ? new JBColor(0xEAEEF7, 0x45494A) : new JBColor(0xE0EEF7, 0x2d2f30 /*2d2f30*/));
@@ -58,14 +59,17 @@ public class MessageComponent extends JBPanel<MessageComponent> {
             JPanel iconPanel = new JPanel(new BorderLayout());
             iconPanel.setBorder(JBUI.Borders.empty(JBUI.scale(7), JBUI.scale(7), JBUI.scale(7), 0));
             iconPanel.setOpaque(false);
-            Image imageIcon;
-            try {
-                imageIcon = fromUser ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.OPEN_AI);
-            } catch (Exception e) {
-                imageIcon = fromUser ? ImgUtils.iconToImage(ChatGptIcons.ME) : ImgUtils.iconToImage(ChatGptIcons.AI);
+            Icon imageIcon;
+            if (fromUser) {
+                imageIcon = ChatGptIcons.USER;
+            } else if (model.ordinal() < ModelType.GPT_3_5_TURBO.ordinal()) {
+                imageIcon = ChatGptIcons.ROBOT_PINK_EYE;
+            } else if (model.ordinal() < ModelType.TEXT_DAVINCI_003.ordinal()) {
+                imageIcon = ChatGptIcons.ROBOT_GREEN_EYE;
+            } else {
+                imageIcon = ChatGptIcons.ROBOT_GREEN_EYE;
             }
-            Image scale = ImageUtil.scaleImage(imageIcon, 30, 30);
-            iconPanel.add(new JBLabel(new ImageIcon(scale)), BorderLayout.NORTH);
+            iconPanel.add(new JBLabel(IconUtil.scale(imageIcon, this, 1.25f)), BorderLayout.NORTH);
             add(iconPanel, BorderLayout.WEST);
         }
         JPanel centerPanel = new JPanel(new VerticalLayout(JBUI.scale(0)));
@@ -194,7 +198,6 @@ public class MessageComponent extends JBPanel<MessageComponent> {
 
     public void setErrorContent(String errorMessage) {
         setContent(TextFragment.of(errorMessage));
-        component.setForeground(JBColor.RED);
     }
 
     protected void updateIncrementalContent(ActionEvent event) {

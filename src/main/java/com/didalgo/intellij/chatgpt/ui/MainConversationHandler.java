@@ -31,11 +31,10 @@ public class MainConversationHandler implements ConversationHandler {
         var userMessage = event.getUserMessage();
         var chatCompletionRequestProvider = application.getService(ChatCompletionRequestProvider.class);
         var chatCompletionRequest = chatCompletionRequestProvider.chatCompletionRequest(ctx, userMessage)
-                .stream(true)
                 .build();
 
         return application.getService(ChatGptHandler.class)
-                .handle(ctx, event.started(chatCompletionRequest), listener)
+                .handle(ctx, event.initiating(chatCompletionRequest), listener)
                 .subscribeOn(Schedulers.io())
                 .subscribe();
     }

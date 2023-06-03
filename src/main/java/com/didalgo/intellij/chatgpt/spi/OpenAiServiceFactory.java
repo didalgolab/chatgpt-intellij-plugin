@@ -15,7 +15,7 @@ public class OpenAiServiceFactory {
     }
 
     public OpenAiService create(String group, OpenAISettingsState settings) {
-        var completionUrl = settings.getConfigForPage(group).getApiEndpointUrl();
+        var completionUrl = settings.getConfigurationPage(group).getApiEndpointUrl();
         return ApplicationManager.getApplication().getService(OpenAiServiceProviderRegistry.class)
                 .getProviderForCompletionUrl(completionUrl)
                 .createService(group, settings);

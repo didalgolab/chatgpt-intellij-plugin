@@ -19,9 +19,12 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.*;
 import javax.swing.text.html.HTML;
 import java.awt.*;
+import java.net.URI;
 import java.util.Optional;
 
 public class MessagePanel extends HtmlPanel {
@@ -138,6 +141,29 @@ public class MessagePanel extends HtmlPanel {
     @Override
     protected @NotNull Font getBodyFont() {
         return UIUtil.getLabelFont();
+    }
+
+    @Override
+    public void hyperlinkUpdate(HyperlinkEvent e) {
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            URI uri = URI.create(e.getDescription());
+            HyperlinkListener listener;
+            if ("assistant".equals(uri.getScheme())
+                    && (listener = findHyperlinkListenerInHierarchy()) != null) {
+                listener.hyperlinkUpdate(e);
+            } else {
+                super.hyperlinkUpdate(e);
+            }
+        }
+    }
+
+    private HyperlinkListener findHyperlinkListenerInHierarchy() {
+        for (Component c = this; c != null; c = c.getParent())
+            if (c instanceof JComponent jc
+                    && jc.getClientProperty(HyperlinkListener.class) instanceof HyperlinkListener listener)
+                return listener;
+
+        return null;
     }
 
     public void updateMessage(TextFragment updateMessage) {

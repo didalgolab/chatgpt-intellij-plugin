@@ -7,7 +7,6 @@ package com.didalgo.intellij.chatgpt.chat;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
-import io.reactivex.internal.subscriptions.EmptySubscription;
 import org.reactivestreams.Subscription;
 
 import java.util.*;
@@ -64,12 +63,12 @@ public abstract class ChatMessageEvent extends EventObject {
             this(sourceEvent.getChatLink(), sourceEvent.getUserMessage());
         }
 
-        public Started started() {
-            return started(null);
+        public Started started(Subscription subscription) {
+            return new Started(this, subscription);
         }
 
-        public Started started(ChatCompletionRequest request) {
-            return new Started(this, EmptySubscription.INSTANCE, request);
+        public Initiating initiating(ChatCompletionRequest request) {
+            return new Initiating(this, request);
         }
 
         public Failed failed(Throwable cause) {
@@ -82,31 +81,33 @@ public abstract class ChatMessageEvent extends EventObject {
         }
     }
 
-    public static class Started extends Starting {
-        private volatile Subscription subscription;
+    public static class Initiating extends Starting {
         private final ChatCompletionRequest request;
 
-        protected Started(Started sourceEvent) {
-            this(sourceEvent, sourceEvent.getSubscription(), sourceEvent.getRequest().orElse(null));
-        }
-
-        protected Started(Starting sourceEvent, Subscription subscription, ChatCompletionRequest request) {
+        protected Initiating(Starting sourceEvent, ChatCompletionRequest request) {
             super(sourceEvent);
-            this.subscription = subscription;
             this.request = request;
-        }
-
-        public final Subscription getSubscription() {
-            return subscription;
         }
 
         public final Optional<ChatCompletionRequest> getRequest() {
             return Optional.ofNullable(request);
         }
+    }
 
-        public Started started(Subscription subscription) {
+    public static class Started extends Starting {
+        private volatile Subscription subscription;
+
+        protected Started(Started sourceEvent) {
+            this(sourceEvent, sourceEvent.getSubscription());
+        }
+
+        protected Started(Starting sourceEvent, Subscription subscription) {
+            super(sourceEvent);
             this.subscription = subscription;
-            return this;
+        }
+
+        public final Subscription getSubscription() {
+            return subscription;
         }
 
         public ResponseArriving responseArriving(ChatCompletionChunk responseChunk, List<ChatMessage> partialResponseChoices) {

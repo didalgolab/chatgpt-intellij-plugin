@@ -7,7 +7,10 @@ package com.didalgo.intellij.chatgpt.settings;
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory;
 import com.didalgo.intellij.chatgpt.ModelPage;
-import com.didalgo.intellij.chatgpt.chat.ChatLinkStateConfiguration;
+import com.didalgo.intellij.chatgpt.chat.ConfigurationPage;
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.CredentialAttributesKt;
+import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
@@ -38,6 +41,10 @@ import java.util.function.Supplier;
 )
 public class OpenAISettingsState implements PersistentStateComponent<OpenAISettingsState> {
 
+    public static final String BASE_PROMPT = "You are a professional software engineer." +
+            " Follow these rules in each response: snarky & noir & lang:${{LANG}}." +
+            " Regardless of conversation language you *SHOULD ALWAYS* write source code in English, with English: messages, comments, prompts and names.";
+
     public Map<Integer,String> contentOrder = new HashMap<>() {{
         put(1, ChatGptToolWindowFactory.GPT35_TURBO_CONTENT_NAME);
         put(2, ChatGptToolWindowFactory.ONLINE_CHATGPT_CONTENT_NAME);
@@ -55,19 +62,19 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
 
     private volatile List<CustomAction> customActionsPrefix = new CopyOnWriteArrayList<>();
 
-    public String gpt35RoleText = "You are an expert in software development. From now on follow these rules: ['snarky', 'noir']";
+    public String gpt35RoleText = BASE_PROMPT;
 
     public static OpenAISettingsState getInstance() {
         return ApplicationManager.getApplication().getService(OpenAISettingsState.class);
     }
 
     public void setGpt35Config(OpenAIConfig gpt35Config) {
-        gpt35Config.facetName = ModelPage.GPT_3_5.name();
+        gpt35Config.modelPage = ModelPage.GPT_3_5.name();
         this.gpt35Config = gpt35Config;
     }
 
     public void setGpt4Config(OpenAIConfig gpt4Config) {
-        gpt4Config.facetName = ModelPage.GPT_4.name();
+        gpt4Config.modelPage = ModelPage.GPT_4.name();
         this.gpt4Config = gpt4Config;
     }
 
@@ -78,10 +85,12 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     @Getter
     @Setter
     @Tag("ApiConfig")
-    public static class OpenAIConfig implements ChatLinkStateConfiguration {
-        private volatile String facetName;
-        private volatile String apiKey = Optional.ofNullable(System.getenv("OPENAI_API_KEY")).orElse("");
+    public static class OpenAIConfig implements ConfigurationPage {
+        private volatile String modelPage;
         private volatile String modelName;
+        private volatile String apiKeyMasked = "";
+        private volatile double temperature = 0.4;
+        private volatile double topP = 0.95;
         private volatile boolean enableContext = true;
         private volatile boolean enableTokenConsumption = true;
         private volatile boolean enableStreamResponse = true;
@@ -93,16 +102,28 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
 
         @Override
         public int hashCode() {
-            return Objects.hash(facetName, apiKey, modelName, enableContext, enableTokenConsumption,
-                    enableStreamResponse, enableCustomApiEndpointUrl, apiEndpointUrl);
+            return Objects.hash(
+                    modelPage,
+                    modelName,
+                    apiKeyMasked,
+                    temperature,
+                    topP,
+                    enableContext,
+                    enableTokenConsumption,
+                    enableStreamResponse,
+                    enableCustomApiEndpointUrl,
+                    apiEndpointUrl
+            );
         }
 
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof OpenAIConfig that) {
-                return Objects.equals(facetName, that.facetName)
-                        && Objects.equals(apiKey, that.apiKey)
+                return Objects.equals(modelPage, that.modelPage)
                         && Objects.equals(modelName, that.modelName)
+                        && Objects.equals(apiKeyMasked, that.apiKeyMasked)
+                        && Objects.equals(temperature, that.temperature)
+                        && Objects.equals(topP, that.topP)
                         && Objects.equals(enableContext, that.enableContext)
                         && Objects.equals(enableTokenConsumption, that.enableTokenConsumption)
                         && Objects.equals(enableStreamResponse, that.enableStreamResponse)
@@ -113,17 +134,45 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
         }
 
         @Transient
-        public final String getFacetName() {
-            return facetName;
+        public final String getModelPage() {
+            return modelPage;
         }
 
-        private void setFacetName(String facetName) {
-            this.facetName = facetName;
+        private void setModelPage(String modelPage) {
+            this.modelPage = modelPage;
         }
 
         @Override
         public Supplier<String> getSystemPrompt() {
             return () -> "";
+        }
+
+        @Transient
+        public String getApiKey() {
+            var apiKey = System.getenv("OPENAI_API_KEY");
+            if (apiKey == null)
+                apiKey = PasswordSafe.getInstance().getPassword(createCredentialAttributes(getModelPage()));
+            if (apiKey == null)
+                apiKey = "";
+
+            return apiKey;
+        }
+
+        public void setApiKey(String apiKey) {
+            var credentialAttributes = createCredentialAttributes(getModelPage());
+            PasswordSafe.getInstance().setPassword(credentialAttributes, apiKey);
+            setApiKeyMasked(maskText(apiKey));
+        }
+
+        private static String maskText(String text) {
+            final int maskStart = 3;
+            final int maskEnd = 4;
+            return (text.length() <= maskStart + maskEnd) ? text : text.substring(0, maskStart) + "..." + text.substring(text.length() - maskEnd);
+        }
+
+        @NotNull
+        private static CredentialAttributes createCredentialAttributes(@NotNull String modelPage) {
+            return new CredentialAttributes(CredentialAttributesKt.generateServiceName("com.didalgo.ChatGPT", modelPage), null);
         }
     }
 
@@ -136,17 +185,17 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     }
 
     @Transient
-    public OpenAIConfig getConfigForPage(String page) {
-        return switch (page) {
+    public OpenAIConfig getConfigurationPage(String modelPage) {
+        return switch (modelPage) {
             case ModelPage.Of.GPT_3_5 -> gpt35Config;
             case ModelPage.Of.GPT_4 -> gpt4Config;
-            default -> throw new IllegalArgumentException("Invalid Model Page: " + page);
+            default -> throw new IllegalArgumentException("Invalid Model Page: " + modelPage);
         };
     }
 
     @Transient
-    public OpenAIConfig getActiveConfig() {
-        return getConfigForPage(activePage);
+    public OpenAIConfig getActiveConfiguration() {
+        return getConfigurationPage(activePage);
     }
 
     public void setActivePage(String page) {

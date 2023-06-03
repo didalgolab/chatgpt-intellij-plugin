@@ -2,11 +2,11 @@ package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.OpenAIServiceHolder;
-import com.didalgo.intellij.chatgpt.text.encryption.AES;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.TitledSeparator;
-import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -20,7 +20,7 @@ import java.awt.event.ItemListener;
 public abstract class ModelPagePanel implements Configurable {
     protected JPanel myMainPanel;
     protected JPanel apiKeyTitledBorderBox;
-    protected JBTextField apiKeyField;
+    protected JBPasswordField apiKeyField;
     protected JComboBox<String> comboCombobox;
     protected JPanel modelTitledBorderBox;
     protected JCheckBox enableContextCheckBox;
@@ -33,13 +33,15 @@ public abstract class ModelPagePanel implements Configurable {
     protected TextFieldWithHistory customizeServerField;
     protected JPanel customizeServerOptions;
     protected JLabel apiEndpointLabel;
+    private JSpinner temperatureSpinner;
+    private JSpinner topPSpinner;
 
     public ModelPagePanel() {
         init();
     }
 
     private void init() {
-        apiKeyField.getEmptyText().setText("Your API Key, find it in: https://platform.openai.com/account/api-keys");
+        apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing"), SimpleTextAttributes.ERROR_ATTRIBUTES);
         ItemListener proxyTypeChangedListener = e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 enableCustomizeServerOptions(true);
@@ -49,6 +51,8 @@ public abstract class ModelPagePanel implements Configurable {
         };
         enableCustomizeUrlCheckBox.addItemListener(proxyTypeChangedListener);
         enableCustomizeServerOptions(false);
+        temperatureSpinner.setModel(new SpinnerNumberModel(0.4, 0.0, 2.0, 0.05));
+        topPSpinner.setModel(new SpinnerNumberModel(0.95, 0.0, 1.0, 0.01));
         initHelp();
     }
 
@@ -63,8 +67,10 @@ public abstract class ModelPagePanel implements Configurable {
     public void reset() {
         OpenAISettingsState state = OpenAISettingsState.getInstance();
         OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
-        apiKeyField.setText(AES.decrypt(config.getApiKey()));
+        setApiKeyMasked(apiKeyField, config);
         comboCombobox.setSelectedItem(config.getModelName());
+        temperatureSpinner.setValue(config.getTemperature());
+        topPSpinner.setValue(config.getTopP());
         enableContextCheckBox.setSelected(config.isEnableContext());
         enableTokenConsumptionCheckBox.setSelected(config.isEnableTokenConsumption());
         enableStreamResponseCheckBox.setSelected(config.isEnableStreamResponse());
@@ -83,8 +89,10 @@ public abstract class ModelPagePanel implements Configurable {
         OpenAISettingsState state = OpenAISettingsState.getInstance();
         OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
 
-        return !config.getApiKey().equals(AES.encrypt(apiKeyField.getText())) ||
+        return !apiKeyField.getText().isEmpty() ||
                 !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
+                !Double.valueOf(config.getTemperature()).equals(temperatureSpinner.getValue()) ||
+                !Double.valueOf(config.getTopP()).equals(topPSpinner.getValue()) ||
                 config.isEnableContext() != enableContextCheckBox.isSelected() ||
                 config.isEnableTokenConsumption() != enableTokenConsumptionCheckBox.isSelected() ||
                 config.isEnableStreamResponse() != enableStreamResponseCheckBox.isSelected() ||
@@ -97,8 +105,13 @@ public abstract class ModelPagePanel implements Configurable {
         OpenAISettingsState state = OpenAISettingsState.getInstance();
         OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
 
-        config.setApiKey(AES.encrypt(apiKeyField.getText()));
+        if (apiKeyField.getPassword().length > 0) {
+            config.setApiKey(String.valueOf(apiKeyField.getPassword()));
+            setApiKeyMasked(apiKeyField, config);
+        }
         config.setModelName(comboCombobox.getSelectedItem().toString());
+        config.setTemperature((double) temperatureSpinner.getValue());
+        config.setTopP((double) topPSpinner.getValue());
         config.setEnableContext(enableContextCheckBox.isSelected());
         config.setEnableTokenConsumption(enableTokenConsumptionCheckBox.isSelected());
         config.setEnableStreamResponse(enableStreamResponseCheckBox.isSelected());
@@ -108,6 +121,13 @@ public abstract class ModelPagePanel implements Configurable {
             customizeServerField.addCurrentTextToHistory();
         config.setApiEndpointUrlHistory(customizeServerField.getHistory());
         OpenAIServiceHolder.refresh();
+    }
+
+    private void setApiKeyMasked(JBPasswordField apiKeyField, OpenAISettingsState.OpenAIConfig config) {
+        apiKeyField.setText("");
+        apiKeyField.getEmptyText().setText(config.getApiKeyMasked());
+        if (config.getApiKeyMasked().isEmpty())
+            apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing"), SimpleTextAttributes.ERROR_ATTRIBUTES);
     }
 
     @Override
