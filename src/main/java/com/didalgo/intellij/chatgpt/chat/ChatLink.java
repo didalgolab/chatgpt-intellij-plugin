@@ -29,4 +29,8 @@ public interface ChatLink {
     void addChatMessageListener(ChatMessageListener listener);
 
     void removeChatMessageListener(ChatMessageListener listener);
+
+    default void regenerateResponse() {
+
+    }
 }

@@ -8,6 +8,7 @@ import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsActions;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +33,10 @@ public class GenericEditorAction extends AbstractEditorAction {
 
     @Override
     protected void actionPerformed(Project project, Editor editor, String selectedText) {
-        var fileExtension = editor.getVirtualFile().getExtension();
-        var fileUrl = editor.getVirtualFile().getUrl();
+        @SuppressWarnings("RedundantCast")
+        var file = ((EditorEx) editor).getVirtualFile();
+        var fileExtension = (file == null)? "" : file.getExtension();
+        var fileUrl = (file == null)? "" : file.getUrl();
         ChatLink.forProject(project).pushMessage(prompt, List.of(CodeFragment.of(selectedText, fileExtension, ChatGptBundle.message("code.fragment.title", fileUrl))));
     }
 }

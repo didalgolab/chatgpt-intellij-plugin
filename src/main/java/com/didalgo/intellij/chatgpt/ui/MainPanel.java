@@ -20,7 +20,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
@@ -63,11 +62,11 @@ public class MainPanel implements ChatMessageListener {
         chatLink = new ChatLinkService(project, conversationHandler, configuration.withSystemPrompt(() -> getContentPanel().getSystemMessage()));
         chatLink.addChatMessageListener(this);
         ContextAwareSnippetizer snippetizer = ApplicationManager.getApplication().getService(ContextAwareSnippetizer.class);
-        SubmitListener listener = new SubmitListener(chatLink, this::getSearchText, snippetizer);
+        SubmitListener submitAction = new SubmitListener(chatLink, this::getSearchText, snippetizer);
 
         splitter = new OnePixelSplitter(true,.98f);
         splitter.setDividerWidth(1);
-        splitter.putClientProperty(HyperlinkListener.class, listener);
+        splitter.putClientProperty(HyperlinkListener.class, submitAction);
 
         searchTextField = new ExpandableTextFieldExt(project);
         var searchTextDocument = (AbstractDocument) searchTextField.getDocument();
@@ -75,11 +74,10 @@ public class MainPanel implements ChatMessageListener {
         searchTextDocument.putProperty("filterNewlines", Boolean.FALSE);
         searchTextDocument.addDocumentListener(new ExpandableTextFieldExt.ExpandOnMultiLinePaste(searchTextField));
         searchTextField.setMonospaced(false);
-        searchTextField.addActionListener(listener);
-        searchTextField.registerKeyboardAction(listener, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
+        searchTextField.addActionListener(submitAction);
+        searchTextField.registerKeyboardAction(submitAction, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
         searchTextField.getEmptyText().setText("Type a prompt here");
-        button = new JButton(ChatGptBundle.message("ui.toolwindow.send"), IconLoader.getIcon("/icons/send.svg", MainPanel.class));
-        button.addActionListener(listener);
+        button = new JButton(submitAction);
         button.setUI(new DarculaButtonUI());
 
         stopGenerating = new JButton("Stop", AllIcons.Actions.Suspend);

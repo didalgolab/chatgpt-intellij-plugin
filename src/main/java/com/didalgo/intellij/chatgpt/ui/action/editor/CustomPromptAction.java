@@ -18,6 +18,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -52,8 +53,10 @@ public class CustomPromptAction extends GenericEditorAction {
 
         var editor = e.getData(CommonDataKeys.EDITOR);
         if (editor != null) {
-            if (editor.getVirtualFile() != null) {
-                fileExtension = editor.getVirtualFile().getExtension();
+            @SuppressWarnings("RedundantCast")
+            var file = ((EditorEx) editor).getVirtualFile();
+            if (file != null) {
+                fileExtension = file.getExtension();
             }
 
             var dialog = new CustomActionDialog(e.getProject(), CodeFragment.of(getSelectedTextFromEditor(editor)), fileExtension);
@@ -75,6 +78,7 @@ public class CustomPromptAction extends GenericEditorAction {
         private JPanel panel;
         private final JBTextField question = new JBTextField();
         private final Project project;
+        private EditorFactory editorFactory;
         private Editor editor;
         private final CodeFragment selected;
         private final String fileExtension;
@@ -141,7 +145,7 @@ public class CustomPromptAction extends GenericEditorAction {
             JBLabel codeLabel = new JBLabel("Code block:");
             codeLabel.setBorder(JBUI.Borders.empty(10,0,5,0));
             codePanel.add(codeLabel,BorderLayout.NORTH);
-            EditorFactory editorFactory = EditorFactory.getInstance();
+            editorFactory = EditorFactory.getInstance();
             FileType fileType = FileTypeManager.getInstance().getFileTypeByExtension(fileExtension);
             editor = editorFactory.createEditor(editorFactory.createDocument(selected.content()), project, fileType, false);
             editor.getDocument().addDocumentListener(new DocumentListener() {
@@ -161,7 +165,7 @@ public class CustomPromptAction extends GenericEditorAction {
             editorSettings.setCaretRowShown(true);
             editorSettings.setAnimatedScrolling(true);
             codePanel.setPreferredSize(new Dimension(600,400));
-            codePanel.add(editor.getComponent(),BorderLayout.CENTER);
+            codePanel.add(editor.getComponent(), BorderLayout.CENTER);
             basePanel.add(codePanel, BorderLayout.CENTER);
 
             JPanel prefixPanel = new NonOpaquePanel(new BorderLayout());

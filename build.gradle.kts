@@ -125,7 +125,8 @@ tasks {
     }
 
     runPluginVerifier {
-        downloadDir.set("C:/env/.pluginVerifier/ides")
+        ideVersions.set(listOf("IC-232.6734.9", "IC-231.9011.34", "IC-231.4840.387"))
+        downloadDir.set(File(System.getProperty("user.home"), ".pluginVerifier/ides").path)
     }
 
 //    runIde {
@@ -134,9 +135,9 @@ tasks {
 //    }
 
     signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
+        certificateChainFile.set(file(project.property("JetBrains.signPlugin.certificateChain") as String))
+        privateKeyFile.set(file(project.property("JetBrains.signPlugin.privateKey") as String))
+        password.set(project.property("JetBrains.signPlugin.password") as String?)
     }
 
     publishPlugin {

@@ -157,7 +157,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
     protected MessageComponent createAssistantTips() {
         var modelType = chatLink.getConversationContext().getModelType();
         return new MessageComponent(TextFragment.of("""
-                Hi, I'm your annoying AI-powered pair programmer. How can I assist you today?
+                Hi, I'm your AI-powered annoying pair programmer. How can I assist you today?
                 
                 Here are some suggestions to get you started:
                 [✦ Explain the selected code](assistant://?prompt=Explain+the+selected+code)
