@@ -1,11 +1,15 @@
+/*
+ * Copyright (c) 2023 Mariusz Bernacki <consulting@didalgo.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.didalgo.intellij.chatgpt.ui.incubator;
 
+import com.didalgo.intellij.chatgpt.ui.ExpandableSupportExt;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.Expandable;
 import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.fields.ExpandableSupport;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.util.Function;
 import com.intellij.util.execution.ParametersListUtil;
@@ -26,7 +30,7 @@ import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
 public class ExpandableTextArea extends ExtendableTextArea implements Expandable {
-    private final ExpandableSupport support;
+    private final ExpandableSupportExt<JTextComponent> support;
 
     /**
      * Creates an expandable text field with the default line parser/joiner,
@@ -44,7 +48,7 @@ public class ExpandableTextArea extends ExtendableTextArea implements Expandable
     public ExpandableTextArea(@NotNull Function<? super String, ? extends List<String>> parser, @NotNull Function<? super List<String>, String> joiner) {
         Function<? super String, String> onShow = text -> StringUtil.join(parser.fun(text), "\n");
         Function<? super String, String> onHide = text -> joiner.fun(asList(StringUtil.splitByLines(text)));
-        support = new ExpandableSupport<JTextComponent>(this, onShow, onHide) {
+        support = new ExpandableSupportExt<>(this, onShow, onHide) {
             @NotNull
             @Override
             protected Content prepare(@NotNull JTextComponent field, @NotNull Function<? super String, @Nls String> onShow) {

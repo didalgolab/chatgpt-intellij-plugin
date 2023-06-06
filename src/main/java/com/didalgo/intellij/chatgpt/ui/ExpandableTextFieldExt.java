@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Mariusz Bernacki <consulting@didalgo.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.didalgo.intellij.chatgpt.ui;
 
 import com.intellij.openapi.actionSystem.*;
@@ -10,12 +14,12 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.Expandable;
 import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.fields.ExpandableSupport;
-import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
+import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.Function;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.SwingUndoUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -38,9 +42,9 @@ import static java.util.Collections.singletonList;
 import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
 
-public class ExpandableTextFieldExt extends ExpandableTextField implements DataProvider {
+public class ExpandableTextFieldExt extends ExtendableTextField implements Expandable, DataProvider {
     private static final KeyStroke SHIFT_ENTER = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK);
-    private final ExpandableSupport support;
+    private final ExpandableSupportExt<JTextComponent> support;
     private final Project project;
 
     public ExpandableTextFieldExt(Project project) {
@@ -50,11 +54,10 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
     }
 
     public ExpandableTextFieldExt(Project project, @NotNull Function<? super String, ? extends List<String>> parser, @NotNull Function<? super List<String>, String> joiner) {
-        super(parser, joiner);
         this.project = project;
         Function<? super String, String> onShow = text -> StringUtil.join(parser.fun(text), "\n");
         Function<? super String, String> onHide = text -> joiner.fun(asList(/*MOD AGAINST IDEA CORE*/text.split("\r?\n")/*END MOD*/));
-        support = new ExpandableSupport<JTextComponent>(this, onShow, onHide) {
+        support = new ExpandableSupportExt<>(this, onShow, onHide) {
             @NotNull
             @Override
             protected Content prepare(@NotNull JTextComponent field, @NotNull Function<? super String, @Nls String> onShow) {
@@ -113,7 +116,29 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
                 };
             }
         };
+        setMonospaced(true);
         setExtensions(createExtensions());
+    }
+
+    @NotNull
+    protected JTextArea createTextArea(@Nls @NotNull String text, boolean editable, Color background, Color foreground, Font font) {
+        JTextArea area = new JTextArea(text);
+
+        area.putClientProperty(Expandable.class, this);
+        area.setEditable(editable);
+        area.setBackground(background);
+        area.setForeground(foreground);
+        area.setFont(font);
+        area.setWrapStyleWord(true);
+        area.setLineWrap(true);
+
+        SwingUndoUtil.addUndoRedoActions(area);
+
+        return area;
+    }
+
+    public void setMonospaced(boolean monospaced) {
+        putClientProperty("monospaced", monospaced);
     }
 
     @Override
@@ -143,12 +168,10 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
         return (support == null)? emptyList(): singletonList(support.createExpandExtension());
     }
 
-    @Override
     public String getTitle() {
         return support.getTitle();
     }
 
-    @Override
     public void setTitle(@NlsContexts.PopupTitle String title) {
         support.setTitle(title);
     }
@@ -225,7 +248,7 @@ public class ExpandableTextFieldExt extends ExpandableTextField implements DataP
     }
 
     private final class MyShiftEnterAction extends DumbAwareAction {
-        private JTextArea area;
+        private final JTextArea area;
 
         private MyShiftEnterAction(JTextArea area) {
             this.area = area;

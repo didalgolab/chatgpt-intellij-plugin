@@ -1,4 +1,4 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-## [0.1.2]
+## [0.2.6]
 + Initial release.

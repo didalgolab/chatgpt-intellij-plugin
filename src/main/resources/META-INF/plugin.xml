@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.didalgo.chatgpt</id>
     <name>ChatGPT Integration</name>
-    <vendor email="consulting@didalgo.com" url="https://github.com/didalgo2">didalgo</vendor>
+    <vendor email="consulting@didalgo.com" url="https://github.com/didalgolab">didalgo</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>

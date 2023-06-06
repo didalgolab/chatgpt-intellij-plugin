@@ -21,7 +21,6 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.OnePixelSplitter;
-import com.intellij.ui.components.fields.ExpandableTextField;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import io.reactivex.disposables.Disposable;
@@ -42,7 +41,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class MainPanel implements ChatMessageListener {
 
-    private final ExpandableTextField searchTextField;
+    private final ExpandableTextFieldExt searchTextField;
     private final JButton button;
     private final JButton stopGenerating;
     private final MessageGroupComponent contentPanel;
