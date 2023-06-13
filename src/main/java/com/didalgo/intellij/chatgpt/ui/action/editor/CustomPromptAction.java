@@ -213,6 +213,7 @@ public class CustomPromptAction extends GenericEditorAction {
                     if (!StringUtils.isEmpty(question.getText())) {
                         List<CustomAction> customActionsPrefix = OpenAISettingsState.getInstance().getCustomActionsPrefix();
                         customActionsPrefix.add(new CustomAction(name, question.getText()));
+                        ActionsUtil.refreshActions();
                     }
                     dispose();
                     close(OK_EXIT_CODE);
