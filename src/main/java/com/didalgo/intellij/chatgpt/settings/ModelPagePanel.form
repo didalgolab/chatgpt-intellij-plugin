@@ -75,10 +75,15 @@
               <model>
                 <item value="gpt-3.5-turbo"/>
                 <item value="gpt-3.5-turbo-0301"/>
+                <item value="gpt-3.5-turbo-0613"/>
+                <item value="gpt-3.5-turbo-16k"/>
+                <item value="gpt-3.5-turbo-16k-0613"/>
                 <item value="gpt-4"/>
                 <item value="gpt-4-0314"/>
+                <item value="gpt-4-0613"/>
                 <item value="gpt-4-32k"/>
                 <item value="gpt-4-32k-0314"/>
+                <item value="gpt-4-32k-0613"/>
                 <item value="text-davinci-003"/>
                 <item value="text-davinci-002"/>
                 <item value="code-davinci-002"/>

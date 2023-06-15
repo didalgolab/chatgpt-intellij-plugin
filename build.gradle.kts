@@ -29,7 +29,7 @@ repositories {
 
 dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.26")
-    implementation("com.didalgo:gpt3-tokenizer:0.1.2")
+    implementation("com.didalgo:gpt3-tokenizer:0.1.4")
     implementation("com.fifesoft:rsyntaxtextarea:3.3.3")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
