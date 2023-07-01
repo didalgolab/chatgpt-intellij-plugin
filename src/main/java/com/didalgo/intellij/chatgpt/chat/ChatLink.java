@@ -22,6 +22,8 @@ public interface ChatLink {
 
     Project getProject();
 
+    InputContext getInputContext();
+
     ConversationContext getConversationContext();
 
     void pushMessage(String prompt, List<CodeFragment> codeFragments);

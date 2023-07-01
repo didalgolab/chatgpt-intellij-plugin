@@ -31,9 +31,10 @@ public class ChatMessageUtils {
         for (var codeFragment : codeFragments) {
             buf.append(StringUtils.isEmpty(codeFragment.description()) ? "[Selected code]" : codeFragment.description());
             buf.append('\n').append(codeFragment.toMarkdownString());
+            buf.append("\n\n");
         }
         if (!prompt.isEmpty())
-            buf.append("\n\n---\n\n").append(prompt);
+            buf.append("---\n\n").append(prompt);
 
         return buf.toString();
     }
