@@ -14,6 +14,7 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -33,8 +34,6 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -44,7 +43,7 @@ import java.io.IOException;
 
 public class RSyntaxTextAreaView extends ComponentView {
 
-    private static final Logger log = LoggerFactory.getLogger(RSyntaxTextAreaView.class);
+    private static final Logger log = Logger.getInstance(RSyntaxTextAreaView.class);
     private static Theme defaultTheme;
 
     private Language language;

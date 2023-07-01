@@ -11,6 +11,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.ui.ColorUtil;
 import com.intellij.ui.JBColor;
@@ -22,8 +23,6 @@ import com.intellij.util.ui.*;
 import com.didalgo.intellij.chatgpt.ChatGptIcons;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.*;
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MessageComponent extends JBPanel<MessageComponent> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageComponent.class);
+    private static final Logger LOG = Logger.getInstance(MessageComponent.class);
 
     private final MessagePanel component = new MessagePanel();
 
@@ -209,7 +208,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
                 content.compareAndSet(message, null);
             }
         } catch (Exception e) {
-            LOG.error("ChatGPT Exception in processing response: response: {}, error: {}", message, e.getMessage());
+            LOG.error("ChatGPT Exception in processing response: response: {}, error: {}", e, String.valueOf(message), e.getMessage());
             e.printStackTrace();
         }
     }

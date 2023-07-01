@@ -29,14 +29,14 @@ repositories {
 
 dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.26")
-    implementation("com.didalgo:gpt3-tokenizer:0.1.4")
+    implementation("com.didalgo:gpt3-tokenizer:0.1.5")
     implementation("com.fifesoft:rsyntaxtextarea:3.3.3")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.squareup.okhttp3:okhttp-sse:4.11.0")
     implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
-    implementation("com.theokanning.openai-gpt3-java:service:0.12.0")
+    implementation("com.theokanning.openai-gpt3-java:service:0.14.0")
     implementation("com.vladsch.flexmark:flexmark:0.64.0")
     implementation("com.vladsch.flexmark:flexmark-ext-tables:0.64.0")
     implementation("org.projectlombok:lombok:1.18.26")
