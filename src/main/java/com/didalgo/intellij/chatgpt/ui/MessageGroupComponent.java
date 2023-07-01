@@ -121,9 +121,8 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
         newChat.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
                 myList.removeAll();
-                myList.add(createAssistantTips());
+                addAssistantTipsIfEnabled(false);
                 myList.updateUI();
                 chatLink.getConversationContext().clear();
             }
@@ -151,7 +150,29 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
             }
         });
 
-        myList.add(createAssistantTips());
+        addAssistantTipsIfEnabled(true);
+    }
+
+    public void addSeparator(JComponent comp) {
+        SwingUtilities.invokeLater(() -> {
+            JSeparator separator = new JSeparator();
+            separator.setForeground(JBColor.border());
+            comp.add(separator);
+            updateLayout();
+            invalidate();
+            validate();
+            repaint();
+        });
+    }
+
+    protected void addAssistantTipsIfEnabled(boolean firstUse) {
+        addSeparator(myList);
+
+        var introEnabled = OpenAISettingsState.getInstance().getEnableInitialMessage();
+        if (!firstUse && introEnabled == null)
+            OpenAISettingsState.getInstance().setEnableInitialMessage(introEnabled = false);
+        if (!Boolean.FALSE.equals(introEnabled))
+            myList.add(createAssistantTips());
     }
 
     protected MessageComponent createAssistantTips() {

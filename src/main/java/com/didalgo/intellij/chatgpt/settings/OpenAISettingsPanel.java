@@ -33,6 +33,7 @@ public class OpenAISettingsPanel implements Configurable {
     private JComboBox<String> firstCombobox;
     private JComboBox<String> secondCombobox;
     private JCheckBox enableLineWarpCheckBox;
+    private JCheckBox enableInitialMessageCheckBox;
     private JLabel readTimeoutHelpLabel;
     private JLabel contentOrderHelpLabel;
     private JPanel openaiAssistantTitledBorderBox;
@@ -62,6 +63,7 @@ public class OpenAISettingsPanel implements Configurable {
         firstCombobox.setSelectedItem(state.contentOrder.get(1));
         secondCombobox.setSelectedItem(state.contentOrder.get(2));
         enableLineWarpCheckBox.setSelected(state.isEnableLineWarp());
+        enableInitialMessageCheckBox.setSelected(Boolean.TRUE.equals(state.getEnableInitialMessage()));
         initHelp();
     }
 
@@ -75,16 +77,17 @@ public class OpenAISettingsPanel implements Configurable {
         OpenAISettingsState state = OpenAISettingsState.getInstance();
 
         // If you change the order, you need to restart the IDE to take effect
-        needRestart = !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem())||
-                !StringUtil.equals(state.contentOrder.get(2), (String)secondCombobox.getSelectedItem())||
-                !state.isEnableLineWarp() == enableLineWarpCheckBox.isSelected();
+        needRestart = !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem())
+                || !StringUtil.equals(state.contentOrder.get(2), (String)secondCombobox.getSelectedItem())
+                || !state.isEnableLineWarp() == enableLineWarpCheckBox.isSelected();
 
         return
-                !StringUtil.equals(state.getReadTimeout(), readTimeoutField.getText()) ||
-                !state.isEnableAvatar() == enableAvatarCheckBox.isSelected() ||
-                !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem()) ||
-                !StringUtil.equals(state.contentOrder.get(2), (String)secondCombobox.getSelectedItem()) ||
-                !state.isEnableLineWarp() == enableLineWarpCheckBox.isSelected();
+                !StringUtil.equals(state.getReadTimeout(), readTimeoutField.getText())
+                || !state.isEnableAvatar() == enableAvatarCheckBox.isSelected()
+                || !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem())
+                || !StringUtil.equals(state.contentOrder.get(2), (String)secondCombobox.getSelectedItem())
+                || !state.isEnableLineWarp() == enableLineWarpCheckBox.isSelected()
+                || !Boolean.TRUE.equals(state.getEnableInitialMessage()) == enableInitialMessageCheckBox.isSelected();
     }
 
     @Override
@@ -114,6 +117,7 @@ public class OpenAISettingsPanel implements Configurable {
         state.contentOrder.put(1, firstSelected);
         state.contentOrder.put(2, secondSelected);
         state.setEnableLineWarp(enableLineWarpCheckBox.isSelected());
+        state.setEnableInitialMessage(enableInitialMessageCheckBox.isSelected());
 
         if (needRestart) {
             boolean yes = MessageDialogBuilder.yesNo("Content order changed!", "Changing " +

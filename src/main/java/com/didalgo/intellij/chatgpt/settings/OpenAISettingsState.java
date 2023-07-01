@@ -53,6 +53,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
     private volatile String readTimeout = "50000";
     private volatile boolean enableAvatar = true;
     private volatile boolean enableLineWarp = true;
+    private volatile Boolean enableInitialMessage = null;
 
     private volatile OpenAIConfig gpt35Config;
     private volatile OpenAIConfig gpt4Config;
