@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
 
+import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.util.Language;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
@@ -17,11 +18,11 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
@@ -40,6 +41,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class RSyntaxTextAreaView extends ComponentView {
 
@@ -282,48 +285,99 @@ public class RSyntaxTextAreaView extends ComponentView {
 
             String targetText = getTextContent(textArea);
             FileEditorManager fileEditorManager = FileEditorManager.getInstance(e.getProject());
-            FileEditor[] editors = fileEditorManager.getSelectedEditors();
+            List<TextEditor> textEditors = Arrays.stream(fileEditorManager.getSelectedEditors())
+                    .filter(editor -> editor instanceof TextEditor)
+                    .map(editor -> (TextEditor) editor)
+                    .filter(editor -> editor.getEditor().getDocument().isWritable())
+                    .toList();
 
-            for (FileEditor editor : editors) {
-                if (editor instanceof TextEditor textEditor) {
-                    Editor currentEditor = textEditor.getEditor();
-                    SelectionModel selectionModel = currentEditor.getSelectionModel();
-                    String selectedText = selectionModel.getSelectedText();
+            if (textEditors.isEmpty())
+                return;
 
-                    var document = currentEditor.getDocument();
-                    var codeStyleManager = CodeStyleManager.getInstance(project);
-
-                    // If selected text is not empty, replace selected text in the editor with the target text
-                    if (selectedText != null && !selectedText.isEmpty()) {
-                        WriteCommandAction.runWriteCommandAction(project, () -> {
-                            int startOffset = selectionModel.getSelectionStart();
-                            int endOffset = selectionModel.getSelectionEnd();
-                            document.replaceString(startOffset, endOffset, targetText);
-                            // Adjust the indentation of the inserted text
-                            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
-                            var psiFile = psiDocumentManager.getPsiFile(document);
-                            if (psiFile != null) {
-                                psiDocumentManager.commitDocument(document);
-                                codeStyleManager.adjustLineIndent(psiFile, new TextRange(startOffset, startOffset + targetText.length()));
-                            }
-                        });
-                    } else { // Otherwise, insert target text at the current cursor position
-                        int caretOffset = currentEditor.getCaretModel().getOffset();
-                        WriteCommandAction.runWriteCommandAction(project, () -> {
-                            document.insertString(caretOffset, targetText);
-                            // Update the selection after inserting the text
-                            selectionModel.setSelection(caretOffset, caretOffset + targetText.length());
-                            // Adjust the indentation of the inserted text
-                            PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
-                            var psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-                            if (psiFile != null) {
-                                psiDocumentManager.commitDocument(document);
-                                codeStyleManager.adjustLineIndent(psiFile, new TextRange(caretOffset, caretOffset + targetText.length()));
-                            }
-                        });
-                    }
-                }
+            if (textEditors.size() > 1) {
+                JBPopupFactory.getInstance().createActionGroupPopup(ChatGptBundle.message("popup.title.paste.target"),
+                        new PasteTargetGroup(textEditors, targetText), e.getDataContext(),
+                        JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false)
+                                .showUnderneathOf(e.getInputEvent().getComponent());
+                return;
             }
+
+            insertCodeFragment(textEditors.get(0), targetText);
+        }
+    }
+
+    public static class PasteTargetGroup extends ActionGroup {
+
+        private final List<TextEditor> textEditors;
+        private final String targetText;
+
+        public PasteTargetGroup(List<TextEditor> textEditors, String targetText) {
+            this.textEditors = textEditors;
+            this.targetText = targetText;
+        }
+
+        @Override
+        public AnAction @NotNull [] getChildren(AnActionEvent e) {
+            return textEditors.stream()
+                    .map(textEditor -> new PasteTargetAction(textEditor, targetText))
+                    .toArray(AnAction[]::new);
+        }
+
+        private static class PasteTargetAction extends AnAction {
+
+            private final TextEditor textEditor;
+            private final String targetText;
+
+            PasteTargetAction(TextEditor textEditor, String targetText) {
+                super(textEditor.getFile().getName());
+                this.textEditor = textEditor;
+                this.targetText = targetText;
+            }
+
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                insertCodeFragment(textEditor, targetText);
+            }
+        }
+    }
+
+    private static void insertCodeFragment(TextEditor textEditor, String targetText) {
+        Editor currentEditor = textEditor.getEditor();
+        Project project = textEditor.getEditor().getProject();
+        SelectionModel selectionModel = currentEditor.getSelectionModel();
+        String selectedText = selectionModel.getSelectedText();
+
+        var document = currentEditor.getDocument();
+        var codeStyleManager = CodeStyleManager.getInstance(project);
+
+        // If selected text is not empty, replace selected text in the editor with the target text
+        if (selectedText != null && !selectedText.isEmpty()) {
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                int startOffset = selectionModel.getSelectionStart();
+                int endOffset = selectionModel.getSelectionEnd();
+                document.replaceString(startOffset, endOffset, targetText);
+                // Adjust the indentation of the inserted text
+                PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+                var psiFile = psiDocumentManager.getPsiFile(document);
+                if (psiFile != null) {
+                    psiDocumentManager.commitDocument(document);
+                    codeStyleManager.adjustLineIndent(psiFile, new TextRange(startOffset, startOffset + targetText.length()));
+                }
+            });
+        } else { // Otherwise, insert target text at the current cursor position
+            int caretOffset = currentEditor.getCaretModel().getOffset();
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                document.insertString(caretOffset, targetText);
+                // Update the selection after inserting the text
+                selectionModel.setSelection(caretOffset, caretOffset + targetText.length());
+                // Adjust the indentation of the inserted text
+                PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+                var psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+                if (psiFile != null) {
+                    psiDocumentManager.commitDocument(document);
+                    codeStyleManager.adjustLineIndent(psiFile, new TextRange(caretOffset, caretOffset + targetText.length()));
+                }
+            });
         }
     }
 
