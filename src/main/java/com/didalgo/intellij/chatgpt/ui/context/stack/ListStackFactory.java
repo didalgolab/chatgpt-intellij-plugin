@@ -195,7 +195,7 @@ public class ListStackFactory {
                     CodeFragmentInfo selectedInfo = getSelectedInfo();
                     Icon icon = info.getIcon();
                     if (icon != null && info != selectedInfo) {
-                        icon = IconLoader.getTransparentIcon(icon, JBUI.CurrentTheme.EditorTabs.unselectedAlpha());
+                        icon = IconLoader.getTransparentIcon(icon, JBUI.getFloat("EditorTabs.unselectedAlpha", 0.75f));
                     }
                     iconLabel.setIcon(icon);
 

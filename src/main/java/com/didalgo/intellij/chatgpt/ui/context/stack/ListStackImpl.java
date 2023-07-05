@@ -8,6 +8,7 @@ package com.didalgo.intellij.chatgpt.ui.context.stack;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -20,7 +21,7 @@ import com.intellij.psi.statistics.StatisticsManager;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.popup.HintUpdateSupply;
-import com.intellij.ui.popup.util.PopupImplUtil;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.JBInsets;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -370,7 +371,7 @@ public class ListStackImpl extends WizardStack implements ListStack {
                     return mySpeedSearchPatternField;
                 }
             }
-            return PopupImplUtil.getDataImplForList(myList, dataId);
+            return getDataImplForList(myList, dataId);
         }
 
         @Override
@@ -384,6 +385,16 @@ public class ListStackImpl extends WizardStack implements ListStack {
             selectedButtonIndex = index;
             return true;
         }
+    }
+
+    public static @Nullable Object getDataImplForList(@NotNull JList<?> list, @NotNull String dataId) {
+        if (PlatformCoreDataKeys.SELECTED_ITEM.is(dataId))
+            return list.getSelectedIndex() < 0 ? ObjectUtils.NULL : list.getSelectedValue();
+        if (PlatformCoreDataKeys.SELECTED_ITEMS.is(dataId))
+            return list.getSelectedValuesList().stream()
+                    .map(val -> val == null ? ObjectUtils.NULL : val)
+                    .toArray();
+        return null;
     }
 
     private final class MyListSelectionModel extends DefaultListSelectionModel {

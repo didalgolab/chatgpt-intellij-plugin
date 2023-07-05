@@ -342,4 +342,8 @@ public class StackListElementRenderer<E> extends GroupedItemsListRenderer<E> {
     static Insets getListCellPadding() {
         return UIUtil.getListCellPadding();
     }
+
+    public JComponent getItemComponent() {
+        return myComponent;
+    }
 }
