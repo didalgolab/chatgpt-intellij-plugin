@@ -56,5 +56,6 @@
             </action>
             <separator/>
         </group>
+        <action id="didalgo.chatgpt.OpenInEditorAction" class="com.didalgo.intellij.chatgpt.ui.action.OpenInEditorAction" text="Open in Editor" />
     </actions>
 </idea-plugin>

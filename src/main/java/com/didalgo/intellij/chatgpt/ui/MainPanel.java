@@ -123,14 +123,12 @@ public class MainPanel implements ChatMessageListener {
         list.setFocusable(false);
         list.getModel().addListDataListener(new ContextStackHandler());
         list.setVisible(false);
+        contextStack.beforeShow();
 
         chatInputContext.addListener(event -> {
             contextStack.getListModel().syncModel();
-            contextStack.beforeShow();
 
-            actionPanel.invalidate();
-            actionPanel.validate();
-            actionPanel.repaint();
+            actionPanel.revalidate();
         });
 
         return list;
@@ -144,11 +142,8 @@ public class MainPanel implements ChatMessageListener {
 
         SwingUtilities.invokeLater(() -> {
             contextStack.getListModel().syncModel();
-            contextStack.beforeShow();
 
-            actionPanel.invalidate();
-            actionPanel.validate();
-            actionPanel.repaint();
+            actionPanel.revalidate();
         });
         return tokenCount;
     }

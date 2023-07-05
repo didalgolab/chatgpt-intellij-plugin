@@ -7,9 +7,7 @@ package com.didalgo.intellij.chatgpt.ui.context.stack;
 
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.UISettings;
-import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.Project;
@@ -35,6 +33,7 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.*;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.awt.event.InputEvent.CTRL_MASK;
@@ -77,8 +76,7 @@ public class ListStackImpl extends WizardStack implements ListStack {
         myList.addMouseListener(myMouseListener);
         myList.setVisibleRowCount(myMaxRowCount);
 
-        boolean shouldShow = super.beforeShow();
-        return shouldShow;
+        return super.beforeShow();
     }
 
     protected boolean shouldUseStatistics() {
@@ -288,11 +286,28 @@ public class ListStackImpl extends WizardStack implements ListStack {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if (!isActionClick(e) || isMultiSelectionEnabled() && UIUtil.isSelectionButtonDown(e)) return;
+            if (!isActionClick(e) || isMultiSelectionEnabled() && UIUtil.isSelectionButtonDown(e))
+                return;
+
+            if (e.getClickCount() == 2) {
+                handleDoubleClick(e);
+                return;
+            }
+
             IdeEventQueue.getInstance().blockNextEvents(e); // sometimes, after popup close, MOUSE_RELEASE event delivers to other components
             Object selectedValue = myList.getSelectedValue();
             ListStackStep<Object> listStep = getListStep();
             handleSelect(handleFinalChoices(e, selectedValue, listStep), e);
+        }
+
+        protected void handleDoubleClick(MouseEvent e) {
+            e.consume();
+            Object selectedValue = myList.getSelectedValue();
+            AnAction openAction = ActionManager.getInstance().getAction("didalgo.chatgpt.OpenInEditorAction");
+            if (openAction != null && selectedValue != null) {
+                var dataContext = Map.of(PlatformDataKeys.SELECTED_ITEM.getName(), selectedValue, CommonDataKeys.PROJECT.getName(), getProject());
+                openAction.actionPerformed(AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, null, dataContext::get));
+            }
         }
     }
 

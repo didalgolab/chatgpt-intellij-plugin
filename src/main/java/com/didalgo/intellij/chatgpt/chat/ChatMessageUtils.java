@@ -29,8 +29,9 @@ public class ChatMessageUtils {
     public static String composeAll(String prompt, List<CodeFragment> codeFragments) {
         var buf = new StringBuilder();
         for (var codeFragment : codeFragments) {
-            buf.append(StringUtils.isEmpty(codeFragment.description()) ? "[Selected code]" : codeFragment.description());
-            buf.append('\n').append(codeFragment.toMarkdownString());
+            if (StringUtils.isEmpty(codeFragment.description()))
+                buf.append("[Selected code]\n");
+            buf.append(codeFragment.toMarkdownString());
             buf.append("\n\n");
         }
         if (!prompt.isEmpty())
