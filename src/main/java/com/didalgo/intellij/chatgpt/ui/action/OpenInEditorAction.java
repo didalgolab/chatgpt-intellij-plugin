@@ -1,5 +1,6 @@
 package com.didalgo.intellij.chatgpt.ui.action;
 
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.didalgo.intellij.chatgpt.ui.context.stack.CodeFragmentInfo;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,8 +18,8 @@ public class OpenInEditorAction extends AnAction {
         var project = e.getProject();
         var content = e.getData(PlatformDataKeys.SELECTED_ITEM);
         if (content instanceof CodeFragmentInfo codeContent && project != null) {
-            codeContent.getCodeFragment().ifPresent(codeFragment -> {
-                var file = new LightVirtualFile(codeContent.getText() + ".md", codeContent.getCodeFragment().get().toMarkdownString());
+            codeContent.getTextContent().ifPresent(textContent -> {
+                var file = new LightVirtualFile(codeContent.getText() + ".md", TextContent.toString(textContent));
                 var openDesc = new OpenFileDescriptor(project, file);
                 var editor = FileEditorManager.getInstance(project).openTextEditor(openDesc, true);
                 if (editor instanceof EditorEx editorEx)

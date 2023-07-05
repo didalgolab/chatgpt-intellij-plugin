@@ -8,7 +8,7 @@ import com.didalgo.gpt3.ChatFormatDescriptor;
 import com.didalgo.gpt3.GPT3Tokenizer;
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
-import com.didalgo.intellij.chatgpt.text.CodeFragment;
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
 
@@ -23,7 +23,7 @@ import static com.didalgo.intellij.chatgpt.chat.ChatMessageUtils.isRoleSystem;
 public class ChatLinkState implements ConversationContext {
 
     private final LinkedList<ChatMessage> chatMessages = new LinkedList<>();
-    private volatile List<CodeFragment> lastSentCodeFragments = List.of();
+    private volatile List<? extends TextContent> lastSentTextFragments = List.of();
     private volatile TextSubstitutor textSubstitutor = TextSubstitutor.NONE;
     private final ConfigurationPage configuration;
 
@@ -53,14 +53,14 @@ public class ChatLinkState implements ConversationContext {
     }
 
     @Override
-    public List<CodeFragment> getLastPostedCodeFragments() {
-        return lastSentCodeFragments;
+    public List<? extends TextContent> getLastPostedCodeFragments() {
+        return lastSentTextFragments;
     }
 
     @Override
-    public void setLastPostedCodeFragments(List<CodeFragment> codeFragments) {
-        Objects.requireNonNull(codeFragments);
-        this.lastSentCodeFragments = codeFragments;
+    public void setLastPostedCodeFragments(List<? extends TextContent> textContents) {
+        Objects.requireNonNull(textContents);
+        this.lastSentTextFragments = textContents;
     }
 
     @Override

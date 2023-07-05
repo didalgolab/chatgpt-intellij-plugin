@@ -9,6 +9,7 @@ import com.didalgo.gpt3.GPT3Tokenizer;
 import com.didalgo.gpt3.TokenCount;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
 import org.apache.commons.lang3.StringUtils;
@@ -18,20 +19,20 @@ import java.util.Objects;
 
 public class ChatMessageUtils {
 
-    public static List<CodeFragment> composeExcept(List<CodeFragment> codeFragments, List<CodeFragment> exceptions, String exceptionPrompt) {
-        for (var codeFragment : codeFragments)
-            if (!exceptions.contains(codeFragment) && !exceptionPrompt.contains(codeFragment.content().strip()))
-                return codeFragments;
+    public static List<? extends TextContent> composeExcept(List<? extends TextContent> textContents, List<? extends TextContent> exceptions, String exceptionPrompt) {
+        for (var codeFragment : textContents)
+            if (!exceptions.contains(codeFragment) && !exceptionPrompt.contains(TextContent.toString(codeFragment).strip()))
+                return textContents;
 
         return List.of();
     }
 
-    public static String composeAll(String prompt, List<CodeFragment> codeFragments) {
+    public static String composeAll(String prompt, List<? extends TextContent> textContents) {
         var buf = new StringBuilder();
-        for (var codeFragment : codeFragments) {
-            if (StringUtils.isEmpty(codeFragment.description()))
+        for (var textContent : textContents) {
+            if (textContent instanceof CodeFragment codeFragment && StringUtils.isEmpty(codeFragment.description()))
                 buf.append("[Selected code]\n");
-            buf.append(codeFragment.toMarkdownString());
+            textContent.appendTo(buf);
             buf.append("\n\n");
         }
         if (!prompt.isEmpty())

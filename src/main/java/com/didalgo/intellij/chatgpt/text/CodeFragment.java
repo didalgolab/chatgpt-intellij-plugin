@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
  * @author Mariusz Bernacki
  *
  */
-public interface CodeFragment extends CharSequence {
+public interface CodeFragment extends CharSequence, TextContent {
 
     String language();
 
@@ -65,5 +65,9 @@ public interface CodeFragment extends CharSequence {
 
     default String toMarkdownString() {
         return CodeFragmentMarkdownFormatter.getDefault().format(this);
+    }
+
+    default StringBuilder appendTo(StringBuilder buf) {
+        return buf.append(toMarkdownString());
     }
 }

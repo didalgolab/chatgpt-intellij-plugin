@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.ui;
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.core.ChatCompletionParser;
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.didalgo.intellij.chatgpt.ui.context.stack.CodeFragmentInfo;
 import com.didalgo.intellij.chatgpt.ui.context.stack.ListStack;
 import com.didalgo.intellij.chatgpt.ui.context.stack.ListStackFactory;
@@ -136,8 +137,8 @@ public class MainPanel implements ChatMessageListener {
 
     private int computeTokenCount(CodeFragmentInfo info) {
         var tokenCount = 0;
-        if (info.getCodeFragment().isPresent())
-            tokenCount = getModelType().getTokenizer().encode(info.getCodeFragment().get().toMarkdownString()).size();
+        if (info.getTextContent().isPresent())
+            tokenCount = getModelType().getTokenizer().encode(TextContent.toString(info.getTextContent().get())).size();
         info.setTokenCount(tokenCount);
 
         SwingUtilities.invokeLater(() -> {

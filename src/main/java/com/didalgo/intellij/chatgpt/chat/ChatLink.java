@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
-import com.didalgo.intellij.chatgpt.text.CodeFragment;
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.didalgo.intellij.chatgpt.ui.ToolWindowLocator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -26,7 +26,7 @@ public interface ChatLink {
 
     ConversationContext getConversationContext();
 
-    void pushMessage(String prompt, List<CodeFragment> codeFragments);
+    void pushMessage(String prompt, List<? extends TextContent> textContents);
 
     void addChatMessageListener(ChatMessageListener listener);
 
