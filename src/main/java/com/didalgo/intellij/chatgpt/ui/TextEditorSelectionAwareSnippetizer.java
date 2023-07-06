@@ -4,9 +4,8 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
-import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
-import com.intellij.openapi.editor.SelectionModel;
+import com.didalgo.intellij.chatgpt.text.CodeFragmentFactory;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -23,13 +22,7 @@ public class TextEditorSelectionAwareSnippetizer implements ContextAwareSnippeti
 
         for (FileEditor editor : FileEditorManager.getInstance(project).getSelectedEditors()) {
             if (editor instanceof TextEditor textEditor) {
-                SelectionModel selectionModel = textEditor.getEditor().getSelectionModel();
-
-                String text;
-                if (selectionModel.hasSelection() && (text = selectionModel.getSelectedText()) != null && !text.isBlank()) {
-                    String fileUrl = editor.getFile().getUrl();
-                    selectedFragments.add(CodeFragment.of(text, editor.getFile().getExtension(), ChatGptBundle.message("code.fragment.title", fileUrl)));
-                }
+                CodeFragmentFactory.createFromSelection(textEditor.getEditor()).ifPresent(selectedFragments::add);
             }
         }
         return selectedFragments;

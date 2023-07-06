@@ -7,4 +7,6 @@ package com.didalgo.intellij.chatgpt.text;
 public interface CodeFragmentFormatter {
 
     String format(CodeFragment cf);
+
+    CodeFragmentFormatter withoutDescription();
 }

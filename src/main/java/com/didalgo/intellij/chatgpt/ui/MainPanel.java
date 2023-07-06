@@ -7,6 +7,10 @@ package com.didalgo.intellij.chatgpt.ui;
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.core.ChatCompletionParser;
+import com.didalgo.intellij.chatgpt.text.TextContent;
+import com.didalgo.intellij.chatgpt.ui.context.stack.CodeFragmentInfo;
+import com.didalgo.intellij.chatgpt.ui.context.stack.ListStack;
+import com.didalgo.intellij.chatgpt.ui.context.stack.ListStackFactory;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import com.didalgo.intellij.chatgpt.text.TextFragment;
@@ -22,6 +26,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.OnePixelSplitter;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.intellij.util.ui.JBUI;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import io.reactivex.disposables.Disposable;
 import okhttp3.internal.http2.StreamResetException;
@@ -31,6 +36,8 @@ import org.reactivestreams.Subscription;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -51,6 +58,7 @@ public class MainPanel implements ChatMessageListener {
     private JPanel actionPanel;
     private volatile Object requestHolder;
     private final MainConversationHandler conversationHandler;
+    private ListStack contextStack;
     private final ChatLink chatLink;
 
     public static final KeyStroke SUBMIT_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, CTRL_DOWN_MASK);
@@ -93,6 +101,7 @@ public class MainPanel implements ChatMessageListener {
         actionPanel = new JPanel(new BorderLayout());
         progressBar = new JProgressBar();
         progressBar.setVisible(false);
+        actionPanel.add(createContextSnippetsComponent(), BorderLayout.NORTH);
         actionPanel.add(searchTextField, BorderLayout.CENTER);
         actionPanel.add(button, BorderLayout.EAST);
         contentPanel = new MessageGroupComponent(chatLink, project);
@@ -100,6 +109,68 @@ public class MainPanel implements ChatMessageListener {
 
         splitter.setFirstComponent(contentPanel);
         splitter.setSecondComponent(actionPanel);
+    }
+
+    private JComponent createContextSnippetsComponent() {
+        // Creating an instance of ListPopupShower for testing
+        ListStackFactory listStackFactory = new ListStackFactory();
+
+        // Showing the list popup
+        InputContext chatInputContext = getChatLink().getInputContext();
+        contextStack = listStackFactory.showListPopup(actionPanel, getProject(), chatInputContext, this::computeTokenCount);
+        JList list = contextStack.getList();
+        list.setBackground(actionPanel.getBackground());
+        list.setBorder(JBUI.Borders.emptyTop(3));
+        list.setFocusable(false);
+        list.getModel().addListDataListener(new ContextStackHandler());
+        list.setVisible(false);
+        contextStack.beforeShow();
+
+        chatInputContext.addListener(event -> {
+            contextStack.getListModel().syncModel();
+
+            actionPanel.revalidate();
+        });
+
+        return list;
+    }
+
+    private int computeTokenCount(CodeFragmentInfo info) {
+        var tokenCount = 0;
+        if (info.getTextContent().isPresent())
+            tokenCount = getModelType().getTokenizer().encode(TextContent.toString(info.getTextContent().get())).size();
+        info.setTokenCount(tokenCount);
+
+        SwingUtilities.invokeLater(() -> {
+            contextStack.getListModel().syncModel();
+
+            actionPanel.revalidate();
+        });
+        return tokenCount;
+    }
+
+    private class ContextStackHandler implements ListDataListener {
+
+        protected void onContentsChange() {
+            var hasContext = !getChatLink().getInputContext().isEmpty();
+            if (hasContext != contextStack.getList().isVisible())
+                contextStack.getList().setVisible(hasContext);
+        }
+
+        @Override
+        public void intervalAdded(ListDataEvent e) {
+            onContentsChange();
+        }
+
+        @Override
+        public void intervalRemoved(ListDataEvent e) {
+            onContentsChange();
+        }
+
+        @Override
+        public void contentsChanged(ListDataEvent e) {
+            onContentsChange();
+        }
     }
 
     public final ChatLink getChatLink() {

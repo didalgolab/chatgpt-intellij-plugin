@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
-import com.didalgo.intellij.chatgpt.text.CodeFragment;
+import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
 
@@ -18,15 +18,15 @@ public class DefaultChatMessageComposer implements ChatMessageComposer {
     }
 
     @Override
-    public ChatMessage compose(ConversationContext ctx, String prompt, List<CodeFragment> codeFragments) {
-        if (codeFragments.isEmpty()) {
+    public ChatMessage compose(ConversationContext ctx, String prompt, List<? extends TextContent> textContents) {
+        if (textContents.isEmpty()) {
             return compose(ctx, prompt);
         }
 
-        codeFragments = ChatMessageUtils.composeExcept(codeFragments, ctx.getLastPostedCodeFragments(), prompt);
-        if (!codeFragments.isEmpty()) {
-            ctx.setLastPostedCodeFragments(codeFragments);
-            return compose(ctx, ChatMessageUtils.composeAll(prompt, codeFragments));
+        textContents = ChatMessageUtils.composeExcept(textContents, ctx.getLastPostedCodeFragments(), prompt);
+        if (!textContents.isEmpty()) {
+            ctx.setLastPostedCodeFragments(textContents);
+            return compose(ctx, ChatMessageUtils.composeAll(prompt, textContents));
         }
         return compose(ctx, prompt);
     }

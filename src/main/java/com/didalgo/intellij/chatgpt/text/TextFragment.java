@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents a fragment of text, potentially in Markdown format.
  */
-public interface TextFragment extends CharSequence {
+public interface TextFragment extends CharSequence, TextContent {
 
     String markdown();
 
@@ -71,4 +71,8 @@ public interface TextFragment extends CharSequence {
         return TextFragmentToHtmlFormatter.getDefault().format(this);
     }
 
+    @Override
+    default StringBuilder appendTo(StringBuilder buf) {
+        return buf.append(markdown());
+    }
 }
