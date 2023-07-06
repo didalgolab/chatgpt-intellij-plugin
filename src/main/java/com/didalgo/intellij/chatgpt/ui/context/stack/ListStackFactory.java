@@ -32,31 +32,31 @@ import java.util.function.ToIntFunction;
 public class ListStackFactory {
     private static final Key<Integer> HIDDEN_INFOS_SELECT_INDEX_KEY = Key.create("HIDDEN_INFOS_SELECT_INDEX_2");
 
-    private CodeFragmentInfo mySelectedInfo;
+    private TextInputContextEntry mySelectedInfo;
 
-    public @Nullable CodeFragmentInfo getSelectedInfo() {
+    public @Nullable TextInputContextEntry getSelectedInfo() {
         return mySelectedInfo;
     }
 
-    private void setSelectedInfo(@Nullable CodeFragmentInfo info) {
+    private void setSelectedInfo(@Nullable TextInputContextEntry info) {
         mySelectedInfo = info;
     }
 
-    public @NotNull ActionCallback select(@NotNull CodeFragmentInfo info, boolean requestFocus) {
+    public @NotNull ActionCallback select(@NotNull TextInputContextEntry info, boolean requestFocus) {
         return new ActionCallback.Done();
     }
 
-    private class HiddenInfosListStackStep extends BaseListStackStep<CodeFragmentInfo> {
-        private final CodeFragmentInfo separatorInfo;
+    private class HiddenInfosListStackStep extends BaseListStackStep<TextInputContextEntry> {
+        private final TextInputContextEntry separatorInfo;
         boolean selectTab = true;
 
-        private HiddenInfosListStackStep(@NotNull List<CodeFragmentInfo> values, @Nullable CodeFragmentInfo separatorInfo) {
+        private HiddenInfosListStackStep(@NotNull List<TextInputContextEntry> values, @Nullable TextInputContextEntry separatorInfo) {
             super(null, values);
             this.separatorInfo = separatorInfo;
         }
 
         @Override
-        public @Nullable StackStep<?> onChosen(CodeFragmentInfo selectedValue, boolean finalChoice) {
+        public @Nullable StackStep<?> onChosen(TextInputContextEntry selectedValue, boolean finalChoice) {
             if (selectTab) {
                 select(selectedValue, true);
             }
@@ -67,51 +67,51 @@ public class ListStackFactory {
         }
 
         @Override
-        public @Nullable ListSeparator getSeparatorAbove(CodeFragmentInfo value) {
+        public @Nullable ListSeparator getSeparatorAbove(TextInputContextEntry value) {
             return value == separatorInfo ? new ListSeparator() : null;
         }
 
         @Override
-        public Icon getIconFor(CodeFragmentInfo value) {
+        public Icon getIconFor(TextInputContextEntry value) {
             return value.getIcon();
         }
 
         @Override
-        public @NotNull String getTextFor(CodeFragmentInfo value) {
+        public @NotNull String getTextFor(TextInputContextEntry value) {
             return value.getText();
         }
     }
 
 
-    public ListStackImpl showListPopup(JComponent frame, Project myProject, InputContext inputContext, ToIntFunction<CodeFragmentInfo> tokenCountCalculator) {
-        CodeFragmentInfo separatorInfo = null;
+    public ListStackImpl showListPopup(JComponent frame, Project myProject, InputContext inputContext, ToIntFunction<TextInputContextEntry> tokenCountCalculator) {
+        TextInputContextEntry separatorInfo = null;
 
-        HiddenInfosListStackStep step = new HiddenInfosListStackStep((List<CodeFragmentInfo>)(List) inputContext.getEntries(), separatorInfo);
+        HiddenInfosListStackStep step = new HiddenInfosListStackStep((List<TextInputContextEntry>)(List) inputContext.getEntries(), separatorInfo);
         Integer selectedIndex = ClientProperty.get(frame, HIDDEN_INFOS_SELECT_INDEX_KEY);
         if (selectedIndex != null) {
             step.setDefaultOptionIndex(selectedIndex);
         }
 
         ListStackImpl popup = createListStack(myProject, step, renderer -> {
-            ListItemDescriptor<CodeFragmentInfo> descriptor = new ListItemDescriptorAdapter<>() {
+            ListItemDescriptor<TextInputContextEntry> descriptor = new ListItemDescriptorAdapter<>() {
                 @Override
-                public @NotNull String getTextFor(CodeFragmentInfo value) {
+                public @NotNull String getTextFor(TextInputContextEntry value) {
                     return value.getText();
                 }
 
                 @Override
-                public @Nullable Icon getIconFor(CodeFragmentInfo value) {
+                public @Nullable Icon getIconFor(TextInputContextEntry value) {
                     return value.getIcon();
                 }
 
                 @Override
-                public boolean hasSeparatorAboveOf(CodeFragmentInfo value) {
+                public boolean hasSeparatorAboveOf(TextInputContextEntry value) {
                     return value == separatorInfo;
                 }
             };
-            return new GroupedItemsListRenderer<CodeFragmentInfo>(descriptor) {
+            return new GroupedItemsListRenderer<TextInputContextEntry>(descriptor) {
                 private static final Key<Integer> HOVER_INDEX_KEY = Key.create("HOVER_INDEX");
-                private static final Key<CodeFragmentInfo> TAB_INFO_KEY = Key.create("TAB_INFO");
+                private static final Key<TextInputContextEntry> TAB_INFO_KEY = Key.create("TAB_INFO");
                 private static final Key<Boolean> SELECTED_KEY = Key.create("SELECTED");
                 private static final NumberFormat tokenCountFormat = NumberFormat.getInstance();
                 JPanel component;
@@ -121,7 +121,7 @@ public class ListStackFactory {
                 MouseAdapter listMouseListener;
 
                 @Override
-                public Component getListCellRendererComponent(JList<? extends CodeFragmentInfo> list, CodeFragmentInfo value, int index, boolean isSelected, boolean cellHasFocus) {
+                public Component getListCellRendererComponent(JList<? extends TextInputContextEntry> list, TextInputContextEntry value, int index, boolean isSelected, boolean cellHasFocus) {
                     return super.getListCellRendererComponent(list, value, index, false, cellHasFocus);
                 }
 
@@ -177,7 +177,7 @@ public class ListStackFactory {
                 }
 
                 @Override
-                protected void customizeComponent(JList<? extends CodeFragmentInfo> list, CodeFragmentInfo info, boolean isSelected) {
+                protected void customizeComponent(JList<? extends TextInputContextEntry> list, TextInputContextEntry info, boolean isSelected) {
                     if (actionLabel != null) {
                         Icon icon = Objects.equals(ClientProperty.get(list, HOVER_INDEX_KEY), myCurrentIndex)
                                 ? AllIcons.Actions.CloseHovered
@@ -192,7 +192,7 @@ public class ListStackFactory {
                         addMouseListener(list);
                     }
 
-                    CodeFragmentInfo selectedInfo = getSelectedInfo();
+                    TextInputContextEntry selectedInfo = getSelectedInfo();
                     Icon icon = info.getIcon();
                     if (icon != null && info != selectedInfo) {
                         icon = IconLoader.getTransparentIcon(icon, JBUI.getFloat("EditorTabs.unselectedAlpha", 0.75f));
@@ -222,7 +222,7 @@ public class ListStackFactory {
                     return new GroupHeaderSeparator(labelInsets);
                 }
 
-                private void addMouseListener(JList<? extends CodeFragmentInfo> list) {
+                private void addMouseListener(JList<? extends TextInputContextEntry> list) {
                     if (listMouseListener != null) return;
                     listMouseListener = new MouseAdapter() {
                         @Override
@@ -257,18 +257,18 @@ public class ListStackFactory {
                                 return;
                             }
 
-                            CodeFragmentInfo codeFragmentInfo = ClientProperty.get(label, TAB_INFO_KEY);
-                            if (codeFragmentInfo == null) {
+                            TextInputContextEntry textInputContextEntry = ClientProperty.get(label, TAB_INFO_KEY);
+                            if (textInputContextEntry == null) {
                                 return;
                             }
 
                             boolean clickToUnpin = false;
-                            if (codeFragmentInfo.isPinned()) {
-                                codeFragmentInfo.setPinned(false);
+                            if (textInputContextEntry.isPinned()) {
+                                textInputContextEntry.setPinned(false);
                                 clickToUnpin = true;
                             }
                             if (!clickToUnpin) {
-                                inputContext.removeEntry(codeFragmentInfo);
+                                inputContext.removeEntry(textInputContextEntry);
                             }
 
                             e.consume();

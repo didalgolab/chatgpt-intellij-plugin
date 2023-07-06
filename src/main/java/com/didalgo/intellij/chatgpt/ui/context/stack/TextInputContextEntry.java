@@ -12,13 +12,13 @@ import javax.swing.*;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
 
-public class CodeFragmentInfo implements InputContextEntry {
+public class TextInputContextEntry implements InputContextEntry {
     private final TextContent textContent;
     private final Icon icon;
     private final String text;
     private volatile int tokenCount = -1;
 
-    public CodeFragmentInfo(Icon icon, String text, TextContent textContent) {
+    public TextInputContextEntry(Icon icon, String text, TextContent textContent) {
         this.icon = icon;
         this.text = text;
         this.textContent = textContent;
@@ -37,7 +37,7 @@ public class CodeFragmentInfo implements InputContextEntry {
         return text;
     }
 
-    public int getOrComputeTokenCount(ToIntFunction<CodeFragmentInfo> calculator) {
+    public int getOrComputeTokenCount(ToIntFunction<TextInputContextEntry> calculator) {
         var tokenCount = this.tokenCount;
         if (tokenCount < 0 && calculator != null) {
             ApplicationManager.getApplication().executeOnPooledThread(() -> setTokenCount(calculator.applyAsInt(this)));

@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2023 Mariusz Bernacki <consulting@didalgo.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.didalgo.intellij.chatgpt.ui.action;
 
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.didalgo.intellij.chatgpt.ui.context.stack.CodeFragmentInfo;
+import com.didalgo.intellij.chatgpt.ui.context.stack.TextInputContextEntry;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -14,10 +19,15 @@ import org.jetbrains.annotations.NotNull;
 public class OpenInEditorAction extends AnAction {
 
     @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
+    }
+
+    @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         var project = e.getProject();
         var content = e.getData(PlatformDataKeys.SELECTED_ITEM);
-        if (content instanceof CodeFragmentInfo codeContent && project != null) {
+        if (content instanceof TextInputContextEntry codeContent && project != null) {
             codeContent.getTextContent().ifPresent(textContent -> {
                 var file = new LightVirtualFile(codeContent.getText() + ".md", TextContent.toString(textContent));
                 var openDesc = new OpenFileDescriptor(project, file);

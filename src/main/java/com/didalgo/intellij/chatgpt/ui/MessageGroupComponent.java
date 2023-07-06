@@ -141,13 +141,7 @@ public class MessageGroupComponent extends JBPanel<MessageGroupComponent> implem
         mainPanel.add(myScrollPane);
         myScrollPane.getVerticalScrollBar().setAutoscrolls(true);
         myScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
-            int value = e.getValue();
-            if (myScrollValue == 0 && value > 0 || myScrollValue > 0 && value == 0) {
-                myScrollValue = value;
-            }
-            else {
-                myScrollValue = value;
-            }
+            myScrollValue = e.getValue();
         });
 
         addAssistantTipsIfEnabled(true);

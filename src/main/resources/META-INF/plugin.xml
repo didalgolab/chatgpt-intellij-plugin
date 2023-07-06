@@ -49,16 +49,14 @@
                 <!-- -->
             </group>
             <add-to-group group-id="EditorPopupMenu1" anchor="first"/>
-            <action id="didalgo.chatgpt.AddToContextAction.2"
-                    class="com.didalgo.intellij.chatgpt.ui.action.editor.AddToContextAction"
+            <action id="didalgo.chatgpt.AddToContextAction"
+                    class="com.didalgo.intellij.chatgpt.ui.action.AddToContextAction"
                     text="ChatGPT: Add to Context"
                     description="Adds selected code as part of next ChatGPT prompt">
+                <add-to-group group-id="Documentation.PrimaryGroup"/>
             </action>
             <separator/>
         </group>
-        <action id="didalgo.chatgpt.AddToContextAction" class="com.didalgo.intellij.chatgpt.ui.action.AddToContextAction" text="ChatGPT: Add to Context">
-            <add-to-group group-id="Documentation.PrimaryGroup"/>
-        </action>
         <action id="didalgo.chatgpt.OpenInEditorAction" class="com.didalgo.intellij.chatgpt.ui.action.OpenInEditorAction" text="Open in Editor" />
     </actions>
 </idea-plugin>

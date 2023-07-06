@@ -8,7 +8,7 @@ import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.core.ChatCompletionParser;
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.didalgo.intellij.chatgpt.ui.context.stack.CodeFragmentInfo;
+import com.didalgo.intellij.chatgpt.ui.context.stack.TextInputContextEntry;
 import com.didalgo.intellij.chatgpt.ui.context.stack.ListStack;
 import com.didalgo.intellij.chatgpt.ui.context.stack.ListStackFactory;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
@@ -135,7 +135,7 @@ public class MainPanel implements ChatMessageListener {
         return list;
     }
 
-    private int computeTokenCount(CodeFragmentInfo info) {
+    private int computeTokenCount(TextInputContextEntry info) {
         var tokenCount = 0;
         if (info.getTextContent().isPresent())
             tokenCount = getModelType().getTokenizer().encode(TextContent.toString(info.getTextContent().get())).size();

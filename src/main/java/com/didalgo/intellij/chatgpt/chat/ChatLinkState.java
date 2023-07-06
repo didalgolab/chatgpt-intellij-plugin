@@ -9,6 +9,7 @@ import com.didalgo.gpt3.GPT3Tokenizer;
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.TextContent;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatMessageRole;
 
@@ -93,8 +94,12 @@ public class ChatLinkState implements ConversationContext {
 
         // First add current system message
         var systemMessage = getSystemPrompt().get();
-        if (!systemMessage.isBlank())
+        if (!systemMessage.isBlank()) {
+            systemMessage = systemMessage.stripTrailing()
+                    + "\n\nCurrent IDE: " + ApplicationInfo.getInstance().getFullApplicationName()
+                    + "\nOS: " + System.getProperty("os.name");
             chatMessages.add(new ChatMessage(ChatMessageRole.SYSTEM.value(), systemMessage));
+        }
         var hasSystemMessage = !chatMessages.isEmpty();
 
         // Add the rest of messages in the chat
