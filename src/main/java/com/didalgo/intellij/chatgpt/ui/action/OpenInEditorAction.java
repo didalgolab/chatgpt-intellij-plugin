@@ -33,7 +33,7 @@ public class OpenInEditorAction extends AnAction {
                 var openDesc = new OpenFileDescriptor(project, file);
                 var editor = FileEditorManager.getInstance(project).openTextEditor(openDesc, true);
                 if (editor instanceof EditorEx editorEx)
-                    editorEx.setViewer(false);
+                    editorEx.getDocument().setReadOnly(true);
             });
         }
     }
