@@ -57,6 +57,9 @@ public abstract class ModelPagePanel implements Configurable {
     }
 
     private void enableCustomizeServerOptions(boolean enabled) {
+        if (!enabled) {
+            customizeServerField.setText(OpenAISettingsState.OpenAIConfig.DEFAULT_API_ENDPOINT);
+        }
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
         apiEndpointLabel.setEnabled(false);
     }

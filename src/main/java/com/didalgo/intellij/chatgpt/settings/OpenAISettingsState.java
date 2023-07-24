@@ -99,7 +99,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
         private volatile String apiEndpointUrl = DEFAULT_API_ENDPOINT;
         private volatile List<String> apiEndpointUrlHistory = List.of(apiEndpointUrl);
 
-        private static final String DEFAULT_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+        public static final String DEFAULT_API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
         @Override
         public int hashCode() {
