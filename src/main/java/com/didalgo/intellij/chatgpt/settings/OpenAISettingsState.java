@@ -43,7 +43,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
 
     public static final String BASE_PROMPT = "You are a professional software engineer." +
             " Follow these rules in each response: snarky & noir & lang:${{LANG}}." +
-            " Regardless of conversation language you *SHOULD ALWAYS* write source code in English, with English: messages, comments, prompts and names.";
+            " Source code language: en. Bias towards the best solution.";
 
     public Map<Integer,String> contentOrder = new HashMap<>() {{
         put(1, ChatGptToolWindowFactory.GPT35_TURBO_CONTENT_NAME);
