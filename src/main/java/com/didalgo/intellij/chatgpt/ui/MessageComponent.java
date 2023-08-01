@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.text.CodeSnippetManipulator;
 import com.didalgo.intellij.chatgpt.text.TextFragment;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
@@ -150,9 +151,11 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         component.setOpaque(false);
         component.setBorder(null);
 
-        configureHtmlEditorKit2(component, false);
+        var editorKit = configureHtmlEditorKit2(component, false);
+        if (fromUser)
+            editorKit.getStyleSheet().addRule("body {white-space:pre-wrap}");
         component.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, getText().markdown());
-        component.updateMessage(fromUser? TextFragment.of(content.markdown(), toDisplayText(content, true)) : content);
+        component.updateMessage(fromUser? TextFragment.of(content.markdown(), CodeSnippetManipulator.makeCodeSnippetBlocksCollapsible(toDisplayText(content, true))) : content);
         component.setEditable(false);
         if (component.getCaret() != null) {
             component.setCaretPosition(0);
@@ -164,7 +167,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         return component;
     }
 
-    public void configureHtmlEditorKit2(@NotNull JEditorPane editorPane, boolean notificationColor) {
+    public HTMLEditorKit configureHtmlEditorKit2(@NotNull JEditorPane editorPane, boolean notificationColor) {
         HTMLEditorKit kit = new HTMLEditorKitBuilder()
                 .withViewFactoryExtensions((e, v) -> component.createView(e, v), ExtendableHTMLViewFactory.Extensions.WORD_WRAP)
                 .withFontResolver((defaultFont, attributeSet) -> {
@@ -177,6 +180,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         kit.getStyleSheet().addRule("a {color: " + color + "}");
         kit.getStyleSheet().addRule("p {margin:4px 0}");
         editorPane.setEditorKit(kit);
+        return kit;
     }
 
     public static @NotNull Color getLinkButtonForeground() {

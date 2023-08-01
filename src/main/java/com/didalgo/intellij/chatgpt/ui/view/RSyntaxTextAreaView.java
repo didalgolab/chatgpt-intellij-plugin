@@ -9,6 +9,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.ui.view.rsyntaxtextarea.RSyntaxTextAreaUIEx;
 import com.didalgo.intellij.chatgpt.util.Language;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
@@ -121,6 +122,7 @@ public class RSyntaxTextAreaView extends ComponentView {
 
     protected Component createComponent0() {
         RSyntaxTextArea textArea = new MyRSyntaxTextArea();
+        textArea.setUI(new RSyntaxTextAreaUIEx(textArea));
         textArea.setSyntaxEditingStyle(language.mimeType());
         textArea.setEditable(false);
         textArea.setCodeFoldingEnabled(true);

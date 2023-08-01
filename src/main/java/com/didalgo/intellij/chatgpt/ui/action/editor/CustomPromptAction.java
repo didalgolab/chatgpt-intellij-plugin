@@ -11,20 +11,22 @@ import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.EditorPopupHandler;
+import com.intellij.openapi.editor.impl.ContextMenuPopupHandler;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.OptionAction;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.panels.NonOpaquePanel;
@@ -40,6 +42,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class CustomPromptAction extends GenericEditorAction {
 
@@ -147,13 +150,27 @@ public class CustomPromptAction extends GenericEditorAction {
             codePanel.add(codeLabel,BorderLayout.NORTH);
             editorFactory = EditorFactory.getInstance();
             FileType fileType = FileTypeManager.getInstance().getFileTypeByExtension(fileExtension);
-            editor = editorFactory.createEditor(editorFactory.createDocument(selected.content()), project, fileType, false);
+            LightVirtualFile virtualFile = new LightVirtualFile(UUID.randomUUID() + "." + fileExtension, selected.content());
+            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+            if (document == null)
+                document = editorFactory.createDocument(selected.content());
+            editor = editorFactory.createEditor(document, project, virtualFile, false, EditorKind.PREVIEW);
             editor.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
                 public void documentChanged(@NotNull DocumentEvent event) {
                     editor.getComponent().repaint();
                 }
             });
+
+            String originalGroupId = ((EditorEx)this.editor).getContextMenuGroupId();
+            AnAction originalGroup = (originalGroupId == null) ? null : ActionManager.getInstance().getAction(originalGroupId);
+            DefaultActionGroup group = new DefaultActionGroup();
+            if (originalGroup instanceof ActionGroup)
+                group.addAll(((ActionGroup)originalGroup).getChildren(null));
+
+            EditorEx editorEx = (EditorEx) editor;
+            editorEx.installPopupHandler(new ContextMenuPopupHandler.Simple(group));
+            editorEx.setColorsScheme(EditorColorsManager.getInstance().getSchemeForCurrentUITheme());
             EditorSettings editorSettings = editor.getSettings();
             editorSettings.setVirtualSpace(false);
             editorSettings.setLineMarkerAreaShown(false);

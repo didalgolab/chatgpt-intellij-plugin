@@ -24,13 +24,7 @@ public class ChatGptHandler {
     private static final Logger LOG = Logger.getInstance(ChatGptHandler.class);
 
     private static final String TEST_MARKDOWN = """
-            Line 1
-            Line 2
-            
-            <body lang="pl"><p>Line&nbsp;3 &copy; &lt;br&gt;</p></body>
-            &copy; <b>BEFORE</b> `&copy; <i>INLINE</i> &lt;br&gt;` shows copyright mark
-            
-            [Selected code]
+            [Selected code from com/didalgo/intellij/chatgpt/ChatGptHandler.java]
             ```properties
             # Gradle Releases -> https://github.com/gradle/gradle/releases
             gradleVersion = 7.6
