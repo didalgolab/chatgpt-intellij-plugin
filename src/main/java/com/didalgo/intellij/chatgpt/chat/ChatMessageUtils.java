@@ -30,13 +30,18 @@ public class ChatMessageUtils {
     public static String composeAll(String prompt, List<? extends TextContent> textContents) {
         var buf = new StringBuilder();
         for (var textContent : textContents) {
+            if (prompt.contains(textContent.toString()))
+                continue;
             if (textContent instanceof CodeFragment codeFragment && StringUtils.isEmpty(codeFragment.description()))
                 buf.append("[Selected code]\n");
             textContent.appendTo(buf);
             buf.append("\n\n");
         }
-        if (!prompt.isEmpty())
-            buf.append("---\n\n").append(prompt);
+        if (!prompt.isEmpty()) {
+            if (!buf.isEmpty())
+                buf.append("---\n\n");
+            buf.append(prompt);
+        }
 
         return buf.toString();
     }
