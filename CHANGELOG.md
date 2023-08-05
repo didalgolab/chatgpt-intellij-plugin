@@ -1,5 +1,12 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [0.2.9]
++ Fix: The context snippet editor/viewer has been made read-only.
++ Fix: The issue with the custom server URL not working has been resolved (#3).
++ Fix: Code selections already included in prompts are no longer sent in chat messages.
++ Feature: Context code snippets in chat prompts are now collapsed by default for visual efficiency.
++ Feature: After using the "ChatGPT: Add to Context" action, the prompt text field now automatically gains focus.
+
 ## [0.2.8]
 + Multiple bugfixes
 + Added setting to disable welcome message in the chat window
