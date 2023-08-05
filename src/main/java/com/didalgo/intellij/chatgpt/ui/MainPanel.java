@@ -128,7 +128,7 @@ public class MainPanel implements ChatMessageListener {
 
         chatInputContext.addListener(event -> {
             contextStack.getListModel().syncModel();
-
+            searchTextField.requestFocusInWindow();
             actionPanel.revalidate();
         });
 
