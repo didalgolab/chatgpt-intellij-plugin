@@ -59,7 +59,7 @@ public class CustomPromptAction extends GenericEditorAction {
             @SuppressWarnings("RedundantCast")
             var file = ((EditorEx) editor).getVirtualFile();
             if (file != null) {
-                fileExtension = file.getExtension();
+                fileExtension = StringUtils.defaultIfEmpty(file.getExtension(), "");
             }
 
             var dialog = new CustomActionDialog(e.getProject(), CodeFragment.of(getSelectedTextFromEditor(editor)), fileExtension);
