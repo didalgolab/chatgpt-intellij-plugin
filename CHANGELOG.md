@@ -1,5 +1,9 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [0.2.10]
++ Change assistant background color for dark mode (#6)
++ Fix: java.lang.IllegalArgumentException on files without extension (#7)
+
 ## [0.2.9]
 + Fix: The context snippet editor/viewer has been made read-only.
 + Fix: The issue with the custom server URL not working has been resolved (#3).
