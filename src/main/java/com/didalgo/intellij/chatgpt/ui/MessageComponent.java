@@ -50,8 +50,7 @@ public class MessageComponent extends JBPanel<MessageComponent> {
         var fromUser = (model == null);
         setDoubleBuffered(true);
         setOpaque(true);
-        setBackground(fromUser ? new JBColor(0xEAEEF7, 0x45494A) : new JBColor(0xE0EEF7, 0x2d2f30 /*2d2f30*/));
-        setBackground(fromUser ? new JBColor(0xF7F7F7, 0x3C3F41) : new JBColor(0xEBEBEB, 0x4C4E50 /*2d2f30*/));
+        setBackground(fromUser ? new JBColor(0xF7F7F7, 0x3C3F41) : new JBColor(0xEBEBEB, 0x2d2f30));
         setBorder(JBUI.Borders.empty(JBUI.scale(4), JBUI.scale(1)));
         setLayout(new BorderLayout(JBUI.scale(2), 0));
 
