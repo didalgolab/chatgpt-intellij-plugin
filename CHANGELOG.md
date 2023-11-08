@@ -1,5 +1,8 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [0.2.11]
++ Added support for new models: gpt-4-1106-preview and gpt-3.5-turbo-1106.
+
 ## [0.2.10]
 + Change assistant background color for dark mode (#6)
 + Fix: java.lang.IllegalArgumentException on files without extension (#7)
