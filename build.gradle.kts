@@ -126,7 +126,12 @@ tasks {
     }
 
     runPluginVerifier {
-        ideVersions.set(listOf("IC-232.6734.9", "IC-231.9011.34", "IC-231.4840.387"))
+        ideVersions.set(listOf(
+            "IC-233.11799.30",
+            "IC-232.10227.8",
+            "IC-232.6734.9",
+            "IC-231.9011.34",
+            "IC-231.4840.387"))
         downloadDir.set(File(System.getProperty("user.home"), ".pluginVerifier/ides").path)
     }
 

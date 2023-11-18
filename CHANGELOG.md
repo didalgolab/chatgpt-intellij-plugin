@@ -2,6 +2,7 @@
 
 ## [0.2.11]
 + Added support for new models: gpt-4-1106-preview and gpt-3.5-turbo-1106.
++ Enabled compatibility with IDE 233.* versions.
 
 ## [0.2.10]
 + Change assistant background color for dark mode (#6)

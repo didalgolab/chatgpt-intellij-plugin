@@ -17,7 +17,6 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.ex.EditorPopupHandler;
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -163,13 +162,9 @@ public class CustomPromptAction extends GenericEditorAction {
             });
 
             String originalGroupId = ((EditorEx)this.editor).getContextMenuGroupId();
-            AnAction originalGroup = (originalGroupId == null) ? null : ActionManager.getInstance().getAction(originalGroupId);
-            DefaultActionGroup group = new DefaultActionGroup();
-            if (originalGroup instanceof ActionGroup)
-                group.addAll(((ActionGroup)originalGroup).getChildren(null));
 
             EditorEx editorEx = (EditorEx) editor;
-            editorEx.installPopupHandler(new ContextMenuPopupHandler.Simple(group));
+            editorEx.installPopupHandler(new ContextMenuPopupHandler.Simple(originalGroupId));
             editorEx.setColorsScheme(EditorColorsManager.getInstance().getSchemeForCurrentUITheme());
             EditorSettings editorSettings = editor.getSettings();
             editorSettings.setVirtualSpace(false);
@@ -195,6 +190,15 @@ public class CustomPromptAction extends GenericEditorAction {
             basePanel.add(prefixPanel, BorderLayout.SOUTH);
 
             return basePanel;
+        }
+
+        @Override
+        protected void dispose() {
+            if (editor != null) {
+                EditorFactory.getInstance().releaseEditor(editor);
+                editor = null;
+            }
+            super.dispose();
         }
 
         private class SendAction extends DialogWrapperAction implements OptionAction {
