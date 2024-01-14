@@ -20,6 +20,7 @@ import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.Transient;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -150,9 +151,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
 
         @Transient
         public String getApiKey() {
-            var apiKey = System.getenv("OPENAI_API_KEY");
-            if (apiKey == null)
-                apiKey = PasswordSafe.getInstance().getPassword(createCredentialAttributes(getModelPage()));
+            var apiKey = PasswordSafe.getInstance().getPassword(createCredentialAttributes(getModelPage()));
             if (apiKey == null)
                 apiKey = "";
 
@@ -162,7 +161,7 @@ public class OpenAISettingsState implements PersistentStateComponent<OpenAISetti
         public void setApiKey(String apiKey) {
             var credentialAttributes = createCredentialAttributes(getModelPage());
             PasswordSafe.getInstance().setPassword(credentialAttributes, apiKey);
-            setApiKeyMasked(maskText(apiKey));
+            setApiKeyMasked(maskText(StringUtils.defaultIfEmpty(PasswordSafe.getInstance().getPassword(credentialAttributes), "")));
         }
 
         private static String maskText(String text) {
