@@ -80,6 +80,7 @@
                 <item value="gpt-3.5-turbo-16k-0613"/>
                 <item value="gpt-3.5-turbo-1106"/>
                 <item value="gpt-4"/>
+                <item value="gpt-4-turbo-preview"/>
                 <item value="gpt-4-0314"/>
                 <item value="gpt-4-0613"/>
                 <item value="gpt-4-32k"/>

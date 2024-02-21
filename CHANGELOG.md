@@ -1,5 +1,10 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [0.2.12]
++ Breaking Change: The plugin no longer retrieves API key from the OPENAI_API_KEY environment variable. For enhanced security, please enter your API key directly into the plugin's settings.
++ Added support for new model: gpt-4-turbo-preview
++ Enabled compatibility with IDE 241.* versions.
+
 ## [0.2.11]
 + Added support for new models: gpt-4-1106-preview and gpt-3.5-turbo-1106.
 + Enabled compatibility with IDE 233.* versions.
