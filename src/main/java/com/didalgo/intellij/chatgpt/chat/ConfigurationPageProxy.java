@@ -1,21 +1,25 @@
+/*
+ * Copyright (c) 2024 Mariusz Bernacki <consulting@didalgo.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.didalgo.intellij.chatgpt.chat;
 
 import java.util.function.Supplier;
 
-class ConfigurationPageProxy implements ConfigurationPage {
-    private final ConfigurationPage delegate;
+class ConfigurationPageProxy implements AssistantConfiguration {
+    private final AssistantConfiguration delegate;
 
-    ConfigurationPageProxy(ConfigurationPage delegate) {
+    ConfigurationPageProxy(AssistantConfiguration delegate) {
         this.delegate = delegate;
     }
 
-    public final ConfigurationPage getDelegate() {
+    public final AssistantConfiguration getDelegate() {
         return delegate;
     }
 
     @Override
-    public String getModelPage() {
-        return getDelegate().getModelPage();
+    public AssistantType getAssistantType() {
+        return getDelegate().getAssistantType();
     }
 
     @Override

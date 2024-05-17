@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui.action;
 
 import com.didalgo.intellij.chatgpt.text.TextFragment;
-import com.didalgo.intellij.chatgpt.ui.context.stack.TextInputContextEntry;
+import com.didalgo.intellij.chatgpt.ui.prompt.context.TextPromptAttachment;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -26,13 +26,13 @@ public class OpenInEditorActionTest {
 
     private Project project;
     private OpenInEditorAction action;
-    private TextInputContextEntry selectedItem;
+    private TextPromptAttachment selectedItem;
 
     @BeforeEach
     public void setUp() {
         project = ProjectManager.getInstance().getDefaultProject();
         action = new OpenInEditorAction();
-        selectedItem = new TextInputContextEntry(null, "TEST", TextFragment.of("TEST CONTENT"));
+        selectedItem = new TextPromptAttachment(null, "TEST", TextFragment.of("TEST CONTENT"));
     }
 
     @Test

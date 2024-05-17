@@ -6,39 +6,38 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>
 
-    <extensionPoints>
-        <extensionPoint name="chatGptExtension" interface="com.didalgo.intellij.chatgpt.ChatGptExtension" dynamic="true"/>
-    </extensionPoints>
-
-    <extensions defaultExtensionNs="com.didalgo.chatgpt">
-        <chatGptExtension implementation="com.didalgo.intellij.chatgpt.extensions.IdeScriptingExtension"/>
-    </extensions>
-
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="com.didalgo.ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
-                    factoryClass="com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory"/>
+                    factoryClass="com.didalgo.intellij.chatgpt.ui.tool.window.ChatServiceToolWindowFactory"/>
         <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel"
                                  id="com.didalgo.chatgpt.settings.OpenAISettings"
                                  displayName="ChatGPT Integration"/>
-        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT3_35_TurboPanel"
-                                 id="com.didalgo.chatgpt.settings.GPT3-3.5-Turbo"
-                                 displayName="GPT 3.5 Turbo"/>
-        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT4_Panel"
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT4Panel"
                                  id="com.didalgo.chatgpt.settings.GPT4"
                                  displayName="GPT 4"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT35TurboPanel"
+                                 id="com.didalgo.chatgpt.settings.GPT3-3.5-Turbo"
+                                 displayName="GPT 3.5 Turbo"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.AzureOpenAiPanel"
+                                 id="com.didalgo.chatgpt.settings.AzureOpenAi"
+                                 displayName="Azure OpenAI"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.ClaudePanel"
+                                 id="com.didalgo.chatgpt.settings.Claude"
+                                 displayName="Claude"/>
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.CustomActionsPanel"
                                  id="com.didalgo.chatgpt.settings.commandActions"
                                  displayName="Custom Actions"/>
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.chat.ChatMessageComposer" serviceImplementation="com.didalgo.intellij.chatgpt.chat.DefaultChatMessageComposer"/>
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer" serviceImplementation="com.didalgo.intellij.chatgpt.ui.TextEditorSelectionAwareSnippetizer"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.OpenAISettingsState"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.ChatGptHandler"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.spi.OpenAiServiceFactory"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.ChatGptSettings"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatHandler"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatClientFactory"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.spi.OpenAiServiceProviderRegistry"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.jshell.DirectJShellService" serviceInterface="com.didalgo.intellij.chatgpt.jshell.JShellHandle"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
         <postStartupActivity implementation="com.didalgo.intellij.chatgpt.core.StartUpActivity"/>
         <iconMapper mappingFile="ChatGPTIconMappings.json"/>
+        <editorActionHandler action="EditorPaste" implementationClass="com.didalgo.intellij.chatgpt.ui.PromptAttachmentPasteHandler" order="first"/>
     </extensions>
 
     <resource-bundle>messages.ChatGptBundle</resource-bundle>

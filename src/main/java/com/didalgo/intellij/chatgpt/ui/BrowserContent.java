@@ -13,9 +13,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.jcef.JBCefApp;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.util.ui.JBUI;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.internal.disposables.EmptyDisposable;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.Disposable;
+import reactor.core.Disposables;
 
 import java.awt.*;
 import javax.swing.*;
@@ -27,7 +27,7 @@ import javax.swing.*;
  * The panel includes a toolbar with options to refresh the page, clear cookies, and adjust zoom level.
  * If JCEF is not supported by the current IDE, a message is displayed instead of the browser.
  */
-public class BrowserContent {
+public class BrowserContent implements ChatLinkProvider {
 
     public static final String DEFAULT_URL = "https://chat.openai.com/chat";
     private final JPanel contentPanel;
@@ -63,6 +63,7 @@ public class BrowserContent {
         contentPanel.add(component, BorderLayout.CENTER);
     }
 
+    @Override
     public ChatLink getChatLink() {
         return chatLink;
     }
@@ -99,7 +100,7 @@ public class BrowserContent {
         @Override
         public Disposable push(ConversationContext ctx, ChatMessageEvent.Starting event, ChatMessageListener listener) {
             handleUserInput(event.getUserMessage().getContent());
-            return EmptyDisposable.INSTANCE;
+            return Disposables.never();
         }
     }
 }

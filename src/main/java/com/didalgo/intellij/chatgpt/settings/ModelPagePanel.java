@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2024 Mariusz Bernacki <consulting@didalgo.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
-import com.didalgo.intellij.chatgpt.OpenAIServiceHolder;
+import com.didalgo.intellij.chatgpt.chat.client.ChatClientHolder;
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
+import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.TextFieldWithHistory;
@@ -10,21 +16,21 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.function.Predicate;
 
-public abstract class ModelPagePanel implements Configurable {
+public abstract class ModelPagePanel implements Configurable, Configurable.Composite {
     protected JPanel myMainPanel;
     protected JPanel apiKeyTitledBorderBox;
     protected JBPasswordField apiKeyField;
     protected JComboBox<String> comboCombobox;
     protected JPanel modelTitledBorderBox;
-    protected JCheckBox enableContextCheckBox;
-    protected JLabel contextLabel;
     protected JCheckBox enableTokenConsumptionCheckBox;
     protected JCheckBox enableStreamResponseCheckBox;
     protected JLabel tokenLabel;
@@ -35,9 +41,16 @@ public abstract class ModelPagePanel implements Configurable {
     protected JLabel apiEndpointLabel;
     private JSpinner temperatureSpinner;
     private JSpinner topPSpinner;
+    private JCheckBox enabledInAToolCheckBox;
+    private JTextField azureApiEndpointField;
+    private JTextField azureDeploymentNameField;
+    private JLabel azureApiEndpointLabel;
+    private JLabel azureDeploymentNameLabel;
+    private JPanel customizeServerLabel;
 
-    public ModelPagePanel() {
+    public ModelPagePanel(Predicate<ModelType> modelFilter) {
         init();
+        configureAvailableModels(modelFilter);
     }
 
     private void init() {
@@ -53,33 +66,64 @@ public abstract class ModelPagePanel implements Configurable {
         enableCustomizeServerOptions(false);
         temperatureSpinner.setModel(new SpinnerNumberModel(0.4, 0.0, 2.0, 0.05));
         topPSpinner.setModel(new SpinnerNumberModel(0.95, 0.0, 1.0, 0.01));
+        comboCombobox.removeAllItems();
         initHelp();
+        configureAzureServerOptions(isAzureCompatible());
+    }
+
+    public boolean isAzureCompatible() {
+        return false;
+    }
+
+    protected void removeComponent(Component comp) {
+        if (comp.getParent() != null)
+            comp.getParent().remove(comp);
+    }
+
+    protected void configureAvailableModels(Predicate<ModelType> modelFilter) {
+        StandardModel.getAvailableModels().stream()
+                .filter(modelFilter)
+                .forEach(model -> comboCombobox.addItem(model.id()));
+    }
+
+    protected void configureAzureServerOptions(boolean enabled) {
+        if (enabled) {
+            customizeServerLabel.setVisible(false);
+            customizeServerOptions.setVisible(false);
+            comboCombobox.setVisible(false);
+        } else {
+            removeComponent(azureApiEndpointLabel);
+            removeComponent(azureApiEndpointField);
+            removeComponent(azureDeploymentNameLabel);
+            removeComponent(azureDeploymentNameField);
+        }
     }
 
     private void enableCustomizeServerOptions(boolean enabled) {
         if (!enabled) {
-            customizeServerField.setText(OpenAISettingsState.OpenAIConfig.DEFAULT_API_ENDPOINT);
+            customizeServerField.setText(getModelPageConfig(ChatGptSettings.getInstance()).getApiEndpointUrl());
         }
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
         apiEndpointLabel.setEnabled(false);
     }
 
-    protected abstract OpenAISettingsState.OpenAIConfig getModelPageConfig(OpenAISettingsState state);
+    protected abstract ChatGptSettings.AssistantOptions getModelPageConfig(ChatGptSettings state);
 
     @Override
     public void reset() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
-        OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
+        ChatGptSettings state = ChatGptSettings.getInstance();
+        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
         setApiKeyMasked(apiKeyField, config);
         comboCombobox.setSelectedItem(config.getModelName());
         temperatureSpinner.setValue(config.getTemperature());
         topPSpinner.setValue(config.getTopP());
-        enableContextCheckBox.setSelected(config.isEnableContext());
         enableTokenConsumptionCheckBox.setSelected(config.isEnableTokenConsumption());
         enableStreamResponseCheckBox.setSelected(config.isEnableStreamResponse());
         enableCustomizeUrlCheckBox.setSelected(config.isEnableCustomApiEndpointUrl());
         customizeServerField.setHistory(config.getApiEndpointUrlHistory());
         customizeServerField.setText(config.getApiEndpointUrl());
+        azureApiEndpointField.setText(config.getAzureApiEndpoint());
+        azureDeploymentNameField.setText(config.getAzureDeploymentName());
     }
 
     @Override
@@ -89,24 +133,25 @@ public abstract class ModelPagePanel implements Configurable {
 
     @Override
     public boolean isModified() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
-        OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
+        ChatGptSettings state = ChatGptSettings.getInstance();
+        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
 
         return !apiKeyField.getText().isEmpty() ||
                 !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
                 !Double.valueOf(config.getTemperature()).equals(temperatureSpinner.getValue()) ||
                 !Double.valueOf(config.getTopP()).equals(topPSpinner.getValue()) ||
-                config.isEnableContext() != enableContextCheckBox.isSelected() ||
                 config.isEnableTokenConsumption() != enableTokenConsumptionCheckBox.isSelected() ||
                 config.isEnableStreamResponse() != enableStreamResponseCheckBox.isSelected() ||
                 config.isEnableCustomApiEndpointUrl() != enableCustomizeUrlCheckBox.isSelected() ||
+                !config.getAzureApiEndpoint().equals(azureApiEndpointField.getText()) ||
+                !config.getAzureDeploymentName().equals(azureDeploymentNameField.getText()) ||
                 !config.getApiEndpointUrl().equals(customizeServerField.getText());
     }
 
     @Override
     public void apply() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
-        OpenAISettingsState.OpenAIConfig config = getModelPageConfig(state);
+        ChatGptSettings state = ChatGptSettings.getInstance();
+        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
 
         if (apiKeyField.getPassword().length > 0) {
             config.setApiKey(String.valueOf(apiKeyField.getPassword()));
@@ -115,18 +160,19 @@ public abstract class ModelPagePanel implements Configurable {
         config.setModelName(comboCombobox.getSelectedItem().toString());
         config.setTemperature((double) temperatureSpinner.getValue());
         config.setTopP((double) topPSpinner.getValue());
-        config.setEnableContext(enableContextCheckBox.isSelected());
         config.setEnableTokenConsumption(enableTokenConsumptionCheckBox.isSelected());
         config.setEnableStreamResponse(enableStreamResponseCheckBox.isSelected());
         config.setEnableCustomApiEndpointUrl(enableCustomizeUrlCheckBox.isSelected());
         config.setApiEndpointUrl(customizeServerField.getText());
+        config.setAzureApiEndpoint(azureApiEndpointField.getText());
+        config.setAzureDeploymentName(azureDeploymentNameField.getText());
         if (!config.getApiEndpointUrlHistory().contains(config.getApiEndpointUrl()))
             customizeServerField.addCurrentTextToHistory();
         config.setApiEndpointUrlHistory(customizeServerField.getHistory());
-        OpenAIServiceHolder.refresh();
+        ChatClientHolder.refresh();
     }
 
-    private void setApiKeyMasked(JBPasswordField apiKeyField, OpenAISettingsState.OpenAIConfig config) {
+    private void setApiKeyMasked(JBPasswordField apiKeyField, ChatGptSettings.AssistantOptions config) {
         apiKeyField.setText("");
         apiKeyField.getEmptyText().setText(config.getApiKeyMasked());
         if (config.getApiKeyMasked().isEmpty())
@@ -155,13 +201,16 @@ public abstract class ModelPagePanel implements Configurable {
     private void initHelp() {
         JBFont smallFont = JBUI.Fonts.smallFont();
         Color smallFontForeground = UIUtil.getContextHelpForeground();
-        contextLabel.setFont(smallFont);
-        contextLabel.setForeground(smallFontForeground);
 
         tokenLabel.setFont(smallFont);
         tokenLabel.setForeground(smallFontForeground);
 
         apiEndpointLabel.setFont(smallFont);
         apiEndpointLabel.setForeground(smallFontForeground);
+    }
+
+    @Override
+    public Configurable @NotNull [] getConfigurables() {
+        return new Configurable[0];
     }
 }

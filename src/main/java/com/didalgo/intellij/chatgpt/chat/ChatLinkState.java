@@ -6,12 +6,15 @@ package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.gpt3.ChatFormatDescriptor;
 import com.didalgo.gpt3.GPT3Tokenizer;
-import com.didalgo.gpt3.ModelType;
+import com.didalgo.intellij.chatgpt.chat.messages.MessageSupport;
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
+import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.intellij.openapi.application.ApplicationInfo;
-import com.theokanning.openai.completion.chat.ChatMessage;
-import com.theokanning.openai.completion.chat.ChatMessageRole;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,17 +26,17 @@ import static com.didalgo.intellij.chatgpt.chat.ChatMessageUtils.isRoleSystem;
 
 public class ChatLinkState implements ConversationContext {
 
-    private final LinkedList<ChatMessage> chatMessages = new LinkedList<>();
+    private final LinkedList<Message> chatMessages = new LinkedList<>();
     private volatile List<? extends TextContent> lastSentTextFragments = List.of();
     private volatile TextSubstitutor textSubstitutor = TextSubstitutor.NONE;
-    private final ConfigurationPage configuration;
+    private final AssistantConfiguration configuration;
 
 
-    public ChatLinkState(ConfigurationPage configuration) {
+    public ChatLinkState(AssistantConfiguration configuration) {
         this.configuration = configuration;
     }
 
-    public ConfigurationPage getModelConfiguration() {
+    public AssistantConfiguration getModelConfiguration() {
         var configuration = this.configuration;
         if (configuration == null)
             throw new UnsupportedOperationException("ModelConfiguration is not supported by this ChatLink instance");
@@ -65,17 +68,14 @@ public class ChatLinkState implements ConversationContext {
     }
 
     @Override
-    public void addChatMessage(ChatMessage message) {
-        if (message.getContent() == null)
-            message = new ChatMessage(message.getRole(), "");
-
+    public void addChatMessage(Message message) {
         synchronized (chatMessages) {
             if (!chatMessages.isEmpty()) {
-                if (message.getRole() == null || isRoleSystem(chatMessages.getLast()) && isRoleSystem(message)) {
-                    ChatMessage last = chatMessages.removeLast();
-                    message = new ChatMessage(last.getRole(), last.getContent() + message.getContent());
+                if (isRoleSystem(chatMessages.getLast()) && isRoleSystem(message)) {
+                    Message last = chatMessages.removeLast();
+                    message = new SystemMessage(last.getContent() + message.getContent());
                 }
-                else if (Objects.equals(chatMessages.getLast().getRole(), message.getRole()))
+                else if (Objects.equals(chatMessages.getLast().getMessageType(), message.getMessageType()))
                     chatMessages.removeLast();
             }
             chatMessages.add(message);
@@ -85,12 +85,12 @@ public class ChatLinkState implements ConversationContext {
     @Override
     public ModelType getModelType() {
         String modelName = getModelConfiguration().getModelName();
-        return ModelType.forModel(modelName).orElseThrow();
+        return StandardModel.of(modelName);
     }
 
     @Override
-    public List<ChatMessage> getChatMessages(ModelType model, ChatMessage userMessage) {
-        var chatMessages = new LinkedList<ChatMessage>();
+    public List<Message> getChatMessages(ModelType model, UserMessage userMessage) {
+        var chatMessages = new LinkedList<Message>();
 
         // First add current system message
         var systemMessage = getSystemPrompt().get();
@@ -98,7 +98,7 @@ public class ChatLinkState implements ConversationContext {
             systemMessage = systemMessage.stripTrailing()
                     + "\n\nCurrent IDE: " + ApplicationInfo.getInstance().getFullApplicationName()
                     + "\nOS: " + System.getProperty("os.name");
-            chatMessages.add(new ChatMessage(ChatMessageRole.SYSTEM.value(), systemMessage));
+            chatMessages.add(new SystemMessage(systemMessage));
         }
         var hasSystemMessage = !chatMessages.isEmpty();
 
@@ -111,7 +111,7 @@ public class ChatLinkState implements ConversationContext {
             substitutePlaceholders(chatMessages);
 
             // Trim messages if exceeding token limit
-            int maxTokens = model.maxTokens();
+            int maxTokens = model.getMaxTokens();
             var tokenizer = model.getTokenizer();
             var chatFormatDescriptor = model.getChatFormatDescriptor();
             int removed = dropOldestMessagesToStayWithinTokenLimit(chatMessages, maxTokens, tokenizer, chatFormatDescriptor);
@@ -122,11 +122,11 @@ public class ChatLinkState implements ConversationContext {
         }
     }
 
-    public void substitutePlaceholders(List<ChatMessage> chatMessages) {
+    public void substitutePlaceholders(List<Message> chatMessages) {
         ChatMessageUtils.substitutePlaceholders(chatMessages, getTextSubstitutor());
     }
 
-    public int dropOldestMessagesToStayWithinTokenLimit(List<ChatMessage> messages, int maxTokens, GPT3Tokenizer tokenizer, ChatFormatDescriptor formatDescriptor) {
+    public int dropOldestMessagesToStayWithinTokenLimit(List<Message> messages, int maxTokens, GPT3Tokenizer tokenizer, ChatFormatDescriptor formatDescriptor) {
         // here we assume ratio at most 2/3 available tokens for input prompt with context history,
         // and at least 1/3 tokens for output
         int tokenLimit = maxTokens*2/3;
@@ -146,14 +146,14 @@ public class ChatLinkState implements ConversationContext {
             var lastMsgCutoff = lastMessage.getContent().length() - tokenLimit;
             if (lastMsgCutoff > 0)
                 messages.set(oldestMessageIndex,
-                        new ChatMessage(lastMessage.getRole(), "[...] " + lastMessage.getContent().substring(lastMsgCutoff)));
+                        MessageSupport.substring(lastMessage, lastMsgCutoff));
         }
         return removed;
     }
 
     @Override
-    public String getModelPage() {
-        return getModelConfiguration().getModelPage();
+    public AssistantType getAssistantType() {
+        return getModelConfiguration().getAssistantType();
     }
 
     @Override

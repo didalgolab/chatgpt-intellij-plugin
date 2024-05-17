@@ -5,14 +5,15 @@
 package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.theokanning.openai.completion.chat.ChatMessage;
+import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.chat.messages.UserMessage;
 
 import java.util.List;
 
 public interface ChatMessageComposer {
 
-    ChatMessage compose(ConversationContext ctx, String prompt);
+    UserMessage compose(ConversationContext ctx, String textContent, List<Media> mediaList);
 
-    ChatMessage compose(ConversationContext ctx, String prompt, List<? extends TextContent> textContents);
+    UserMessage compose(ConversationContext ctx, String userPrompt, List<TextContent> textContents, List<Media> mediaList);
 
 }

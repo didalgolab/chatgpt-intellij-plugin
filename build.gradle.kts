@@ -25,23 +25,29 @@ repositories {
     mavenLocal()
     mavenCentral()
     gradlePluginPortal()
+    maven(url = "https://repo.spring.io/milestone")
+    maven(url = "https://repo.spring.io/snapshot")
 }
 
 dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.26")
     implementation("com.didalgo:gpt3-tokenizer:0.1.7")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.16.1") // to remove after class detection fix in Spring
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1") // to remove after class detection fix in Spring
     implementation("com.fifesoft:rsyntaxtextarea:3.3.3")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:okhttp-sse:4.11.0")
-    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
-    implementation("com.theokanning.openai-gpt3-java:service:0.14.0")
     implementation("com.vladsch.flexmark:flexmark:0.64.8")
     implementation("com.vladsch.flexmark:flexmark-ext-tables:0.64.8")
     implementation("com.vladsch.flexmark:flexmark-html2md-converter:0.64.8")
     implementation("org.projectlombok:lombok:1.18.26")
-    implementation(files("lib/jdk-jshell-17.jar", "lib/jdk-compiler-17.jar", "lib/java-compiler-17.jar"))
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
+        exclude(group = "io.rest-assured", module = "json-path")
+    }
+    implementation("org.springframework.ai:spring-ai-azure-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
+        exclude(group = "io.rest-assured", module = "json-path")
+    }
+    implementation("org.springframework.ai:spring-ai-anthropic-spring-boot-starter:1.0.0-SNAPSHOT") {
+        exclude(group = "io.rest-assured", module = "json-path")
+    }
     testImplementation("org.junit.platform:junit-platform-launcher:1.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testImplementation("org.mockito:mockito-core:5.3.1")

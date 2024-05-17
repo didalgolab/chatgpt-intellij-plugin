@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
-import io.reactivex.disposables.Disposable;
+import reactor.core.Disposable;
 
 @FunctionalInterface
 public interface ConversationHandler {

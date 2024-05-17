@@ -5,19 +5,20 @@
 package com.didalgo.intellij.chatgpt.core;
 
 import com.didalgo.intellij.chatgpt.text.TextFragment;
-import com.theokanning.openai.completion.chat.ChatMessage;
+import org.springframework.ai.chat.Generation;
+import org.springframework.ai.chat.messages.AssistantMessage;
 
 import java.util.List;
 
 public class ChatCompletionParser {
 
-    public static TextFragment parseGPT35TurboWithStream(List<ChatMessage> assistantResponses) {
-        String assistantMessage = assistantResponses.isEmpty() ? null : assistantResponses.get(0).getContent();
+    public static TextFragment parseTextContent(Generation generation) {
+        AssistantMessage assistantMessage = generation.getOutput();
         if (assistantMessage == null) {
-            assistantMessage = "";
+            assistantMessage = new AssistantMessage("");
         }
 
-        TextFragment parseResult = TextFragment.of(assistantMessage);
+        TextFragment parseResult = TextFragment.of(assistantMessage.getContent());
         parseResult.toHtml(); // pre-compute and cache HTML content in the current thread
         return parseResult;
     }

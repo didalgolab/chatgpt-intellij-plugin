@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui.action;
 
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.didalgo.intellij.chatgpt.ui.context.stack.TextInputContextEntry;
+import com.didalgo.intellij.chatgpt.ui.prompt.context.TextPromptAttachment;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -27,9 +27,9 @@ public class OpenInEditorAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         var project = e.getProject();
         var content = e.getData(PlatformDataKeys.SELECTED_ITEM);
-        if (content instanceof TextInputContextEntry codeContent && project != null) {
-            codeContent.getTextContent().ifPresent(textContent -> {
-                var file = new LightVirtualFile(codeContent.getText() + ".md", TextContent.toString(textContent));
+        if (content instanceof TextPromptAttachment codeContent && project != null) {
+            codeContent.getTextContentIfPresent().ifPresent(textContent -> {
+                var file = new LightVirtualFile(codeContent.getName() + ".md", TextContent.toString(textContent));
                 var openDesc = new OpenFileDescriptor(project, file);
                 var editor = FileEditorManager.getInstance(project).openTextEditor(openDesc, true);
                 if (editor instanceof EditorEx editorEx)
