@@ -5,29 +5,15 @@
 package com.didalgo.intellij.chatgpt.core;
 
 import com.didalgo.intellij.chatgpt.chat.ConversationContext;
-import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
 import com.intellij.openapi.components.Service;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest.ChatCompletionRequestBuilder;
-import com.theokanning.openai.completion.chat.ChatMessage;
-
-import java.util.TreeMap;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 
 @Service
 public final class ChatCompletionRequestProvider {
 
-    public ChatCompletionRequestBuilder chatCompletionRequest(ConversationContext ctx, ChatMessage userMessage) {
+    public Prompt chatCompletionRequest(ConversationContext ctx, UserMessage userMessage) {
         ctx.addChatMessage(userMessage);
-        var model = ctx.getModelType();
-        var config = OpenAISettingsState.getInstance().getConfigurationPage(ctx.getModelPage());
-
-        return ChatCompletionRequest
-                .builder()
-                .stream(config.isEnableStreamResponse())
-                .temperature(config.getTemperature())
-                .topP(config.getTopP())
-                .model(model.modelName())
-                .messages(ctx.getChatMessages(model, userMessage))
-                .logitBias(new TreeMap<>());
+        return new Prompt(ctx.getChatMessages(ctx.getModelType(), userMessage));
     }
 }

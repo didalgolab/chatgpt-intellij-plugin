@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui.view;
 
-import com.didalgo.intellij.chatgpt.ui.MessagePanel;
+import com.didalgo.intellij.chatgpt.ui.tool.window.MessageTextPanel;
 import com.didalgo.intellij.chatgpt.ui.MessageRenderer;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class CollapsiblePanelFactory {
         JXCollapsiblePane collapsiblePane = new JXCollapsiblePane();
         collapsiblePane.setCollapsed(true);
 
-        JEditorPane contentPane = new MessagePanel();
+        JEditorPane contentPane = new MessageTextPanel();
         contentPane.putClientProperty(HONOR_COLLAPSIBLE_PANELS, Boolean.FALSE);
         // Get the content of the Element object
         StringWriter out = new StringWriter();

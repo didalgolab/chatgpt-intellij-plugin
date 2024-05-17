@@ -6,10 +6,11 @@ package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.didalgo.intellij.chatgpt.ui.context.stack.DefaultInputContext;
+import com.didalgo.intellij.chatgpt.ui.prompt.context.DefaultInputContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.theokanning.openai.completion.chat.ChatMessage;
+import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.chat.messages.UserMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ChatLinkService extends AbstractChatLink {
     private final ConversationHandler conversationHandler;
     private final ChatLinkState conversationContext;
 
-    public ChatLinkService(Project project, ConversationHandler engine, ConfigurationPage configuration) {
+    public ChatLinkService(Project project, ConversationHandler engine, AssistantConfiguration configuration) {
         this.project = project;
         this.conversationHandler = engine;
         this.conversationContext = new ChatLinkState(configuration);
@@ -52,8 +53,9 @@ public class ChatLinkService extends AbstractChatLink {
 
     public void pushMessage(String prompt, List<? extends TextContent> textContents, InputContext inputContext) {
         ChatMessageComposer composer = ApplicationManager.getApplication().getService(ChatMessageComposer.class);
-        List<? extends TextContent> mergedCtx = mergeContext(textContents, inputContext);
-        ChatMessage message = composer.compose(conversationContext, prompt, mergedCtx);
+        List<TextContent> mergedCtx = mergeContext(textContents, inputContext);
+        List<Media> mediaList = getMediaAttachments(inputContext);
+        UserMessage message = composer.compose(conversationContext, prompt, mergedCtx, mediaList);
         if (message.getContent().isEmpty()) {
             return;
         }
@@ -71,23 +73,36 @@ public class ChatLinkService extends AbstractChatLink {
         } catch (Throwable x) {
             listener.exchangeFailed(event.failed(x));
             getConversationContext().setLastPostedCodeFragments(List.of());
+            x.printStackTrace();
         }
     }
 
-    private static List<? extends TextContent> mergeContext(List<? extends TextContent> textContents, InputContext inputContext) {
-        if (inputContext.getEntries().isEmpty()) {
-            return textContents;
+    private static List<TextContent> mergeContext(List<? extends TextContent> textContents, InputContext inputContext) {
+        if (inputContext.getAttachments().isEmpty()) {
+            return List.copyOf(textContents);
         }
 
         List<TextContent> list = new ArrayList<>();
         Optional<TextContent> code;
-        for (var contextEntry : inputContext.getEntries())
-            if ((code = contextEntry.getTextContent()).isPresent())
+        for (var contextEntry : inputContext.getAttachments())
+            if ((code = contextEntry.getTextContentIfPresent()).isPresent())
                 list.add(code.get());
 
         for (var codeFragment : textContents)
             if (!list.contains(codeFragment))
                 list.add(codeFragment);
+
+        return list;
+    }
+
+    private static List<Media> getMediaAttachments(InputContext inputContext) {
+        if (inputContext.getAttachments().isEmpty()) {
+            return List.of();
+        }
+
+        List<Media> list = new ArrayList<>();
+        for (var attachment : inputContext.getAttachments())
+            attachment.getMediaContentIfPresent().ifPresent(list::add);
 
         return list;
     }

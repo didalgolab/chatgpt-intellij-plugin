@@ -4,10 +4,11 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
-import com.theokanning.openai.completion.chat.ChatCompletionChunk;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatMessage;
 import org.reactivestreams.Subscription;
+import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.Generation;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class ChatMessageEvent extends EventObject {
 
-    private final ChatMessage userMessage;
+    private final UserMessage userMessage;
 
     /**
      * Constructs a prototypical ChatMessageEvent.
@@ -24,7 +25,7 @@ public abstract class ChatMessageEvent extends EventObject {
      * @param userMessage the chat message associated with the event
      * @throws IllegalArgumentException if source is null
      */
-    protected ChatMessageEvent(ChatLink source, ChatMessage userMessage) {
+    protected ChatMessageEvent(ChatLink source, UserMessage userMessage) {
         super(source);
         this.userMessage = userMessage;
     }
@@ -34,7 +35,7 @@ public abstract class ChatMessageEvent extends EventObject {
      *
      * @return the chat message associated with the event
      */
-    public final ChatMessage getUserMessage() {
+    public final UserMessage getUserMessage() {
         return userMessage;
     }
 
@@ -48,14 +49,14 @@ public abstract class ChatMessageEvent extends EventObject {
     }
 
 
-    public static Starting starting(ChatLink source, ChatMessage userMessage) {
+    public static Starting starting(ChatLink source, UserMessage userMessage) {
         return new Starting(source, userMessage);
     }
 
 
     public static class Starting extends ChatMessageEvent {
 
-        protected Starting(ChatLink source, ChatMessage userMessage) {
+        protected Starting(ChatLink source, UserMessage userMessage) {
             super(source, userMessage);
         }
 
@@ -67,8 +68,8 @@ public abstract class ChatMessageEvent extends EventObject {
             return new Started(this, subscription);
         }
 
-        public Initiating initiating(ChatCompletionRequest request) {
-            return new Initiating(this, request);
+        public Initiating initiating(Prompt prompt) {
+            return new Initiating(this, prompt);
         }
 
         public Failed failed(Throwable cause) {
@@ -82,15 +83,15 @@ public abstract class ChatMessageEvent extends EventObject {
     }
 
     public static class Initiating extends Starting {
-        private final ChatCompletionRequest request;
+        private final Prompt prompt;
 
-        protected Initiating(Starting sourceEvent, ChatCompletionRequest request) {
+        protected Initiating(Starting sourceEvent, Prompt prompt) {
             super(sourceEvent);
-            this.request = request;
+            this.prompt = prompt;
         }
 
-        public final Optional<ChatCompletionRequest> getRequest() {
-            return Optional.ofNullable(request);
+        public final Optional<Prompt> getPrompt() {
+            return Optional.ofNullable(prompt);
         }
     }
 
@@ -110,13 +111,13 @@ public abstract class ChatMessageEvent extends EventObject {
             return subscription;
         }
 
-        public ResponseArriving responseArriving(ChatCompletionChunk responseChunk, List<ChatMessage> partialResponseChoices) {
+        public ResponseArriving responseArriving(ChatResponse responseChunk, List<Generation> partialResponseChoices) {
             requireNonNull(responseChunk, "responseChunk");
             requireNonNull(partialResponseChoices, "partialResponseChoices");
             return new ResponseArriving(this, responseChunk, partialResponseChoices);
         }
 
-        public ResponseArrived responseArrived(List<ChatMessage> responseChoices) {
+        public ResponseArrived responseArrived(List<Generation> responseChoices) {
             requireNonNull(responseChoices, "responseChoices");
             return new ResponseArrived(this, responseChoices);
         }
@@ -142,33 +143,33 @@ public abstract class ChatMessageEvent extends EventObject {
     }
 
     public static class ResponseArriving extends Started {
-        private final ChatCompletionChunk responseChunk;
-        private final List<ChatMessage> partialResponseChoices;
+        private final ChatResponse responseChunk;
+        private final List<Generation> partialResponseChoices;
 
-        protected ResponseArriving(Started sourceEvent, ChatCompletionChunk responseChunk, List<ChatMessage> partialResponseChoices) {
+        protected ResponseArriving(Started sourceEvent, ChatResponse responseChunk, List<Generation> partialResponseChoices) {
             super(sourceEvent);
             this.responseChunk = responseChunk;
             this.partialResponseChoices = partialResponseChoices;
         }
 
-        public final ChatCompletionChunk getResponseChunk() {
+        public final ChatResponse getResponseChunk() {
             return responseChunk;
         }
 
-        public final List<ChatMessage> getPartialResponseChoices() {
+        public final List<Generation> getPartialResponseChoices() {
             return partialResponseChoices;
         }
     }
 
     public static class ResponseArrived extends Started {
-        private final List<ChatMessage> responseChoices;
+        private final List<Generation> responseChoices;
 
-        protected ResponseArrived(Started sourceEvent, List<ChatMessage> responseChoices) {
+        protected ResponseArrived(Started sourceEvent, List<Generation> responseChoices) {
             super(sourceEvent);
             this.responseChoices = responseChoices;
         }
 
-        public final List<ChatMessage> getResponseChoices() {
+        public final List<Generation> getResponseChoices() {
             return responseChoices;
         }
     }

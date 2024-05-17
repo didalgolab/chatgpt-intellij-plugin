@@ -8,7 +8,7 @@ import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.text.CodeFragmentFactory;
 import com.didalgo.intellij.chatgpt.text.TextFragment;
 import com.didalgo.intellij.chatgpt.text.TextFragmentUtils;
-import com.didalgo.intellij.chatgpt.ui.context.stack.TextInputContextEntry;
+import com.didalgo.intellij.chatgpt.ui.prompt.context.TextPromptAttachment;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Editor;
@@ -58,7 +58,7 @@ public class AddToContextAction extends AnAction {
     private void handleEditorData(Project project, Editor editor) {
         var icon = IconUtil.getIcon(editor.getVirtualFile(), 0, project);
         var text = editor.getVirtualFile().getPresentableName();
-        TextInputContextEntry entry = new TextInputContextEntry(icon, text, CodeFragmentFactory.create(editor));
+        TextPromptAttachment entry = new TextPromptAttachment(icon, text, CodeFragmentFactory.create(editor));
 
         addToContext(project, entry);
     }
@@ -68,12 +68,12 @@ public class AddToContextAction extends AnAction {
 
         var icon = AllIcons.Actions.ShowAsTree;
         var text = "[" + LocalDateTime.now().withNano(0) + "]";
-        TextInputContextEntry entry = new TextInputContextEntry(icon, text, textFragment);
+        TextPromptAttachment entry = new TextPromptAttachment(icon, text, textFragment);
 
         addToContext(project, entry);
     }
 
-    protected void addToContext(Project project, TextInputContextEntry entry) {
-        ChatLink.forProject(project).getInputContext().addEntry(entry);
+    protected void addToContext(Project project, TextPromptAttachment entry) {
+        ChatLink.forProject(project).getInputContext().addAttachment(entry);
     }
 }

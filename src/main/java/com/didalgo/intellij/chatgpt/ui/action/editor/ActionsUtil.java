@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.action.editor;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.settings.CustomAction;
-import com.didalgo.intellij.chatgpt.settings.OpenAISettingsState;
+import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -28,7 +28,7 @@ public class ActionsUtil {
             group.add(new GenericEditorAction(() -> ChatGptBundle.message("action.code.test.menu"), "Add test case for this code."));
 
             group.addSeparator();
-            for (CustomAction customAction : OpenAISettingsState.getInstance().getCustomActionsPrefix()) {
+            for (CustomAction customAction : ChatGptSettings.getInstance().getCustomActionsPrefix()) {
                 group.add(new GenericEditorAction(customAction::getName, customAction.getCommand()));
             }
         }

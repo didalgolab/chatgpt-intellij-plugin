@@ -4,8 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.settings;
 
-import com.didalgo.intellij.chatgpt.ChatGptToolWindowFactory;
-import com.didalgo.intellij.chatgpt.ModelPage;
+import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -38,8 +37,8 @@ public class OpenAISettingsPanel implements Configurable {
     private JLabel contentOrderHelpLabel;
     private JPanel openaiAssistantTitledBorderBox;
     private final String[] comboboxItemsString = {
-            ChatGptToolWindowFactory.GPT35_TURBO_CONTENT_NAME,
-            ChatGptToolWindowFactory.ONLINE_CHATGPT_CONTENT_NAME};
+            AssistantType.System.GPT_3_5.displayName(),
+            AssistantType.System.ONLINE.displayName()};
     private boolean needRestart = false;
 
     public static final String CREATE_API_KEY = "https://api.openai.com/dashboard/user/api_keys";
@@ -57,7 +56,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public void reset() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
+        ChatGptSettings state = ChatGptSettings.getInstance();
         readTimeoutField.setText(state.getReadTimeout());
         enableAvatarCheckBox.setSelected(state.isEnableAvatar());
         firstCombobox.setSelectedItem(state.contentOrder.get(1));
@@ -74,7 +73,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public boolean isModified() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
+        ChatGptSettings state = ChatGptSettings.getInstance();
 
         // If you change the order, you need to restart the IDE to take effect
         needRestart = !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem())
@@ -92,7 +91,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public void apply() {
-        OpenAISettingsState state = OpenAISettingsState.getInstance();
+        ChatGptSettings state = ChatGptSettings.getInstance();
 
         boolean readTimeoutIsNumber = StringUtils.isNumeric(readTimeoutField.getText());
         state.setReadTimeout(!readTimeoutIsNumber ? "50000" : readTimeoutField.getText());
@@ -160,19 +159,5 @@ public class OpenAISettingsPanel implements Configurable {
 
         contentOrderHelpLabel.setFont(JBUI.Fonts.smallFont());
         contentOrderHelpLabel.setForeground(UIUtil.getContextHelpForeground());
-    }
-
-    /**
-     * Returns the appropriate settings panel {@code Class} for the given model category.
-     *
-     * @param page the model category to fetch the settings panel for
-     * @return the appropriate {@code Class} for the settings panel
-     */
-    public static Class<? extends Configurable> getTargetPanelClassForPage(String page) {
-        return switch (page) {
-            case ModelPage.Of.GPT_3_5 -> GPT3_35_TurboPanel.class;
-            case ModelPage.Of.GPT_4 -> GPT4_Panel.class;
-            default -> OpenAISettingsPanel.class;
-        };
     }
 }

@@ -12,4 +12,5 @@ import java.util.List;
 public interface ContextAwareSnippetizer {
 
     List<CodeFragment> fetchSnippets(Project project);
+
 }
