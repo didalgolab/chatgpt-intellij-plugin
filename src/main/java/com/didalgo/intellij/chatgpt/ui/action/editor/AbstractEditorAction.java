@@ -4,6 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui.action.editor;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -32,7 +33,7 @@ public abstract class AbstractEditorAction extends AnAction {
     protected AbstractEditorAction(
             @NotNull Supplier<@NlsActions.ActionText String> dynamicText,
             @NotNull Supplier<@NlsActions.ActionText String> dynamicDescription) {
-        super(dynamicText, dynamicDescription, null);
+        super(dynamicText, dynamicDescription, (Icon)null);
     }
 
     @Override
@@ -45,6 +46,11 @@ public abstract class AbstractEditorAction extends AnAction {
     }
 
     protected abstract void actionPerformed(Project project, Editor editor, String selectedText);
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
+    }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
