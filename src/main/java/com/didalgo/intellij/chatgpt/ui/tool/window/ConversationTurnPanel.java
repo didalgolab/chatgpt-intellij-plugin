@@ -24,6 +24,7 @@ import com.didalgo.intellij.chatgpt.ChatGptIcons;
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.Icon;
@@ -146,15 +147,11 @@ public class ConversationTurnPanel extends JBPanel<ConversationTurnPanel> {
     public MessagePanel createMessagePanel(Message message, boolean fromUser) {
         TextFragment content = TextFragment.of(message.getContent());
 
-        MessageTextPanel messagePanel = new MessageTextPanel();
+        MessageTextPanel messagePanel = new MessageTextPanel(message.getMessageType() == MessageType.USER);
         messagePanel.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, java.lang.Boolean.TRUE);
         messagePanel.setContentType("text/html; charset=UTF-8");
         messagePanel.setOpaque(false);
         messagePanel.setBorder(null);
-
-        var editorKit = messagePanel.configureHtmlEditorKit2(messagePanel, false);
-        if (fromUser)
-            editorKit.getStyleSheet().addRule("body {white-space:pre-wrap}");
         messagePanel.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, getMessageText().markdown());
         messagePanel.updateMessage(fromUser? TextFragment.of(content.markdown(), CodeSnippetManipulator.makeCodeSnippetBlocksCollapsible(toDisplayText(content, true))) : content);
         messagePanel.setEditable(false);
