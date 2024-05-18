@@ -133,6 +133,7 @@ tasks {
 
     runPluginVerifier {
         ideVersions.set(listOf(
+            "IU-242.10180.25",
             "IC-241.12662.62",
             "IC-233.11799.30",
             "IC-232.10227.8",
