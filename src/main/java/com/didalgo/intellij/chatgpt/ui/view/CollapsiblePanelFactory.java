@@ -28,11 +28,11 @@ public class CollapsiblePanelFactory {
     }
 
     @NotNull
-    public static JComponentView createPanel(MessageRenderer renderer, Element elem, AttributeSet attrs) {
+    public static JComponentView createPanel(boolean fromUser, MessageRenderer renderer, Element elem, AttributeSet attrs) {
         JXCollapsiblePane collapsiblePane = new JXCollapsiblePane();
         collapsiblePane.setCollapsed(true);
 
-        JEditorPane contentPane = new MessageTextPanel();
+        JEditorPane contentPane = new MessageTextPanel(fromUser);
         contentPane.putClientProperty(HONOR_COLLAPSIBLE_PANELS, Boolean.FALSE);
         // Get the content of the Element object
         StringWriter out = new StringWriter();
