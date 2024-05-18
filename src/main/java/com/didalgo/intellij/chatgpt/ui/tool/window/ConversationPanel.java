@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
+import com.didalgo.intellij.chatgpt.ui.text.ExpandableTextFieldExt;
 import com.didalgo.intellij.chatgpt.util.ScrollingTools;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -63,21 +64,9 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
         if (true) {
             JPanel panel = new NonOpaquePanel(new GridLayout(0,1));
             JPanel rolePanel = new NonOpaquePanel(new BorderLayout());
-            systemRole = new JBTextField();
+            systemRole = new ExpandableTextFieldExt(project, null);
             ChatGptSettings instance = ChatGptSettings.getInstance();
             systemRole.setText(instance.gpt35RoleText);
-            systemRole.setEnabled(false);
-            systemRole.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    systemRole.setEnabled(true);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    systemRole.setEnabled(false);
-                }
-            });
             rolePanel.add(systemRole, BorderLayout.CENTER);
             DefaultActionGroup toolbarActions = new DefaultActionGroup();
             toolbarActions.add(new AnAction(AllIcons.Actions.MenuSaveall) {

@@ -9,7 +9,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
 public class NewlineFilter extends DocumentFilter {
+
+    @SuppressWarnings("UnnecessaryUnicodeEscape")
     static final Character NEWLINE_REPLACEMENT = '\u23CE';
+
 
     @Override
     public void insertString(FilterBypass fb, int offset, String text,
