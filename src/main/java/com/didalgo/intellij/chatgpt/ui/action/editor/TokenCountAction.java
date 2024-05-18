@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.action.editor;
 
 import com.didalgo.gpt3.ModelType;
 import com.didalgo.gpt3.TokenCount;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -19,6 +20,11 @@ public class TokenCountAction extends AnAction {
 
     public TokenCountAction() {
         super("Token Count", "Count tokens in the selected text or the entire content", null);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

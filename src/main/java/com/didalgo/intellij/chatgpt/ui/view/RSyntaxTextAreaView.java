@@ -247,6 +247,11 @@ public class RSyntaxTextAreaView extends ComponentView {
             return event.getData(TEXT_AREA_KEY);
         }
 
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
+        }
+
         protected String getTextContent(JTextArea textArea) {
             String selectedText = textArea.getSelectedText();
             return (selectedText == null || selectedText.isEmpty())? textArea.getText() : selectedText;
