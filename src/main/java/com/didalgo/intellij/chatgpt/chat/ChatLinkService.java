@@ -15,6 +15,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 public class ChatLinkService extends AbstractChatLink {
 
@@ -47,8 +48,8 @@ public class ChatLinkService extends AbstractChatLink {
     }
 
     @Override
-    public void pushMessage(String prompt, List<? extends TextContent> textContents) {
-        pushMessage(prompt, textContents, getInputContext());
+    public Future<?> pushMessage(String prompt, List<? extends TextContent> textContents) {
+        return ApplicationManager.getApplication().executeOnPooledThread(() -> pushMessage(prompt, textContents, getInputContext()));
     }
 
     public void pushMessage(String prompt, List<? extends TextContent> textContents, InputContext inputContext) {

@@ -195,19 +195,20 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
             throw new ChatExchangeAbortException("Preset check failed");
         }
 
-        question = new ConversationTurnPanel(event.getUserMessage(), null);
-        answer = new ConversationTurnPanel(new AssistantMessage("Thinking..."), getModelType());
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            answer = new ConversationTurnPanel(new AssistantMessage("Thinking..."), getModelType());
+        });
         SwingUtilities.invokeLater(() -> {
             setSearchText("");
             aroundRequest(true);
 
             ConversationPanel contentPanel = getContentPanel();
-            contentPanel.add(question);
+            contentPanel.add(new ConversationTurnPanel(event.getUserMessage(), null));
             contentPanel.add(answer);
         });
     }
 
-    private volatile ConversationTurnPanel question, answer;
+    private volatile ConversationTurnPanel answer;
 
     @Override
     public void exchangeStarted(ChatMessageEvent.Started event) {
