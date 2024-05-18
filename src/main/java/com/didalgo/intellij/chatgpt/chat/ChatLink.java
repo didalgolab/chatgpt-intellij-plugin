@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 public interface ChatLink {
 
@@ -26,7 +27,7 @@ public interface ChatLink {
 
     ConversationContext getConversationContext();
 
-    void pushMessage(String prompt, List<? extends TextContent> textContents);
+    Future<?> pushMessage(String prompt, List<? extends TextContent> textContents);
 
     void addChatMessageListener(ChatMessageListener listener);
 
