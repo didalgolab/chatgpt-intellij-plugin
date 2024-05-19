@@ -9,9 +9,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.ui.action.editor.SelectedTextEditorTargetedAction;
+import com.didalgo.intellij.chatgpt.ui.action.editor.DiffAction;
 import com.didalgo.intellij.chatgpt.ui.view.rsyntaxtextarea.RSyntaxTextAreaUIEx;
 import com.didalgo.intellij.chatgpt.util.Language;
-import com.intellij.icons.AllIcons;
+import com.intellij.icons.AllIcons.Actions;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
@@ -44,6 +46,8 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.didalgo.intellij.chatgpt.ui.text.TextEditorHelper.TEXT_AREA_KEY;
 
 public class RSyntaxTextAreaView extends ComponentView {
 
@@ -108,8 +112,6 @@ public class RSyntaxTextAreaView extends ComponentView {
         }
     }
 
-    private static final DataKey<JTextArea> TEXT_AREA_KEY = DataKey.create("MyTextArea");
-
     protected static class MyRSyntaxTextArea extends RSyntaxTextArea implements DataProvider {
 
         @Override
@@ -170,7 +172,7 @@ public class RSyntaxTextAreaView extends ComponentView {
         };
 
         Presentation presentation = new Presentation();
-        presentation.setIcon(AllIcons.Actions.More);
+        presentation.setIcon(Actions.More);
         presentation.putClientProperty(ActionButton.HIDE_DROPDOWN_ICON, Boolean.TRUE);
         ActionButton myCorner = new ActionButton(actionGroup, presentation, ActionPlaces.UNKNOWN, new Dimension(20, 20)) {
             @Override
@@ -220,13 +222,38 @@ public class RSyntaxTextAreaView extends ComponentView {
         protected void createUI() {
             add(createActionButton(new MyCopyAction(COPY_ICON_16x16_DARK)));
             add(createActionButton(new MyInsertCodeAction(INSERT_COPY_ICON_16x16_DARK)));
+            add(createMoreActionButton());
         }
 
         protected ActionButton createActionButton(AnAction action) {
             Presentation presentation = new Presentation();
-            presentation.setIcon(AllIcons.Actions.More);
+            presentation.setIcon(Actions.More);
             presentation.putClientProperty(ActionButton.HIDE_DROPDOWN_ICON, Boolean.TRUE);
             ActionButton actionButton = new ActionButton(action, action.getTemplatePresentation().clone(), ActionPlaces.UNKNOWN, new Dimension(20, 20)) {
+                @Override
+                protected DataContext getDataContext() {
+                    return DataManager.getInstance().getDataContext(this);
+                }
+            };
+            actionButton.setNoIconsInPopup(true);
+            return actionButton;
+        }
+
+        protected ActionButton createMoreActionButton() {
+            var moreActions = new DefaultActionGroup();
+            moreActions.getTemplatePresentation().setPopupGroup(true);
+            moreActions.getTemplatePresentation().setIcon(Actions.More);
+            moreActions.getTemplatePresentation().putClientProperty(ActionButton.HIDE_DROPDOWN_ICON, true);
+            moreActions.add(new SelectedTextEditorTargetedAction(
+                    "Compare with Selection", "Compare with Selection",
+                    Actions.Diff, SelectedTextEditorTargetedAction.ALL_WITH_SELECTION,
+                    DiffAction.WithSelection::new, false));
+            moreActions.add(new SelectedTextEditorTargetedAction(
+                    "Compare with Editor", "Compare with Editor",
+                    Actions.Diff, SelectedTextEditorTargetedAction.WRITABLE,
+                    DiffAction::new, true));
+
+            var actionButton = new ActionButton(moreActions, null, ActionPlaces.UNKNOWN, new Dimension(20, 20)) {
                 @Override
                 protected DataContext getDataContext() {
                     return DataManager.getInstance().getDataContext(this);
