@@ -63,43 +63,43 @@ public class DiffAction extends AnAction {
             return;
         }
 
-        var leftEditor = getTextArea(event);
-        if (leftEditor == null) {
+        var rightEditor = getTextArea(event);
+        if (rightEditor == null) {
             return;
         }
 
         if (targetEditor != null) {
-            showDiff(project, leftEditor, targetEditor);
+            showDiff(project, targetEditor, rightEditor);
         } else {
             selectedTextEditors(project, SelectedTextEditorTargetedAction.WRITABLE)
-                    .forEach(rightEditor -> showDiff(project, leftEditor, rightEditor));
+                    .forEach(leftEditor -> showDiff(project, leftEditor, rightEditor));
         }
     }
 
-    protected void showDiff(Project project, JTextArea leftEditor, TextEditor rightEditor) {
-        VirtualFile rightEditorFile = getEditorFile(rightEditor);
+    protected void showDiff(Project project, TextEditor leftEditor, JTextArea rightEditor) {
+        VirtualFile leftEditorFile = getEditorFile(leftEditor);
         DiffContentFactory diffContentFactory = DiffContentFactory.getInstance();
-        TextRange rightTextRange = getDiffTargetTextRange(rightEditor);
-        DiffContent rightContent = rightTextRange.isEmpty()
-                ? diffContentFactory.create(project, rightEditorFile)
-                : diffContentFactory.createFragment(project, rightEditor.getEditor().getDocument(), rightTextRange);
+        TextRange leftTextRange = getDiffTargetTextRange(leftEditor);
+        DiffContent leftContent = leftTextRange.isEmpty()
+                ? diffContentFactory.create(project, leftEditorFile)
+                : diffContentFactory.createFragment(project, leftEditor.getEditor().getDocument(), leftTextRange);
 
         SimpleDiffRequest request = new SimpleDiffRequest(
                 ChatGptBundle.message("editor.diff.title"),
-                diffContentFactory.create(project, getSelectedTextOrEntireContent(leftEditor), rightEditorFile.getFileType()),
-                rightContent,
-                ChatGptBundle.message("editor.diff.local.content.title"),
-                rightEditorFile.getName()
+                leftContent,
+                diffContentFactory.create(project, getSelectedTextOrEntireContent(rightEditor), leftEditorFile.getFileType()),
+                leftEditorFile.getName(),
+                ChatGptBundle.message("editor.diff.local.content.title")
         );
         TextDiffSettings settings = new TextDiffSettings();
         settings.setIgnorePolicy(IgnorePolicy.TRIM_WHITESPACES);
         request.putUserData(TextDiffSettings.KEY, settings);
-        request.putUserData(DiffUserDataKeys.SCROLL_TO_LINE, Pair.create(Side.RIGHT, DiffUtil.getCaretPosition(rightEditor.getEditor()).line));
+        request.putUserData(DiffUserDataKeys.SCROLL_TO_LINE, Pair.create(Side.LEFT, DiffUtil.getCaretPosition(leftEditor.getEditor()).line));
 
         DiffManager.getInstance().showDiff(project, request, DiffDialogHints.DEFAULT);
     }
 
-    public TextRange   getDiffTargetTextRange(TextEditor editor) {
+    public TextRange getDiffTargetTextRange(TextEditor editor) {
         return TextRange.EMPTY_RANGE;
     }
 
