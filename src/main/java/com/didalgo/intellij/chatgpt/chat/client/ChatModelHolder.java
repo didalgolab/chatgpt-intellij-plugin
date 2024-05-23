@@ -8,7 +8,7 @@ import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.ui.MainConversationHandler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import org.springframework.ai.chat.ChatClient;
+import org.springframework.ai.chat.ChatModel;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.ArrayList;
@@ -16,21 +16,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChatClientHolder {
+public class ChatModelHolder {
 
     private static final Logger log = Logger.getInstance(MainConversationHandler.class);
 
-    private static final Map<AssistantType, ChatClient> chatClients = new ConcurrentHashMap<>();
+    private static final Map<AssistantType, ChatModel> chatModels = new ConcurrentHashMap<>();
 
 
-    public static synchronized ChatClient getChatClient(AssistantType type) {
-        return chatClients.computeIfAbsent(type, __ -> createChatClient(type));
+    public static synchronized ChatModel getChatModel(AssistantType type) {
+        return chatModels.computeIfAbsent(type, __ -> createChatModel(type));
     }
 
     public static synchronized void refresh() {
-        List<ChatClient> clients = new ArrayList<>(chatClients.values());
-        chatClients.clear();
-        clients.forEach(client -> {
+        List<ChatModel> models = new ArrayList<>(chatModels.values());
+        chatModels.clear();
+        models.forEach(client -> {
             if (client instanceof DisposableBean disposable) {
                 try {
                     disposable.destroy();
@@ -41,7 +41,7 @@ public class ChatClientHolder {
         });
     }
 
-    protected static ChatClient createChatClient(AssistantType type) {
-        return ApplicationManager.getApplication().getService(ChatClientFactory.class).create(type);
+    protected static ChatModel createChatModel(AssistantType type) {
+        return ApplicationManager.getApplication().getService(ChatModelFactory.class).create(type);
     }
 }

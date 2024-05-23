@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
-import com.didalgo.intellij.chatgpt.chat.client.ChatClientHolder;
+import com.didalgo.intellij.chatgpt.chat.client.ChatModelHolder;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.intellij.openapi.options.Configurable;
@@ -169,7 +169,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         if (!config.getApiEndpointUrlHistory().contains(config.getApiEndpointUrl()))
             customizeServerField.addCurrentTextToHistory();
         config.setApiEndpointUrlHistory(customizeServerField.getHistory());
-        ChatClientHolder.refresh();
+        ChatModelHolder.refresh();
     }
 
     private void setApiKeyMasked(JBPasswordField apiKeyField, ChatGptSettings.AssistantOptions config) {

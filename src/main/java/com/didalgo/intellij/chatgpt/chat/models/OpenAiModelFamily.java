@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.chat.models;
 
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ApiUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -13,7 +13,7 @@ import org.springframework.ai.openai.api.OpenAiApi;
 public class OpenAiModelFamily implements ModelFamily {
 
     @Override
-    public OpenAiChatClient createChatClient(ChatGptSettings.AssistantOptions config) {
+    public OpenAiChatModel createChatModel(ChatGptSettings.AssistantOptions config) {
         var baseUrl = config.isEnableCustomApiEndpointUrl()? config.getApiEndpointUrl(): getDefaultApiEndpointUrl();
         var apiKey = config.getApiKey();
         var api = new OpenAiApi(baseUrl, apiKey);
@@ -23,7 +23,7 @@ public class OpenAiModelFamily implements ModelFamily {
                 .withTopP((float) config.getTopP())
                 .withN(1)
                 .build();
-        return new OpenAiChatClient(api, options);
+        return new OpenAiChatModel(api, options);
     }
 
     @Override

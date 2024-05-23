@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.chat.models;
 
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.chat.ChatClient;
+import org.springframework.ai.chat.ChatModel;
 
 public interface ModelFamily {
 
@@ -15,7 +15,7 @@ public interface ModelFamily {
 
     ModelFamily ANTHROPIC = new AnthropicModelFamily();
 
-    ChatClient createChatClient(ChatGptSettings.AssistantOptions config);
+    ChatModel createChatModel(ChatGptSettings.AssistantOptions config);
 
     String getDefaultApiEndpointUrl();
 

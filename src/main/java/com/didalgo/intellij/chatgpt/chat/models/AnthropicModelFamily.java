@@ -5,14 +5,14 @@
 package com.didalgo.intellij.chatgpt.chat.models;
 
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.anthropic.AnthropicChatClient;
+import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
 
 public class AnthropicModelFamily implements ModelFamily {
 
     @Override
-    public AnthropicChatClient createChatClient(ChatGptSettings.AssistantOptions config) {
+    public AnthropicChatModel createChatModel(ChatGptSettings.AssistantOptions config) {
         var baseUrl = config.isEnableCustomApiEndpointUrl()? config.getApiEndpointUrl(): getDefaultApiEndpointUrl();
         var apiKey = config.getApiKey();
         var api = new AnthropicApi(baseUrl, apiKey);
@@ -22,7 +22,7 @@ public class AnthropicModelFamily implements ModelFamily {
                 .withTopP((float) config.getTopP())
                 .withMaxTokens(4096)
                 .build();
-        return new AnthropicChatClient(api, options);
+        return new AnthropicChatModel(api, options);
     }
 
     @Override

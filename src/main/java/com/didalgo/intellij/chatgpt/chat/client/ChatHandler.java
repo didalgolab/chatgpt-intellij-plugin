@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Subscription;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.Generation;
-import org.springframework.ai.chat.StreamingChatClient;
+import org.springframework.ai.chat.StreamingChatModel;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,18 +25,18 @@ public class ChatHandler {
     private static final Logger LOG = Logger.getInstance(ChatHandler.class);
 
     public Flux<?> handle(ConversationContext ctx, ChatMessageEvent.Initiating event, ChatMessageListener listener) {
-        var chatClient = ChatClientHolder.getChatClient(ctx.getAssistantType());
+        var chatModel = ChatModelHolder.getChatModel(ctx.getAssistantType());
         var flowHandler = new ChatCompletionHandler(listener);
         var prompt = event.getPrompt().orElseThrow(() -> new IllegalArgumentException("Prompt is required"));
 
-        if (chatClient instanceof StreamingChatClient streamingClient) {
-            return streamingClient.stream(prompt)
+        if (chatModel instanceof StreamingChatModel streamingModel) {
+            return streamingModel.stream(prompt)
                     .doOnSubscribe(flowHandler.onSubscribe(event))
                     .doOnError(flowHandler.onError())
                     .doOnComplete(flowHandler.onComplete(ctx))
                     .doOnNext(flowHandler.onNextChunk());
         } else {
-            return Mono.fromCallable(() -> chatClient.call(prompt))
+            return Mono.fromCallable(() -> chatModel.call(prompt))
                     .flux()
                     .doOnSubscribe(flowHandler.onSubscribe(event))
                     .doOnError(flowHandler.onError())
