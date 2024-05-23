@@ -7,13 +7,13 @@ package com.didalgo.intellij.chatgpt.chat.models;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.azure.openai.AzureOpenAiChatClient;
+import org.springframework.ai.azure.openai.AzureOpenAiChatModel;
 import org.springframework.ai.azure.openai.AzureOpenAiChatOptions;
 
 public class AzureOpenAiModelFamily implements ModelFamily {
 
     @Override
-    public AzureOpenAiChatClient createChatClient(ChatGptSettings.AssistantOptions config) {
+    public AzureOpenAiChatModel createChatModel(ChatGptSettings.AssistantOptions config) {
         var baseUrl = config.getAzureApiEndpoint();
         var apiKey = config.getApiKey();
         var api = new OpenAIClientBuilder().credential(new AzureKeyCredential(apiKey))
@@ -25,7 +25,7 @@ public class AzureOpenAiModelFamily implements ModelFamily {
                 .withTopP((float) config.getTopP())
                 .withN(1)
                 .build();
-        return new AzureOpenAiChatClient(api, options);
+        return new AzureOpenAiChatModel(api, options);
     }
 
     @Override
