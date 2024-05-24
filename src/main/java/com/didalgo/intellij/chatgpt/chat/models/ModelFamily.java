@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.chat.models;
 
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.chat.ChatModel;
+import org.springframework.ai.chat.model.ChatModel;
 
 public interface ModelFamily {
 

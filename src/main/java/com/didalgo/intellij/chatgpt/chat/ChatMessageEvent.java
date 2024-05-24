@@ -5,9 +5,9 @@
 package com.didalgo.intellij.chatgpt.chat;
 
 import org.reactivestreams.Subscription;
-import org.springframework.ai.chat.ChatResponse;
-import org.springframework.ai.chat.Generation;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 
 import java.util.*;

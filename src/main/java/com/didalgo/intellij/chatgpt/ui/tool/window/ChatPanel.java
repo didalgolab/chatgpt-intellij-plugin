@@ -34,8 +34,8 @@ import com.intellij.util.ui.JBUI;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
-import org.springframework.ai.chat.Generation;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.Generation;
 import reactor.core.Disposable;
 
 import javax.swing.*;

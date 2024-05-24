@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.chat.client;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
-import org.springframework.ai.chat.ChatModel;
+import org.springframework.ai.chat.model.ChatModel;
 
 public class ChatModelFactory {
 
