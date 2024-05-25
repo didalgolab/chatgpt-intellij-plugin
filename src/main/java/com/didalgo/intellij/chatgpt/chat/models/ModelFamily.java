@@ -17,10 +17,15 @@ public interface ModelFamily {
 
     ModelFamily GEMINI = new GeminiModelFamily();
 
+    ModelFamily OLLAMA = new OllamaModelFamily();
+
     ChatModel createChatModel(ChatGptSettings.AssistantOptions config);
 
     String getDefaultApiEndpointUrl();
 
     String getApiKeysHomepage();
 
+    default boolean isApiKeyOptional() {
+        return "".equals(getApiKeysHomepage());
+    }
 }

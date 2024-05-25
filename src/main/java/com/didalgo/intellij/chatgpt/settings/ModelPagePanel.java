@@ -61,7 +61,9 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     }
 
     private void init() {
-        apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing"), SimpleTextAttributes.ERROR_ATTRIBUTES);
+        if (!isApiKeyOptional()) {
+            apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing", type.getFamily().getApiKeysHomepage()), SimpleTextAttributes.ERROR_ATTRIBUTES);
+        }
         ItemListener proxyTypeChangedListener = e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 enableCustomizeServerOptions(true);
@@ -75,9 +77,18 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         enableCustomizeServerOptions(false);
         temperatureSpinner.setModel(new SpinnerNumberModel(0.4, 0.0, 2.0, 0.05));
         topPSpinner.setModel(new SpinnerNumberModel(0.95, 0.0, 1.0, 0.01));
+        comboCombobox.setEditable(isModelNameEditable());
         comboCombobox.removeAllItems();
         initHelp();
         configureAzureServerOptions(isAzureCompatible());
+    }
+
+    protected boolean isModelNameEditable() {
+        return false;
+    }
+
+    protected boolean isApiKeyOptional() {
+        return type.getFamily().isApiKeyOptional();
     }
 
     protected void enableInToolWindowStateChanged(ItemEvent e) {
@@ -209,8 +220,8 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     private void setApiKeyMasked(JBPasswordField apiKeyField, ChatGptSettings.AssistantOptions config) {
         apiKeyField.setText("");
         apiKeyField.getEmptyText().setText(config.getApiKeyMasked());
-        if (config.getApiKeyMasked().isEmpty())
-            apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing"), SimpleTextAttributes.ERROR_ATTRIBUTES);
+        if (config.getApiKeyMasked().isEmpty() && !isApiKeyOptional())
+            apiKeyField.getEmptyText().setText(ChatGptBundle.message("apiKey.missing", type.getFamily().getApiKeysHomepage()), SimpleTextAttributes.ERROR_ATTRIBUTES);
     }
 
     @Override

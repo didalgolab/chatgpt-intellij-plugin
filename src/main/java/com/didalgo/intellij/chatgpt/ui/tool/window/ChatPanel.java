@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.Generation;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
 
 import javax.swing.*;
@@ -222,6 +223,9 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         var settings = ChatGptSettings.getInstance();
         var assistantType = getChatLink().getConversationContext().getAssistantType();
         var options = settings.getAssistantOptions(assistantType);
+        if (assistantType.getFamily().isApiKeyOptional()) {
+            return true;
+        }
         if (assistantType.getFamily() == ModelFamily.AZURE_OPENAI) {
             return presetCheckForAzure(assistantType, options);
         }
@@ -285,14 +289,26 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     @Override
     public void exchangeFailed(ChatMessageEvent.Failed event) {
         if (answer != null) {
-            answer.setErrorContent(getErrorMessage(event.getCause()));
+            answer.setErrorContent(getErrorResponseMessage(event.getCause()));
         }
         aroundRequest(false);
+    }
+
+    private String getErrorResponseMessage(Throwable cause) {
+        String errorMessage = getErrorMessage(cause);
+        return errorMessage + (errorMessage.isEmpty() ? "" : "\n\n") + getErrorResponseBody(cause);
+    }
+
+    private String getErrorResponseBody(Throwable cause) {
+        var restEx = (cause instanceof WebClientResponseException wcre) ? wcre
+                : (cause.getCause() instanceof WebClientResponseException wcre) ? wcre : null;
+        return (restEx != null) ? restEx.getResponseBodyAsString() : "";
     }
 
     private String getErrorMessage(Throwable cause) {
         if (cause == null)
             return "";
+
         return (isEmpty(cause.getMessage()) ? "" : cause.getMessage() + "; ")
                 + getErrorMessage(cause.getCause());
     }

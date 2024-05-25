@@ -7,14 +7,15 @@ package com.didalgo.intellij.chatgpt.chat.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public enum StandardModel implements ModelType {
     CLAUDE_3_OPUS("claude-3-opus-20240229", ModelFamily.ANTHROPIC, 200000),
     CLAUDE_3_SONNET("claude-3-sonnet-20240229", ModelFamily.ANTHROPIC, 200000),
     CLAUDE_3_HAIKU("claude-3-haiku-20240307", ModelFamily.ANTHROPIC, 200000),
 
-    GEMINI_1_5_FLASH_LATEST("gemini-1.5-flash-latest", ModelFamily.GEMINI, 1048576),
     GEMINI_1_5_PRO_LATEST("gemini-1.5-pro-latest", ModelFamily.GEMINI, 1048576),
+    GEMINI_1_5_FLASH_LATEST("gemini-1.5-flash-latest", ModelFamily.GEMINI, 1048576),
 
     GPT_3_5_TURBO("gpt-3.5-turbo", ModelFamily.OPEN_AI, 16385),
     GPT_3_5_TURBO_0301("gpt-3.5-turbo-0301", ModelFamily.OPEN_AI, 4096),
@@ -80,5 +81,14 @@ public enum StandardModel implements ModelType {
             }
         }
         throw new IllegalArgumentException("Model `" + id + "` not found");
+    }
+
+    public static Optional<ModelType> findFirstAvailableModelInFamily(ModelFamily family) {
+        for (StandardModel model : StandardModel.values()) {
+            if (model.getFamily().equals(family)) {
+                return Optional.of(model);
+            }
+        }
+        return Optional.empty();
     }
 }

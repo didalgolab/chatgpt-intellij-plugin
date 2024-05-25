@@ -54,6 +54,9 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-anthropic-spring-boot-starter:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
+    implementation("org.springframework.ai:spring-ai-ollama:1.0.0-SNAPSHOT") {
+        exclude(group = "io.rest-assured", module = "json-path")
+    }
     testImplementation("org.junit.platform:junit-platform-launcher:1.9.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
