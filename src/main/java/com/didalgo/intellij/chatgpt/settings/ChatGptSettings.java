@@ -99,6 +99,11 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
         this.customActionsPrefix = new CopyOnWriteArrayList<>(customActionsPrefix);
     }
 
+    public Set<AssistantType.System> getEnabledInToolWindow() {
+        enabledInToolWindow.removeIf(Objects::isNull);
+        return enabledInToolWindow;
+    }
+
     @Getter
     @Setter
     @Tag("ApiConfig")
