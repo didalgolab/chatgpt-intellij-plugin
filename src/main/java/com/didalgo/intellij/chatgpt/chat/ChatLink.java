@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import com.didalgo.intellij.chatgpt.ui.ToolWindowLocator;
+import com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 
@@ -17,7 +17,7 @@ public interface ChatLink {
     Key<ChatLink> KEY = Key.create("ChatLink.current");
 
     static ChatLink forProject(Project project) {
-        ToolWindowLocator.ensureActivated(project);
+        ChatToolWindow.ensureActivated(project);
         return project.getUserData(ChatLink.KEY);
     }
 

@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.chat.models.ModelFamily;
 import com.didalgo.intellij.chatgpt.settings.AzureOpenAiPanel;
+import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
 import com.didalgo.intellij.chatgpt.settings.ClaudePanel;
 import com.didalgo.intellij.chatgpt.settings.GPT35TurboPanel;
 import com.didalgo.intellij.chatgpt.settings.GPT4Panel;
@@ -41,6 +42,10 @@ public sealed interface AssistantType
             this.displayName = displayName;
             this.family = family;
             this.configurable = configurable;
+        }
+
+        public boolean isEnabled(ChatGptSettings settings) {
+            return settings.getEnabledInToolWindow().contains(this);
         }
     }
 

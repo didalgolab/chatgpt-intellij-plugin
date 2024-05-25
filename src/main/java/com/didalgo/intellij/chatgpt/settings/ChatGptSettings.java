@@ -25,7 +25,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
+
+import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.*;
 
 /**
  * Supports storing the application settings in a persistent way.
@@ -45,6 +48,9 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
             " Follow these rules in each response: snarky & noir & lang:${{LANG}}." +
             " Source code language: en. Bias towards the best solution.";
 
+    public static final List<AssistantType.System> DEFAULT_ENABLED_SYSTEMS
+            = List.of(GPT_4, GPT_3_5, AZURE_OPENAI, CLAUDE, ONLINE);
+
     public Map<Integer, String> contentOrder = new HashMap<>() {{
         put(1, AssistantType.System.GPT_3_5.displayName());
         put(2, AssistantType.System.ONLINE.displayName());
@@ -61,6 +67,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
     private volatile AssistantOptions claudeConfig;
 
     private volatile List<CustomAction> customActionsPrefix = new CopyOnWriteArrayList<>();
+    private volatile Set<AssistantType.System> enabledInToolWindow = new CopyOnWriteArraySet<>(DEFAULT_ENABLED_SYSTEMS);
 
     public String gpt35RoleText = BASE_PROMPT;
 
@@ -75,7 +82,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
 
     public void setGpt4Config(AssistantOptions gpt4Config) {
         this.gpt4Config = gpt4Config;
-        this.gpt4Config.assistantType = AssistantType.System.GPT_4;
+        this.gpt4Config.assistantType = GPT_4;
     }
 
     public void setAzureOpenAiConfig(AssistantOptions azureOpenAiConfig) {
