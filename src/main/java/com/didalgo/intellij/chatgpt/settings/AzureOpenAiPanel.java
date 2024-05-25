@@ -10,21 +10,18 @@ import com.intellij.openapi.options.Configurable;
 
 import java.util.function.Predicate;
 
+import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.*;
+
 public class AzureOpenAiPanel extends ModelPagePanel implements Configurable {
     private static final Predicate<ModelType> anyModel = __ -> true;
 
     public AzureOpenAiPanel() {
-        super(anyModel);
+        super(AZURE_OPENAI, anyModel);
     }
 
     @Override
     public final boolean isAzureCompatible() {
         return true;
-    }
-
-    @Override
-    protected ChatGptSettings.AssistantOptions getModelPageConfig(ChatGptSettings state) {
-        return state.getAzureOpenAiConfig();
     }
 
     @Override

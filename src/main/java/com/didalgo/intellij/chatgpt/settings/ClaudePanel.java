@@ -11,16 +11,13 @@ import com.intellij.openapi.options.Configurable;
 
 import java.util.function.Predicate;
 
+import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.CLAUDE;
+
 public class ClaudePanel extends ModelPagePanel implements Configurable {
     private static final Predicate<ModelType> claudeModels = model -> model.getFamily() == ModelFamily.ANTHROPIC;
 
     public ClaudePanel() {
-        super(claudeModels);
-    }
-
-    @Override
-    protected ChatGptSettings.AssistantOptions getModelPageConfig(ChatGptSettings state) {
-        return state.getClaudeConfig();
+        super(CLAUDE, claudeModels);
     }
 
     @Override

@@ -8,7 +8,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="com.didalgo.ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
-                    factoryClass="com.didalgo.intellij.chatgpt.ui.tool.window.ChatServiceToolWindowFactory"/>
+                    factoryClass="com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindowFactory"/>
         <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel"
                                  id="com.didalgo.chatgpt.settings.OpenAISettings"
                                  displayName="ChatGPT Integration"/>

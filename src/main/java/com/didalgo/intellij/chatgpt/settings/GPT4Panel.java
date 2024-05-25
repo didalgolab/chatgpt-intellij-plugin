@@ -11,16 +11,13 @@ import com.intellij.openapi.options.Configurable;
 
 import java.util.function.Predicate;
 
+import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.GPT_4;
+
 public class GPT4Panel extends ModelPagePanel implements Configurable {
     private static final Predicate<ModelType> openAiModels = model -> model.getFamily() == ModelFamily.OPEN_AI;
 
     public GPT4Panel() {
-        super(openAiModels);
-    }
-
-    @Override
-    protected ChatGptSettings.AssistantOptions getModelPageConfig(ChatGptSettings state) {
-        return state.getGpt4Config();
+        super(GPT_4, openAiModels);
     }
 
     @Override

@@ -5,9 +5,12 @@
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.client.ChatModelHolder;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
+import com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindow;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.TextFieldWithHistory;
@@ -48,7 +51,10 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     private JLabel azureDeploymentNameLabel;
     private JPanel customizeServerLabel;
 
-    public ModelPagePanel(Predicate<ModelType> modelFilter) {
+    private final AssistantType type;
+
+    public ModelPagePanel(AssistantType type, Predicate<ModelType> modelFilter) {
+        this.type = type;
         init();
         configureAvailableModels(modelFilter);
     }
@@ -63,12 +69,32 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
             }
         };
         enableCustomizeUrlCheckBox.addItemListener(proxyTypeChangedListener);
+        enabledInAToolCheckBox.setSelected(isEnabledInToolWindow());
+        enabledInAToolCheckBox.addItemListener(this::enableInToolWindowStateChanged);
         enableCustomizeServerOptions(false);
         temperatureSpinner.setModel(new SpinnerNumberModel(0.4, 0.0, 2.0, 0.05));
         topPSpinner.setModel(new SpinnerNumberModel(0.95, 0.0, 1.0, 0.01));
         comboCombobox.removeAllItems();
         initHelp();
         configureAzureServerOptions(isAzureCompatible());
+    }
+
+    protected void enableInToolWindowStateChanged(ItemEvent e) {
+        setEnabledInToolWindow(e.getStateChange() == ItemEvent.SELECTED);
+    }
+
+    public void setEnabledInToolWindow(boolean enabled) {
+        if (type instanceof AssistantType.System system) {
+            var enabledSet = ChatGptSettings.getInstance().getEnabledInToolWindow();
+            var changed = enabled ? enabledSet.add(system) : enabledSet.remove(system);
+
+            if (changed)
+                ApplicationManager.getApplication().invokeLater(ChatToolWindow::synchronizeContents);
+        }
+    }
+
+    public boolean isEnabledInToolWindow() {
+        return type instanceof AssistantType.System system && system.isEnabled(ChatGptSettings.getInstance());
     }
 
     public boolean isAzureCompatible() {
@@ -101,18 +127,20 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
 
     private void enableCustomizeServerOptions(boolean enabled) {
         if (!enabled) {
-            customizeServerField.setText(getModelPageConfig(ChatGptSettings.getInstance()).getApiEndpointUrl());
+            customizeServerField.setText(getAssistantOptions(ChatGptSettings.getInstance()).getApiEndpointUrl());
         }
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
         apiEndpointLabel.setEnabled(false);
     }
 
-    protected abstract ChatGptSettings.AssistantOptions getModelPageConfig(ChatGptSettings state);
+    protected ChatGptSettings.AssistantOptions getAssistantOptions(ChatGptSettings state) {
+        return state.getAssistantOptions(type);
+    }
 
     @Override
     public void reset() {
         ChatGptSettings state = ChatGptSettings.getInstance();
-        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
+        ChatGptSettings.AssistantOptions config = getAssistantOptions(state);
         setApiKeyMasked(apiKeyField, config);
         comboCombobox.setSelectedItem(config.getModelName());
         temperatureSpinner.setValue(config.getTemperature());
@@ -134,7 +162,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     @Override
     public boolean isModified() {
         ChatGptSettings state = ChatGptSettings.getInstance();
-        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
+        ChatGptSettings.AssistantOptions config = getAssistantOptions(state);
 
         return !apiKeyField.getText().isEmpty() ||
                 !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
@@ -151,7 +179,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     @Override
     public void apply() {
         ChatGptSettings state = ChatGptSettings.getInstance();
-        ChatGptSettings.AssistantOptions config = getModelPageConfig(state);
+        ChatGptSettings.AssistantOptions config = getAssistantOptions(state);
 
         if (apiKeyField.getPassword().length > 0) {
             config.setApiKey(String.valueOf(apiKeyField.getPassword()));
@@ -169,6 +197,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         if (!config.getApiEndpointUrlHistory().contains(config.getApiEndpointUrl()))
             customizeServerField.addCurrentTextToHistory();
         config.setApiEndpointUrlHistory(customizeServerField.getHistory());
+
         ChatModelHolder.refresh();
     }
 
