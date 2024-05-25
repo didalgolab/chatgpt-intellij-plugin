@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.AssistantConfiguration;
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.CredentialAttributesKt;
@@ -66,6 +67,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
     private volatile AssistantOptions azureOpenAiConfig;
     private volatile AssistantOptions claudeConfig;
     private volatile AssistantOptions geminiConfig;
+    private volatile AssistantOptions ollamaConfig;
 
     private volatile List<CustomAction> customActionsPrefix = new CopyOnWriteArrayList<>();
     private volatile Set<AssistantType.System> enabledInToolWindow = new CopyOnWriteArraySet<>(DEFAULT_ENABLED_SYSTEMS);
@@ -76,29 +78,43 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
         return ApplicationManager.getApplication().getService(ChatGptSettings.class);
     }
 
+    public ChatGptSettings() {
+        setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, StandardModel.GPT_3_5_TURBO.id()));
+        setGpt4Config(AssistantOptions.forAssistantType(GPT_4, StandardModel.GPT_4O.id()));
+        setAzureOpenAiConfig(AssistantOptions.forAssistantType(AZURE_OPENAI, StandardModel.GPT_4.id()));
+        setClaudeConfig(AssistantOptions.forAssistantType(CLAUDE));
+        setGeminiConfig(AssistantOptions.forAssistantType(GEMINI));
+        setOllamaConfig(AssistantOptions.forAssistantType(OLLAMA, "llama3"));
+    }
+
     public void setGpt35Config(AssistantOptions gpt35Config) {
         this.gpt35Config = gpt35Config;
-        this.gpt35Config.assistantType = AssistantType.System.GPT_3_5;
+        this.gpt35Config.setAssistantType(GPT_3_5);
     }
 
     public void setGpt4Config(AssistantOptions gpt4Config) {
         this.gpt4Config = gpt4Config;
-        this.gpt4Config.assistantType = GPT_4;
+        this.gpt4Config.setAssistantType(GPT_4);
     }
 
     public void setAzureOpenAiConfig(AssistantOptions azureOpenAiConfig) {
         this.azureOpenAiConfig = azureOpenAiConfig;
-        this.azureOpenAiConfig.assistantType = AssistantType.System.AZURE_OPENAI;
+        this.azureOpenAiConfig.setAssistantType(AssistantType.System.AZURE_OPENAI);
     }
 
     public void setClaudeConfig(AssistantOptions claudeConfig) {
         this.claudeConfig = claudeConfig;
-        this.claudeConfig.assistantType = AssistantType.System.CLAUDE;
+        this.claudeConfig.setAssistantType(AssistantType.System.CLAUDE);
     }
 
     public void setGeminiConfig(AssistantOptions geminiConfig) {
         this.geminiConfig = geminiConfig;
-        this.geminiConfig.assistantType = AssistantType.System.GEMINI;
+        this.geminiConfig.setAssistantType(AssistantType.System.GEMINI);
+    }
+
+    public void setOllamaConfig(AssistantOptions ollamaConfig) {
+        this.ollamaConfig = ollamaConfig;
+        this.ollamaConfig.setAssistantType(AssistantType.System.OLLAMA);
     }
 
     public void setCustomActionsPrefix(List<CustomAction> customActionsPrefix) {
@@ -128,6 +144,30 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
         private volatile String azureApiEndpoint = "";
         private volatile String azureDeploymentName = "";
         private volatile List<String> apiEndpointUrlHistory = List.of(apiEndpointUrl);
+
+        public AssistantOptions() { }
+
+        public static AssistantOptions forAssistantType(AssistantType assistantType) {
+            var modelName = StandardModel.findFirstAvailableModelInFamily(assistantType.getFamily())
+                    .map(ModelType::id).orElse(null);
+            return forAssistantType(assistantType, modelName);
+        }
+
+        public static AssistantOptions forAssistantType(AssistantType assistantType, String modelName) {
+            var options = new AssistantOptions();
+            options.setAssistantType(assistantType);
+            options.setApiEndpointUrl(assistantType.getFamily().getDefaultApiEndpointUrl());
+            options.setModelName(modelName);
+
+            return options;
+        }
+
+        public void setAssistantType(AssistantType assistantType) {
+            this.assistantType = assistantType;
+            if ("".equals(getApiEndpointUrl())) {
+                setApiEndpointUrl(assistantType.getFamily().getDefaultApiEndpointUrl());
+            }
+        }
 
         @Override
         public int hashCode() {
@@ -213,6 +253,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
             case AZURE_OPENAI -> azureOpenAiConfig;
             case CLAUDE -> claudeConfig;
             case GEMINI -> geminiConfig;
+            case OLLAMA -> ollamaConfig;
             case ONLINE -> throw new IllegalArgumentException("Invalid Assistant Type: " + assistantType);
         };
     }
@@ -230,18 +271,5 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
 
     public void reload() {
         loadState(this);
-    }
-
-    public ChatGptSettings() {
-        setGpt35Config(new AssistantOptions());
-        getGpt35Config().setModelName(StandardModel.GPT_3_5_TURBO.id());
-        setGpt4Config(new AssistantOptions());
-        getGpt4Config().setModelName(StandardModel.GPT_4O.id());
-        setAzureOpenAiConfig(new AssistantOptions());
-        getAzureOpenAiConfig().setModelName(StandardModel.GPT_4.id());
-        setClaudeConfig(new AssistantOptions());
-        getClaudeConfig().setModelName(StandardModel.CLAUDE_3_SONNET.id());
-        setGeminiConfig(new AssistantOptions());
-        getGeminiConfig().setModelName(StandardModel.GEMINI_1_5_PRO_LATEST.id());
     }
 }

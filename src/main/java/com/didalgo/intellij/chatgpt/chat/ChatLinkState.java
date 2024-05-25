@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.chat;
 import com.didalgo.gpt3.ChatFormatDescriptor;
 import com.didalgo.gpt3.GPT3Tokenizer;
 import com.didalgo.intellij.chatgpt.chat.messages.MessageSupport;
+import com.didalgo.intellij.chatgpt.chat.models.CustomModel;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
@@ -85,7 +86,11 @@ public class ChatLinkState implements ConversationContext {
     @Override
     public ModelType getModelType() {
         String modelName = getModelConfiguration().getModelName();
-        return StandardModel.of(modelName);
+        try {
+            return StandardModel.of(modelName);
+        } catch (IllegalArgumentException e) {
+            return new CustomModel(modelName, getModelConfiguration().getAssistantType().getFamily(), Integer.MAX_VALUE);
+        }
     }
 
     @Override
@@ -129,7 +134,7 @@ public class ChatLinkState implements ConversationContext {
     public int dropOldestMessagesToStayWithinTokenLimit(List<Message> messages, int maxTokens, GPT3Tokenizer tokenizer, ChatFormatDescriptor formatDescriptor) {
         // here we assume ratio at most 2/3 available tokens for input prompt with context history,
         // and at least 1/3 tokens for output
-        int tokenLimit = maxTokens*2/3;
+        int tokenLimit = maxTokens/3*2;
         int tokenCount;
         int removed = 0;
         boolean hasSystemMessage = !messages.isEmpty() && isRoleSystem(messages.get(0));
