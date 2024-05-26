@@ -13,6 +13,7 @@ import com.intellij.toolWindow.ToolWindowHeadlessManagerImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.CLAUDE;
 import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.GPT_4;
+import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.ONLINE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ChatToolWindowTest extends ChatGptPluginTestCase {
@@ -39,8 +41,8 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
 
         // verify
         var aContents = toolWindow.getContentManager().getContents();
-        var expectedAssistants = List.of(AssistantType.System.values());
-        assertEquals(expectedAssistants, Arrays.stream(aContents)
+        var expectedAssistants = ChatGptSettings.DEFAULT_ENABLED_SYSTEMS;
+        assertEqualsExcept(ONLINE, expectedAssistants, Arrays.stream(aContents)
                 .map(c -> c.getUserData(ChatToolWindowFactory.ACTIVE_TAB))
                 .toList());
     }
@@ -82,6 +84,15 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
         assertEquals(CHANGED_TO, Arrays.stream(aContents)
                 .map(c -> c.getUserData(ChatToolWindowFactory.ACTIVE_TAB))
                 .toList());
+    }
+
+    static <T> void assertEqualsExcept(T except, List<? extends T> expected, List<? extends T> actual) {
+        expected = new ArrayList<>(expected);
+        expected.remove(except);
+        actual = new ArrayList<>(actual);
+        actual.remove(except);
+
+        assertEquals(expected, actual);
     }
 
     protected ToolWindow registerToolWindow() {

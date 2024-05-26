@@ -13,7 +13,7 @@ public interface ModelType {
 
     ModelFamily getFamily();
 
-    int getMaxTokens();
+    int getInputTokenLimit();
 
     default GPT3Tokenizer getTokenizer() {
         try {

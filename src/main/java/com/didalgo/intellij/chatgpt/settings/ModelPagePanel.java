@@ -19,6 +19,7 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -182,8 +183,12 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         ChatGptSettings.AssistantOptions config = getAssistantOptions(state);
 
         if (apiKeyField.getPassword().length > 0) {
+            boolean onFirstSet = StringUtils.isEmpty(config.getApiKeyMasked());
             config.setApiKey(String.valueOf(apiKeyField.getPassword()));
             setApiKeyMasked(apiKeyField, config);
+            if (onFirstSet) {
+                setEnabledInToolWindow(true);
+            }
         }
         config.setModelName(comboCombobox.getSelectedItem().toString());
         config.setTemperature((double) temperatureSpinner.getValue());

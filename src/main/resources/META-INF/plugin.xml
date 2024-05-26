@@ -24,6 +24,9 @@
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.ClaudePanel"
                                  id="com.didalgo.chatgpt.settings.Claude"
                                  displayName="Claude"/>
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GeminiPanel"
+                                 id="com.didalgo.chatgpt.settings.Gemini"
+                                 displayName="Gemini"/>
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.CustomActionsPanel"
                                  id="com.didalgo.chatgpt.settings.commandActions"
                                  displayName="Custom Actions"/>

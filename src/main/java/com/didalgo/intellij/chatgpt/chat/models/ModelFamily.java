@@ -15,6 +15,8 @@ public interface ModelFamily {
 
     ModelFamily ANTHROPIC = new AnthropicModelFamily();
 
+    ModelFamily GEMINI = new GeminiModelFamily();
+
     ChatModel createChatModel(ChatGptSettings.AssistantOptions config);
 
     String getDefaultApiEndpointUrl();

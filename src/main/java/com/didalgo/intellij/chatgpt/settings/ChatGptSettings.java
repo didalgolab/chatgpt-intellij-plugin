@@ -65,6 +65,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
     private volatile AssistantOptions gpt4Config;
     private volatile AssistantOptions azureOpenAiConfig;
     private volatile AssistantOptions claudeConfig;
+    private volatile AssistantOptions geminiConfig;
 
     private volatile List<CustomAction> customActionsPrefix = new CopyOnWriteArrayList<>();
     private volatile Set<AssistantType.System> enabledInToolWindow = new CopyOnWriteArraySet<>(DEFAULT_ENABLED_SYSTEMS);
@@ -93,6 +94,11 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
     public void setClaudeConfig(AssistantOptions claudeConfig) {
         this.claudeConfig = claudeConfig;
         this.claudeConfig.assistantType = AssistantType.System.CLAUDE;
+    }
+
+    public void setGeminiConfig(AssistantOptions geminiConfig) {
+        this.geminiConfig = geminiConfig;
+        this.geminiConfig.assistantType = AssistantType.System.GEMINI;
     }
 
     public void setCustomActionsPrefix(List<CustomAction> customActionsPrefix) {
@@ -206,6 +212,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
             case GPT_4 -> gpt4Config;
             case AZURE_OPENAI -> azureOpenAiConfig;
             case CLAUDE -> claudeConfig;
+            case GEMINI -> geminiConfig;
             case ONLINE -> throw new IllegalArgumentException("Invalid Assistant Type: " + assistantType);
         };
     }
@@ -234,5 +241,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
         getAzureOpenAiConfig().setModelName(StandardModel.GPT_4.id());
         setClaudeConfig(new AssistantOptions());
         getClaudeConfig().setModelName(StandardModel.CLAUDE_3_SONNET.id());
+        setGeminiConfig(new AssistantOptions());
+        getGeminiConfig().setModelName(StandardModel.GEMINI_1_5_PRO_LATEST.id());
     }
 }
