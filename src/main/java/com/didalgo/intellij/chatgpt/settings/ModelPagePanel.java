@@ -42,7 +42,6 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     protected JCheckBox enableCustomizeUrlCheckBox;
     protected TextFieldWithHistory customizeServerField;
     protected JPanel customizeServerOptions;
-    protected JLabel apiEndpointLabel;
     private JSpinner temperatureSpinner;
     private JSpinner topPSpinner;
     private JCheckBox enabledInAToolCheckBox;
@@ -142,7 +141,6 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
             customizeServerField.setText(getAssistantOptions(ChatGptSettings.getInstance()).getApiEndpointUrl());
         }
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
-        apiEndpointLabel.setEnabled(false);
     }
 
     protected ChatGptSettings.AssistantOptions getAssistantOptions(ChatGptSettings state) {
@@ -249,9 +247,6 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
 
         tokenLabel.setFont(smallFont);
         tokenLabel.setForeground(smallFontForeground);
-
-        apiEndpointLabel.setFont(smallFont);
-        apiEndpointLabel.setForeground(smallFontForeground);
     }
 
     @Override
