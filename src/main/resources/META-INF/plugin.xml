@@ -38,8 +38,6 @@
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.ChatGptSettings"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatHandler"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.spi.OpenAiServiceProviderRegistry"/>
-        <projectService serviceImplementation="com.didalgo.intellij.chatgpt.jshell.DirectJShellService" serviceInterface="com.didalgo.intellij.chatgpt.jshell.JShellHandle"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
         <postStartupActivity implementation="com.didalgo.intellij.chatgpt.core.StartUpActivity"/>
         <iconMapper mappingFile="ChatGPTIconMappings.json"/>
