@@ -10,6 +10,7 @@ import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
 import com.didalgo.intellij.chatgpt.settings.ClaudePanel;
 import com.didalgo.intellij.chatgpt.settings.GPT35TurboPanel;
 import com.didalgo.intellij.chatgpt.settings.GPT4Panel;
+import com.didalgo.intellij.chatgpt.settings.GeminiPanel;
 import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
 import com.intellij.openapi.options.Configurable;
 import lombok.Getter;
@@ -32,6 +33,7 @@ public sealed interface AssistantType
         GPT_3_5("GPT-3.5-Turbo", ModelFamily.OPEN_AI, GPT35TurboPanel.class),
         AZURE_OPENAI("Azure OpenAI", ModelFamily.AZURE_OPENAI, AzureOpenAiPanel.class),
         CLAUDE("Claude", ModelFamily.ANTHROPIC, ClaudePanel.class),
+        GEMINI("Gemini", ModelFamily.GEMINI, GeminiPanel.class),
         ONLINE("Online ChatGPT", null, OpenAISettingsPanel.class);
 
         private final @Accessors(fluent = true) String displayName;

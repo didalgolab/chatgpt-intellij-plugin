@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.OnePixelSplitter;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.intellij.util.ui.JBUI;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
@@ -57,7 +58,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     private final ExpandableTextFieldExt searchTextField;
     private final JButton button;
     private final JButton stopGenerating;
-    private final ConversationPanel contentPanel;
+    private final @Getter ConversationPanel contentPanel;
     private final JProgressBar progressBar;
     private final OnePixelSplitter splitter;
     private final Project myProject;
@@ -327,8 +328,8 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         searchTextField.setText(t);
     }
 
-    public ConversationPanel getContentPanel() {
-        return contentPanel;
+    public ConversationTurnPanel getConversationTurnPanel(int n) {
+        return contentPanel.getConversationTurnPanel(n);
     }
 
     public JPanel init() {
@@ -354,4 +355,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         this.requestHolder = eventSource;
     }
 
+    public JButton getSubmitButton() {
+        return button;
+    }
 }

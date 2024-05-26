@@ -13,6 +13,9 @@ public enum StandardModel implements ModelType {
     CLAUDE_3_SONNET("claude-3-sonnet-20240229", ModelFamily.ANTHROPIC, 200000),
     CLAUDE_3_HAIKU("claude-3-haiku-20240307", ModelFamily.ANTHROPIC, 200000),
 
+    GEMINI_1_5_FLASH_LATEST("gemini-1.5-flash-latest", ModelFamily.GEMINI, 1048576),
+    GEMINI_1_5_PRO_LATEST("gemini-1.5-pro-latest", ModelFamily.GEMINI, 1048576),
+
     GPT_3_5_TURBO("gpt-3.5-turbo", ModelFamily.OPEN_AI, 16385),
     GPT_3_5_TURBO_0301("gpt-3.5-turbo-0301", ModelFamily.OPEN_AI, 4096),
     GPT_3_5_TURBO_0613("gpt-3.5-turbo-0613", ModelFamily.OPEN_AI, 4096),
@@ -34,12 +37,12 @@ public enum StandardModel implements ModelType {
 
     private final ModelFamily family;
     private final String id;
-    private final int maxTokens;
+    private final int inputTokenLimit;
 
-    StandardModel(String id, ModelFamily family, int maxTokens) {
+    StandardModel(String id, ModelFamily family, int inputTokenLimit) {
         this.id = id;
         this.family = family;
-        this.maxTokens = maxTokens;
+        this.inputTokenLimit = inputTokenLimit;
     }
 
     @Override
@@ -48,8 +51,8 @@ public enum StandardModel implements ModelType {
     }
 
     @Override
-    public int getMaxTokens() {
-        return maxTokens;
+    public int getInputTokenLimit() {
+        return inputTokenLimit;
     }
 
     @Override

@@ -111,7 +111,7 @@ public class ChatLinkState implements ConversationContext {
             substitutePlaceholders(chatMessages);
 
             // Trim messages if exceeding token limit
-            int maxTokens = model.getMaxTokens();
+            int maxTokens = model.getInputTokenLimit();
             var tokenizer = model.getTokenizer();
             var chatFormatDescriptor = model.getChatFormatDescriptor();
             int removed = dropOldestMessagesToStayWithinTokenLimit(chatMessages, maxTokens, tokenizer, chatFormatDescriptor);

@@ -183,6 +183,13 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
         });
     }
 
+    public ConversationTurnPanel getConversationTurnPanel(int n) {
+        if (n >= 0)
+            return (ConversationTurnPanel) myList.getComponent(n);
+        else
+            return (ConversationTurnPanel) myList.getComponent(myList.getComponentCount() + n);
+    }
+
     public void scrollToBottom() {
         ScrollingTools.scrollToBottom(myScrollPane);
     }
