@@ -1,5 +1,7 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
+## [Unreleased]
+
 ## [0.2.12]
 + Breaking Change: The plugin no longer retrieves API key from the OPENAI_API_KEY environment variable. For enhanced security, please enter your API key directly into the plugin's settings.
 + Added support for new model: gpt-4-turbo-preview

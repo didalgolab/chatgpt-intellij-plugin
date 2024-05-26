@@ -39,14 +39,10 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
 
         // verify
         var aContents = toolWindow.getContentManager().getContents();
-        List<AssistantType> createdAssistants = Arrays.stream(aContents)
+        var expectedAssistants = List.of(AssistantType.System.values());
+        assertEquals(expectedAssistants, Arrays.stream(aContents)
                 .map(c -> c.getUserData(ChatToolWindowFactory.ACTIVE_TAB))
-                .toList();
-        List<AssistantType.System> expectedAssistants = Arrays.stream(AssistantType.System.values())
-                .filter(assistant -> assistant != AssistantType.System.ONLINE) // JCef browser not available in tests
-                .toList();
-
-        assertEquals(expectedAssistants, createdAssistants);
+                .toList());
     }
 
     @Test
