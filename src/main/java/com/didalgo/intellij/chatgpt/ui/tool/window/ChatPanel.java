@@ -47,7 +47,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -230,7 +229,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
             return presetCheckForAzure(assistantType, options);
         }
 
-        if (StringUtils.isEmpty(options.getApiKey())) {
+        if (isEmpty(options.getApiKey())) {
             Notification notification = new Notification(ChatGptBundle.message("group.id"),
                     ChatGptBundle.message("notify.config.title"),
                     ChatGptBundle.message("notify.config.apikey.text"),
@@ -248,11 +247,11 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         var apiEndpoint = options.getAzureApiEndpoint();
         var deploymentName = options.getAzureDeploymentName();
 
-        if (StringUtils.isEmpty(apiKey) || StringUtils.isEmpty(apiEndpoint) || StringUtils.isEmpty(deploymentName)) {
+        if (isEmpty(apiKey) || isEmpty(apiEndpoint) || isEmpty(deploymentName)) {
             var missingOpts = new ArrayList<String>();
-            if (StringUtils.isEmpty(apiKey)) missingOpts.add("\"API Key\"");
-            if (StringUtils.isEmpty(apiEndpoint)) missingOpts.add("\"API Endpoint\"");
-            if (StringUtils.isEmpty(deploymentName)) missingOpts.add("\"Deployment Name\"");
+            if (isEmpty(apiKey)) missingOpts.add("\"API Key\"");
+            if (isEmpty(apiEndpoint)) missingOpts.add("\"API Endpoint\"");
+            if (isEmpty(deploymentName)) missingOpts.add("\"Deployment Name\"");
 
             Notification notification = new Notification(ChatGptBundle.message("group.id"),
                     ChatGptBundle.message("notify.config.title"),
@@ -309,27 +308,17 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         if (cause == null)
             return "";
 
-        return (isEmpty(cause.getMessage()) ? "" : cause.getMessage() + "; ")
-                + getErrorMessage(cause.getCause());
+        var errorMessage = isEmpty(cause.getMessage()) ? "" : cause.getMessage();
+        var causeMessage = getErrorMessage(cause.getCause());
+        if (errorMessage.isEmpty() || causeMessage.contains(errorMessage))
+            return causeMessage;
+        else
+            return errorMessage;
     }
 
     @Override
     public void exchangeCancelled(ChatMessageEvent.Cancelled event) {
 
-    }
-
-    public void responseArrivalFailed(ChatMessageEvent.Failed event) {
-        if (event.getCause() instanceof IOException) {
-            answer.setErrorContent("*Request failure*, cause: " + event.getCause().getMessage());
-            aroundRequest(false);
-            event.getCause().printStackTrace();
-            return;
-        }
-        answer.setErrorContent("*Response failure*, cause: " + event.getCause().getMessage() + ", please try again.\n\n Tips: if proxy is enabled, please check if the proxy server is working.");
-        SwingUtilities.invokeLater(() -> {
-            aroundRequest(false);
-            contentPanel.scrollToBottom();
-        });
     }
 
     public Project getProject() {
