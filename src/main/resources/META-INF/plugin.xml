@@ -9,7 +9,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="com.didalgo.ChatGPT" anchor="left" icon="/icons/toolWindow.svg" canCloseContents="true"
                     factoryClass="com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindowFactory"/>
-        <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel"
+        <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.GeneralSettingsPanel"
                                  id="com.didalgo.chatgpt.settings.OpenAISettings"
                                  displayName="ChatGPT Integration"/>
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT4Panel"
@@ -35,11 +35,11 @@
                                  displayName="Custom Actions"/>
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.chat.ChatMessageComposer" serviceImplementation="com.didalgo.intellij.chatgpt.chat.DefaultChatMessageComposer"/>
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer" serviceImplementation="com.didalgo.intellij.chatgpt.ui.TextEditorSelectionAwareSnippetizer"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.ChatGptSettings"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.GeneralSettings"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatHandler"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
-        <postStartupActivity implementation="com.didalgo.intellij.chatgpt.core.StartUpActivity"/>
+        <postStartupActivity implementation="com.didalgo.intellij.chatgpt.StartupHandler"/>
         <iconMapper mappingFile="ChatGPTIconMappings.json"/>
         <editorActionHandler action="EditorPaste" implementationClass="com.didalgo.intellij.chatgpt.ui.PromptAttachmentPasteHandler" order="first"/>
     </extensions>

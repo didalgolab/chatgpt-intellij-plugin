@@ -21,7 +21,7 @@ import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.util.IconUtil;
 import com.intellij.util.ui.*;
 import com.didalgo.intellij.chatgpt.ChatGptIcons;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
@@ -59,7 +59,7 @@ public class ConversationTurnPanel extends JBPanel<ConversationTurnPanel> {
         setBorder(JBUI.Borders.empty(JBUI.scale(4), JBUI.scale(1)));
         setLayout(new BorderLayout(JBUI.scale(2), 0));
 
-        if (ChatGptSettings.getInstance().isEnableAvatar()) {
+        if (GeneralSettings.getInstance().isEnableAvatar()) {
             JPanel iconPanel = new JPanel(new BorderLayout());
             iconPanel.setBorder(JBUI.Borders.empty(JBUI.scale(7), JBUI.scale(7), JBUI.scale(7), 0));
             iconPanel.setOpaque(false);

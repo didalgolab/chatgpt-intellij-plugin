@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.chat.models;
 
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.springframework.ai.chat.model.ChatModel;
 
 public interface ModelFamily {
@@ -19,7 +19,7 @@ public interface ModelFamily {
 
     ModelFamily OLLAMA = new OllamaModelFamily();
 
-    ChatModel createChatModel(ChatGptSettings.AssistantOptions config);
+    ChatModel createChatModel(GeneralSettings.AssistantOptions config);
 
     String getDefaultApiEndpointUrl();
 

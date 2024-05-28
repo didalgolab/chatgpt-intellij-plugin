@@ -8,7 +8,7 @@ import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.chat.ChatLinkProvider;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.didalgo.intellij.chatgpt.ui.action.tool.SettingsAction;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -43,7 +43,7 @@ public class ChatToolWindowFactory implements ToolWindowFactory, DumbAware {
         return toolWindow.getProject().getUserData(CONTENT_MAP);
     }
 
-    public static void addToolWindowContent(ToolWindow toolWindow, AssistantType type, ChatGptSettings settings) {
+    public static void addToolWindowContent(ToolWindow toolWindow, AssistantType type, GeneralSettings settings) {
         var contentFactory = new AssistantToolFactory(toolWindow.getProject(), settings, ContentFactory.getInstance());
         var contentMap = getContentMap(toolWindow);
 
@@ -71,7 +71,7 @@ public class ChatToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ChatGptSettings settings = ChatGptSettings.getInstance();
+        GeneralSettings settings = GeneralSettings.getInstance();
         AssistantToolFactory contentFactory = new AssistantToolFactory(project, settings, ContentFactory.getInstance());
 
         Map<AssistantType, AssistantTool> contentMap = new ConcurrentHashMap<>();
@@ -127,10 +127,10 @@ public class ChatToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     private static class AssistantToolFactory {
         private final Project project;
-        private final ChatGptSettings settings;
+        private final GeneralSettings settings;
         private final ContentFactory contentFactory;
 
-        AssistantToolFactory(Project project, ChatGptSettings settings, ContentFactory contentFactory) {
+        AssistantToolFactory(Project project, GeneralSettings settings, ContentFactory contentFactory) {
             this.project = project;
             this.settings = settings;
             this.contentFactory = contentFactory;

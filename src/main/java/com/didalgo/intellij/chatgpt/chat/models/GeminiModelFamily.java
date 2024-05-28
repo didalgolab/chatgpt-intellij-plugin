@@ -7,16 +7,17 @@ package com.didalgo.intellij.chatgpt.chat.models;
 import com.didalgo.ai.gemini.GeminiChatModel;
 import com.didalgo.ai.gemini.GeminiChatOptions;
 import com.didalgo.ai.gemini.api.GeminiApi;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 
 public class GeminiModelFamily implements ModelFamily {
 
     @Override
-    public GeminiChatModel createChatModel(ChatGptSettings.AssistantOptions config) {
+    public GeminiChatModel createChatModel(GeneralSettings.AssistantOptions config) {
         var baseUrl = config.isEnableCustomApiEndpointUrl()? config.getApiEndpointUrl(): getDefaultApiEndpointUrl();
         var apiKey = config.getApiKey();
         var api = new GeminiApi(baseUrl, apiKey);
         var options = GeminiChatOptions.builder()
+                .withSafetySettings(GeminiApi.SafetySettings.BLOCK_ONLY_HIGH)
                 .withModel(config.getModelName())
                 .withTemperature((float) config.getTemperature())
                 .withTopP((float) config.getTopP())

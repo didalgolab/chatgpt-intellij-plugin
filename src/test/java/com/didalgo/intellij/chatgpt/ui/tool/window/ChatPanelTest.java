@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.impl.ApplicationImpl;
 import com.intellij.openapi.extensions.DefaultPluginDescriptor;
@@ -117,7 +117,7 @@ class ChatPanelTest {
                 ChatModelFactory.class,
                 new ChatModelFactory() {
                     @Override
-                    public ChatModel create(AssistantType type, ChatGptSettings settings) {
+                    public ChatModel create(AssistantType type, GeneralSettings settings) {
                         return chatModel;
                     }
                 },
@@ -128,7 +128,7 @@ class ChatPanelTest {
 
     static ChatPanel aChatPanel(AssistantType type) {
         var project = ProjectManager.getInstance().getDefaultProject();
-        var setings = ChatGptSettings.getInstance().getAssistantOptions(type);
+        var setings = GeneralSettings.getInstance().getAssistantOptions(type);
 
         return new ChatPanel(project, setings) {
             @Override

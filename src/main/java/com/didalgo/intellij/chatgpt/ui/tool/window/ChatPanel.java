@@ -17,7 +17,7 @@ import com.didalgo.intellij.chatgpt.ui.text.NewlineFilter;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.AbstractPromptAttachment;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.ListStack;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.ListStackFactory;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.didalgo.intellij.chatgpt.ui.action.tool.SettingsAction;
 import com.didalgo.intellij.chatgpt.ui.listener.SubmitListener;
 import com.intellij.icons.AllIcons;
@@ -32,7 +32,6 @@ import com.intellij.ui.OnePixelSplitter;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -55,8 +54,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
 
-    private final ExpandableTextFieldExt searchTextField;
-    private final JButton button;
+    private final ExpandableTextFieldExt userMessageTextField;
+    private final JButton submitButton;
     private final JButton stopGenerating;
     private final @Getter ConversationPanel contentPanel;
     private final JProgressBar progressBar;
@@ -82,17 +81,17 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         splitter.setDividerWidth(1);
         splitter.putClientProperty(HyperlinkListener.class, submitAction);
 
-        searchTextField = new ExpandableTextFieldExt(project, new InputContextPromptAttachmentHandler(chatLink.getInputContext()));
-        var searchTextDocument = (AbstractDocument) searchTextField.getDocument();
+        userMessageTextField = new ExpandableTextFieldExt(project, new InputContextPromptAttachmentHandler(chatLink.getInputContext()));
+        var searchTextDocument = (AbstractDocument) userMessageTextField.getDocument();
         searchTextDocument.setDocumentFilter(new NewlineFilter());
         searchTextDocument.putProperty("filterNewlines", Boolean.FALSE);
-        searchTextDocument.addDocumentListener(new ExpandableTextFieldExt.ExpandOnMultiLinePaste(searchTextField));
-        searchTextField.setMonospaced(false);
-        searchTextField.addActionListener(submitAction);
-        searchTextField.registerKeyboardAction(submitAction, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
-        searchTextField.getEmptyText().setText("Type a prompt here");
-        button = new JButton(submitAction);
-        button.setUI(new DarculaButtonUI());
+        searchTextDocument.addDocumentListener(new ExpandableTextFieldExt.ExpandOnMultiLinePaste(userMessageTextField));
+        userMessageTextField.setMonospaced(false);
+        userMessageTextField.addActionListener(submitAction);
+        userMessageTextField.registerKeyboardAction(submitAction, SUBMIT_KEYSTROKE, JComponent.WHEN_FOCUSED);
+        userMessageTextField.getEmptyText().setText("Type a prompt here");
+        submitButton = new JButton(submitAction);
+        submitButton.setUI(new DarculaButtonUI());
 
         stopGenerating = new JButton("Stop", AllIcons.Actions.Suspend);
         stopGenerating.addActionListener(e -> {
@@ -109,10 +108,11 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         progressBar = new JProgressBar();
         progressBar.setVisible(false);
         actionPanel.add(createContextSnippetsComponent(), BorderLayout.NORTH);
-        actionPanel.add(searchTextField, BorderLayout.CENTER);
-        actionPanel.add(button, BorderLayout.EAST);
+        actionPanel.add(userMessageTextField, BorderLayout.CENTER);
+        actionPanel.add(submitButton, BorderLayout.EAST);
         contentPanel = new ConversationPanel(chatLink, project);
         contentPanel.add(progressBar, BorderLayout.SOUTH);
+        contentPanel.onChatMemoryCleared(userMessageTextField::requestFocusInWindow);
 
         splitter.setFirstComponent(contentPanel);
         splitter.setSecondComponent(actionPanel);
@@ -135,7 +135,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
 
         chatInputContext.addListener(event -> {
             contextStack.getListModel().syncModel();
-            searchTextField.requestFocusInWindow();
+            userMessageTextField.requestFocusInWindow();
             actionPanel.revalidate();
         });
 
@@ -219,7 +219,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     }
 
     protected boolean presetCheck() {
-        var settings = ChatGptSettings.getInstance();
+        var settings = GeneralSettings.getInstance();
         var assistantType = getChatLink().getConversationContext().getAssistantType();
         var options = settings.getAssistantOptions(assistantType);
         if (assistantType.getFamily().isApiKeyOptional()) {
@@ -242,7 +242,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         return true;
     }
 
-    protected boolean presetCheckForAzure(AssistantType assistantType, ChatGptSettings.AssistantOptions options) {
+    protected boolean presetCheckForAzure(AssistantType assistantType, GeneralSettings.AssistantOptions options) {
         var apiKey = options.getApiKey();
         var apiEndpoint = options.getAzureApiEndpoint();
         var deploymentName = options.getAzureDeploymentName();
@@ -326,11 +326,11 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     }
 
     public String getSearchText() {
-        return searchTextField.getText();
+        return userMessageTextField.getText();
     }
 
     public void setSearchText(String t) {
-        searchTextField.setText(t);
+        userMessageTextField.setText(t);
     }
 
     public ConversationTurnPanel getConversationTurnPanel(int n) {
@@ -344,13 +344,13 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     public void aroundRequest(boolean status) {
         progressBar.setIndeterminate(status);
         progressBar.setVisible(status);
-        button.setEnabled(!status);
+        submitButton.setEnabled(!status);
         if (status) {
-            actionPanel.remove(button);
+            actionPanel.remove(submitButton);
             actionPanel.add(stopGenerating, BorderLayout.EAST);
         } else {
             actionPanel.remove(stopGenerating);
-            actionPanel.add(button, BorderLayout.EAST);
+            actionPanel.add(submitButton, BorderLayout.EAST);
         }
         actionPanel.revalidate();
         actionPanel.repaint();
@@ -361,6 +361,6 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     }
 
     public JButton getSubmitButton() {
-        return button;
+        return submitButton;
     }
 }

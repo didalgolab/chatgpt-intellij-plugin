@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.didalgo.intellij.chatgpt.ui.ChatGptPluginTestCase;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -28,8 +28,8 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
 
     @AfterEach
     void restoreApplicationState() {
-        ChatGptSettings.getInstance().getEnabledInToolWindow().clear();
-        ChatGptSettings.getInstance().getEnabledInToolWindow().addAll(ChatGptSettings.DEFAULT_ENABLED_SYSTEMS);
+        GeneralSettings.getInstance().getEnabledInToolWindow().clear();
+        GeneralSettings.getInstance().getEnabledInToolWindow().addAll(GeneralSettings.DEFAULT_ENABLED_SYSTEMS);
     }
 
     @Test
@@ -41,7 +41,7 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
 
         // verify
         var aContents = toolWindow.getContentManager().getContents();
-        var expectedAssistants = ChatGptSettings.DEFAULT_ENABLED_SYSTEMS;
+        var expectedAssistants = GeneralSettings.DEFAULT_ENABLED_SYSTEMS;
         assertEqualsExcept(ONLINE, expectedAssistants, Arrays.stream(aContents)
                 .map(c -> c.getUserData(ChatToolWindowFactory.ACTIVE_TAB))
                 .toList());
@@ -53,7 +53,7 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
         var ENABLED = List.of(CLAUDE);
 
         // register content
-        ChatGptSettings.getInstance().setEnabledInToolWindow(new CopyOnWriteArraySet<>(ENABLED));
+        GeneralSettings.getInstance().setEnabledInToolWindow(new CopyOnWriteArraySet<>(ENABLED));
         new ChatToolWindowFactory().createToolWindowContent(project, toolWindow);
 
         // verify
@@ -70,11 +70,11 @@ class ChatToolWindowTest extends ChatGptPluginTestCase {
         var CHANGED_TO = List.of(GPT_4);
 
         // register content
-        ChatGptSettings.getInstance().setEnabledInToolWindow(new CopyOnWriteArraySet<>(ENABLED));
+        GeneralSettings.getInstance().setEnabledInToolWindow(new CopyOnWriteArraySet<>(ENABLED));
         new ChatToolWindowFactory().createToolWindowContent(project, toolWindow);
 
         // change enabled systems
-        Set<AssistantType.System> enabledInToolWindow = ChatGptSettings.getInstance().getEnabledInToolWindow();
+        Set<AssistantType.System> enabledInToolWindow = GeneralSettings.getInstance().getEnabledInToolWindow();
         enabledInToolWindow.removeAll(ENABLED);
         enabledInToolWindow.addAll(CHANGED_TO);
         ChatToolWindow.synchronizeContents(enabledInToolWindow);

@@ -172,14 +172,14 @@ public class CustomActionsPanel implements Configurable {
     @Override
     public boolean isModified() {
         List<CustomAction> actions = new ArrayList<>(myModel.getItems());
-        return !ChatGptSettings.getInstance().getCustomActionsPrefix().equals(actions);
+        return !GeneralSettings.getInstance().getCustomActionsPrefix().equals(actions);
     }
 
     @Override
     public void apply() {
         myTable.editingStopped(null);
 
-        List<CustomAction> list = ChatGptSettings.getInstance().getCustomActionsPrefix();
+        List<CustomAction> list = GeneralSettings.getInstance().getCustomActionsPrefix();
         list.clear();
         list.addAll(myModel.getItems());
         ActionsUtil.refreshActions();
@@ -187,7 +187,7 @@ public class CustomActionsPanel implements Configurable {
 
     @Override
     public void reset() {
-        List<CustomAction> prefix = new ArrayList<>(ChatGptSettings.getInstance().getCustomActionsPrefix());
+        List<CustomAction> prefix = new ArrayList<>(GeneralSettings.getInstance().getCustomActionsPrefix());
         myModel.setItems(prefix);
     }
 

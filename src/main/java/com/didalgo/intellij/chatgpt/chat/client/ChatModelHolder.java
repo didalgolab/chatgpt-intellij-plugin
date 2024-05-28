@@ -5,7 +5,6 @@
 package com.didalgo.intellij.chatgpt.chat.client;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
-import com.didalgo.intellij.chatgpt.ui.MainConversationHandler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import org.springframework.ai.chat.model.ChatModel;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatModelHolder {
 
-    private static final Logger log = Logger.getInstance(MainConversationHandler.class);
+    private static final Logger log = Logger.getInstance(ChatModelHolder.class);
 
     private static final Map<AssistantType, ChatModel> chatModels = new ConcurrentHashMap<>();
 

@@ -4,16 +4,20 @@
  */
 package com.didalgo.intellij.chatgpt.ui;
 
+import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.chat.InputContext;
 import com.didalgo.intellij.chatgpt.chat.messages.MediaSupport;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.MediaPromptAttachment;
 import com.intellij.icons.AllIcons;
+import org.springframework.ai.chat.messages.Media;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class InputContextPromptAttachmentHandler implements PromptAttachmentHandler {
 
@@ -37,8 +41,13 @@ public class InputContextPromptAttachmentHandler implements PromptAttachmentHand
 
     protected boolean handleImageContent(RenderedImage image) {
         var icon = AllIcons.Actions.AddFile;
-        var attachment = new MediaPromptAttachment(icon, "Image", MediaSupport.fromRenderedImageAsCompressedMedia(image));
+        var media = MediaSupport.fromRenderedImageAsCompressedMedia(image);
+        var attachment = new MediaPromptAttachment(icon, createPastedImageName(media), media);
         context.addAttachment(attachment);
         return true;
+    }
+
+    protected String createPastedImageName(Media media) {
+        return ChatGptBundle.message("image.pasted.name", DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()).replace('T', ' '));
     }
 }

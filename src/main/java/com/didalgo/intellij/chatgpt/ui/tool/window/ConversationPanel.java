@@ -6,6 +6,8 @@ package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
+import com.didalgo.intellij.chatgpt.event.ListenerList;
+import com.didalgo.intellij.chatgpt.event.ListenerList.Subscription;
 import com.didalgo.intellij.chatgpt.ui.text.ExpandableTextFieldExt;
 import com.didalgo.intellij.chatgpt.util.ScrollingTools;
 import com.intellij.icons.AllIcons;
@@ -28,7 +30,7 @@ import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.ai.chat.messages.AssistantMessage;
 
@@ -36,7 +38,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import static com.didalgo.intellij.chatgpt.settings.ChatGptSettings.BASE_PROMPT;
+import static com.didalgo.intellij.chatgpt.settings.GeneralSettings.BASE_PROMPT;
 
 public class ConversationPanel extends JBPanel<ConversationPanel> implements NullableComponent, SystemMessageHolder {
     private final JPanel myList = new JPanel(new VerticalLayout(0));
@@ -46,6 +48,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
     private JBTextField systemRole;
     private final Project project;
     private final ChatLink chatLink;
+    private final ListenerList<Runnable> onChatMemoryCleared = ListenerList.of(Runnable.class);
 
     public ConversationPanel(ChatLink chatLink, @NotNull Project project) {
         this.chatLink = chatLink;
@@ -65,7 +68,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
             JPanel panel = new NonOpaquePanel(new GridLayout(0,1));
             JPanel rolePanel = new NonOpaquePanel(new BorderLayout());
             systemRole = new ExpandableTextFieldExt(project, null);
-            ChatGptSettings instance = ChatGptSettings.getInstance();
+            GeneralSettings instance = GeneralSettings.getInstance();
             systemRole.setText(instance.gpt35RoleText);
             rolePanel.add(systemRole, BorderLayout.CENTER);
             DefaultActionGroup toolbarActions = new DefaultActionGroup();
@@ -114,6 +117,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
                 addAssistantTipsIfEnabled(false);
                 myList.updateUI();
                 chatLink.getConversationContext().clear();
+                onChatMemoryCleared.fire().run();
             }
         });
 
@@ -151,9 +155,9 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
     protected void addAssistantTipsIfEnabled(boolean firstUse) {
         addSeparator(myList);
 
-        var introEnabled = ChatGptSettings.getInstance().getEnableInitialMessage();
+        var introEnabled = GeneralSettings.getInstance().getEnableInitialMessage();
         if (!firstUse && introEnabled == null)
-            ChatGptSettings.getInstance().setEnableInitialMessage(introEnabled = false);
+            GeneralSettings.getInstance().setEnableInitialMessage(introEnabled = false);
         if (!Boolean.FALSE.equals(introEnabled))
             myList.add(createAssistantTips());
     }
@@ -181,6 +185,10 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
             validate();
             repaint();
         });
+    }
+
+    public Subscription onChatMemoryCleared(Runnable action) {
+        return onChatMemoryCleared.addListener(action);
     }
 
     public ConversationTurnPanel getConversationTurnPanel(int n) {

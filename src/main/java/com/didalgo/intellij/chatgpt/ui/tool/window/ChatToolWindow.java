@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.ToolWindow;
@@ -33,7 +33,7 @@ public class ChatToolWindow {
     }
 
     public static void synchronizeContents() {
-        synchronizeContents(ChatGptSettings.getInstance().getEnabledInToolWindow());
+        synchronizeContents(GeneralSettings.getInstance().getEnabledInToolWindow());
     }
 
     public static void synchronizeContents(Set<? extends AssistantType> assistantTypes) {
@@ -55,7 +55,7 @@ public class ChatToolWindow {
                 }
 
                 if (!assistantTypesToAdd.isEmpty()) {
-                    var settings = ChatGptSettings.getInstance();
+                    var settings = GeneralSettings.getInstance();
                     assistantTypesToAdd.forEach(type -> ChatToolWindowFactory.addToolWindowContent(toolWindow, type, settings));
                 }
             }
