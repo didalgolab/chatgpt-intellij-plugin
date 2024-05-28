@@ -36,7 +36,7 @@ public class CollapsibleImagePanel extends JPanel {
         setOpaque(false);
 
         List<JPanel> contentPanels = new ArrayList<>();
-        add(createToggleButton(contentPanels), BorderLayout.NORTH);
+        add(createToggleButton(contentPanels, images.size()), BorderLayout.NORTH);
 
         int n = 1;
         for (Media image : images) {
@@ -71,9 +71,9 @@ public class CollapsibleImagePanel extends JPanel {
         return panel;
     }
 
-    private JToggleButton createToggleButton(Collection<JPanel> contentPanels) {
+    private JToggleButton createToggleButton(Collection<JPanel> contentPanels, int numImages) {
         var toggleButton = new JToggleButton(
-                ChatGptBundle.message(contentPanels.size() == 1 ? "ui.attachedImage" : "ui.attachedImages", contentPanels.size()),
+                ChatGptBundle.message(numImages == 1 ? "ui.attachedImage" : "ui.attachedImages", numImages),
                 General.ArrowDown);
         toggleButton.setFocusPainted(false);
         toggleButton.setContentAreaFilled(false);

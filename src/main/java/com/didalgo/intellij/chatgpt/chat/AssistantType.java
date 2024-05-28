@@ -6,13 +6,13 @@ package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.chat.models.ModelFamily;
 import com.didalgo.intellij.chatgpt.settings.AzureOpenAiPanel;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.didalgo.intellij.chatgpt.settings.ClaudePanel;
 import com.didalgo.intellij.chatgpt.settings.GPT35TurboPanel;
 import com.didalgo.intellij.chatgpt.settings.GPT4Panel;
 import com.didalgo.intellij.chatgpt.settings.GeminiPanel;
 import com.didalgo.intellij.chatgpt.settings.OllamaPanel;
-import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettingsPanel;
 import com.intellij.openapi.options.Configurable;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -36,7 +36,7 @@ public sealed interface AssistantType
         CLAUDE("Claude", ModelFamily.ANTHROPIC, ClaudePanel.class),
         GEMINI("Gemini", ModelFamily.GEMINI, GeminiPanel.class),
         OLLAMA("Ollama", ModelFamily.OLLAMA, OllamaPanel.class),
-        ONLINE("Online ChatGPT", null, OpenAISettingsPanel.class);
+        ONLINE("Online ChatGPT", null, GeneralSettingsPanel.class);
 
         private final @Accessors(fluent = true) String displayName;
         private final ModelFamily family;
@@ -48,7 +48,7 @@ public sealed interface AssistantType
             this.configurable = configurable;
         }
 
-        public boolean isEnabled(ChatGptSettings settings) {
+        public boolean isEnabled(GeneralSettings settings) {
             return settings.getEnabledInToolWindow().contains(this);
         }
     }

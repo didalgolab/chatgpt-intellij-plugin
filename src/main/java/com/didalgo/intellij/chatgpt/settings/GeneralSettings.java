@@ -43,14 +43,15 @@ import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.*;
         name = "settings.com.didalgo.intellij.chatgpt.OpenAISettingsState",
         storages = @Storage("didalgo-intellij-chatgpt-settings.xml")
 )
-public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings> {
+@Tag("ChatGptSettings") // for backward compatibility
+public class GeneralSettings implements PersistentStateComponent<GeneralSettings> {
 
     public static final String BASE_PROMPT = "You are a professional software engineer." +
             " Follow these rules in each response: snarky & noir & lang:${{LANG}}." +
             " Source code language: en. Bias towards the best solution.";
 
     public static final List<AssistantType.System> DEFAULT_ENABLED_SYSTEMS
-            = List.of(GPT_4, GPT_3_5, AZURE_OPENAI, CLAUDE, ONLINE);
+            = List.of(GPT_4, GPT_3_5);
 
     public Map<Integer, String> contentOrder = new HashMap<>() {{
         put(1, AssistantType.System.GPT_3_5.displayName());
@@ -74,13 +75,13 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
 
     public String gpt35RoleText = BASE_PROMPT;
 
-    public static ChatGptSettings getInstance() {
-        return ApplicationManager.getApplication().getService(ChatGptSettings.class);
+    public static GeneralSettings getInstance() {
+        return ApplicationManager.getApplication().getService(GeneralSettings.class);
     }
 
-    public ChatGptSettings() {
+    public GeneralSettings() {
         setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, StandardModel.GPT_3_5_TURBO.id()));
-        setGpt4Config(AssistantOptions.forAssistantType(GPT_4, StandardModel.GPT_4O.id()));
+        setGpt4Config(AssistantOptions.forAssistantType(GPT_4, StandardModel.GPT_4_O.id()));
         setAzureOpenAiConfig(AssistantOptions.forAssistantType(AZURE_OPENAI, StandardModel.GPT_4.id()));
         setClaudeConfig(AssistantOptions.forAssistantType(CLAUDE));
         setGeminiConfig(AssistantOptions.forAssistantType(GEMINI));
@@ -128,7 +129,7 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
 
     @Getter
     @Setter
-    @Tag("ApiConfig")
+    @Tag("ApiConfig") // for backward compatibility
     public static class AssistantOptions implements AssistantConfiguration {
         private volatile AssistantType assistantType;
         private volatile String modelName;
@@ -260,12 +261,12 @@ public class ChatGptSettings implements PersistentStateComponent<ChatGptSettings
 
     @Nullable
     @Override
-    public ChatGptSettings getState() {
+    public GeneralSettings getState() {
         return this;
     }
 
     @Override
-    public void loadState(@NotNull ChatGptSettings state) {
+    public void loadState(@NotNull GeneralSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

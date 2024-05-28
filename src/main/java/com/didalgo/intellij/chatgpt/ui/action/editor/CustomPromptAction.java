@@ -7,7 +7,7 @@ package com.didalgo.intellij.chatgpt.ui.action.editor;
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.settings.CustomAction;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.didalgo.intellij.chatgpt.text.CodeFragment;
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
@@ -232,7 +232,7 @@ public class CustomPromptAction extends GenericEditorAction {
                 if (name != null && !name.isEmpty()) {
                     ChatLink.forProject(project).pushMessage(question.getText(), List.of(CodeFragment.of(editor.getDocument().getText())));
                     if (!StringUtils.isEmpty(question.getText())) {
-                        List<CustomAction> customActionsPrefix = ChatGptSettings.getInstance().getCustomActionsPrefix();
+                        List<CustomAction> customActionsPrefix = GeneralSettings.getInstance().getCustomActionsPrefix();
                         customActionsPrefix.add(new CustomAction(name, question.getText()));
                         ActionsUtil.refreshActions();
                     }

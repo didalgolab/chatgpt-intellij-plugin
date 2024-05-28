@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui.action.tool;
 
-import com.didalgo.intellij.chatgpt.settings.OpenAISettingsPanel;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettingsPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.Configurable;
@@ -18,7 +18,7 @@ public class SettingsAction extends DumbAwareAction {
     private final Class<? extends Configurable> panelToSelect;
 
     public SettingsAction(@NotNull @Nls String text) {
-        this(text, OpenAISettingsPanel.class);
+        this(text, GeneralSettingsPanel.class);
     }
 
     public SettingsAction(@NotNull @Nls String text, @NotNull Class<? extends Configurable> panelToSelect) {

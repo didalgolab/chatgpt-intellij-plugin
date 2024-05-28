@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.action.editor;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.settings.CustomAction;
-import com.didalgo.intellij.chatgpt.settings.ChatGptSettings;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -52,7 +52,7 @@ public class ShowCustomActionsAction extends GenericEditorAction {
         @Override
         public AnAction @NotNull [] getChildren(@Nullable AnActionEvent e) {
             List<AnAction> actionList = initialization();
-            for (CustomAction customAction : ChatGptSettings.getInstance().getCustomActionsPrefix()) {
+            for (CustomAction customAction : GeneralSettings.getInstance().getCustomActionsPrefix()) {
                 actionList.add(new GenericEditorAction(customAction::getName, customAction.getCommand()));
             }
             return actionList.toArray(AnAction[]::new);

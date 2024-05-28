@@ -13,7 +13,6 @@ import org.reactivestreams.Subscription;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
-import org.springframework.ai.chat.model.StreamingChatModel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,13 +28,14 @@ public class ChatHandler {
         var flowHandler = new ChatCompletionHandler(listener);
         var prompt = event.getPrompt().orElseThrow(() -> new IllegalArgumentException("Prompt is required"));
 
-        if (chatModel instanceof StreamingChatModel streamingModel) {
-            return streamingModel.stream(prompt)
+        try {
+            return chatModel.stream(prompt)
                     .doOnSubscribe(flowHandler.onSubscribe(event))
                     .doOnError(flowHandler.onError())
                     .doOnComplete(flowHandler.onComplete(ctx))
                     .doOnNext(flowHandler.onNextChunk());
-        } else {
+        }
+        catch (UnsupportedOperationException e) {
             return Mono.fromCallable(() -> chatModel.call(prompt))
                     .flux()
                     .doOnSubscribe(flowHandler.onSubscribe(event))

@@ -22,7 +22,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenAISettingsPanel implements Configurable {
+public class GeneralSettingsPanel implements Configurable {
     private JPanel myMainPanel;
     private JPanel connectionTitledBorderBox;
     private JBTextField readTimeoutField;
@@ -43,7 +43,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     public static final String CREATE_API_KEY = "https://api.openai.com/dashboard/user/api_keys";
 
-    public OpenAISettingsPanel() {
+    public GeneralSettingsPanel() {
         init();
     }
 
@@ -56,7 +56,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public void reset() {
-        ChatGptSettings state = ChatGptSettings.getInstance();
+        GeneralSettings state = GeneralSettings.getInstance();
         readTimeoutField.setText(state.getReadTimeout());
         enableAvatarCheckBox.setSelected(state.isEnableAvatar());
         firstCombobox.setSelectedItem(state.contentOrder.get(1));
@@ -73,7 +73,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public boolean isModified() {
-        ChatGptSettings state = ChatGptSettings.getInstance();
+        GeneralSettings state = GeneralSettings.getInstance();
 
         // If you change the order, you need to restart the IDE to take effect
         needRestart = !StringUtil.equals(state.contentOrder.get(1), (String)firstCombobox.getSelectedItem())
@@ -91,7 +91,7 @@ public class OpenAISettingsPanel implements Configurable {
 
     @Override
     public void apply() {
-        ChatGptSettings state = ChatGptSettings.getInstance();
+        GeneralSettings state = GeneralSettings.getInstance();
 
         boolean readTimeoutIsNumber = StringUtils.isNumeric(readTimeoutField.getText());
         state.setReadTimeout(!readTimeoutIsNumber ? "50000" : readTimeoutField.getText());

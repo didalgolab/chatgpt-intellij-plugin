@@ -24,7 +24,7 @@ public enum StandardModel implements ModelType {
     GPT_3_5_TURBO_16K_0613("gpt-3.5-turbo-16k-0613", ModelFamily.OPEN_AI, 16384),
     GPT_3_5_TURBO_1106("gpt-3.5-turbo-1106", ModelFamily.OPEN_AI, 16385),
     GPT_3_5_TURBO_0125("gpt-3.5-turbo-0125", ModelFamily.OPEN_AI, 16385),
-    GPT_4O("gpt-4o", ModelFamily.OPEN_AI, 128000),
+    GPT_4_O("gpt-4o", ModelFamily.OPEN_AI, 128000),
     GPT_4_TURBO("gpt-4-turbo", ModelFamily.OPEN_AI, 128000),
     GPT_4("gpt-4", ModelFamily.OPEN_AI, 8192),
     GPT_4_TURBO_PREVIEW("gpt-4-turbo-preview", ModelFamily.OPEN_AI, 128000),

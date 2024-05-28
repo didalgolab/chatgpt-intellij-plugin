@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.0.0]
++ Added support for gpt-4o.
++ Added support for Google Gemini models, disabled by default. Enter API Key from AI Studio in the configuration settings to enable Chat with Gemini API.
++ Added support for Claude 3 models, disabled by default. Enter API Key in the configuration settings to enable Chat with Claude API.
++ Added support for local Ollama models, disabled by default, may be enabled in the configuration settings.
++ Breaking Change: Separated Azure OpenAI configuration from GPT-4 and GPT-3.5 configuration. If you previously used GPT-4 or GPT-3.5 tool windows for chatting with Azure OpenAI API, please revisit the configuration settings to enable the dedicated Azure OpenAI connection settings again. Apologies, for this inconvenience!
++ Removed support for text completion models.
++ Added initial implementation of Diff Actions in code blocks - smarter Compare and Merge options are planned for the future.
++ Added support for image attachments, as Ctrl+V from prompt text area (not available for Azure OpenAI yet)
++ Fix compatibility with IDE 2024.2
++ Other improvements
+
 ## [0.2.12]
 + Breaking Change: The plugin no longer retrieves API key from the OPENAI_API_KEY environment variable. For enhanced security, please enter your API key directly into the plugin's settings.
 + Added support for new model: gpt-4-turbo-preview
