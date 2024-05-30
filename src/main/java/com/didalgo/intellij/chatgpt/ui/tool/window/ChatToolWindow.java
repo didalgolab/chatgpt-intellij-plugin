@@ -10,6 +10,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -43,22 +45,35 @@ public class ChatToolWindow {
             var assistantTypesToAdd = new ArrayList<>(assistantTypes);
             var toolWindow = locate(project);
             var contentManager = toolWindow.getContentManagerIfCreated();
-            if (contentManager != null) {
-                for (var content : contentManager.getContents()) {
-                    var assistantType = content.getUserData(ChatToolWindowFactory.ACTIVE_TAB);
-                    if (assistantType != null) {
-                        if (assistantTypes.contains(assistantType))
-                            assistantTypesToAdd.remove(assistantType);
-                        else
-                            contentManager.removeContent(content, true);
-                    }
-                }
 
+            if (contentManager != null) {
+                removeDisabledChatSystems(assistantTypes, contentManager, assistantTypesToAdd);
                 if (!assistantTypesToAdd.isEmpty()) {
-                    var settings = GeneralSettings.getInstance();
-                    assistantTypesToAdd.forEach(type -> ChatToolWindowFactory.addToolWindowContent(toolWindow, type, settings));
+                    addEnabledChatSystems(assistantTypesToAdd, toolWindow, contentManager);
                 }
             }
+        }
+    }
+
+    private static void removeDisabledChatSystems(Set<? extends AssistantType> assistantTypes, ContentManager contentManager, ArrayList<? extends AssistantType> assistantTypesToAdd) {
+        for (var content : contentManager.getContents()) {
+            var assistantType = content.getUserData(ChatToolWindowFactory.ACTIVE_TAB);
+            if (assistantType != null) {
+                if (assistantTypes.contains(assistantType))
+                    assistantTypesToAdd.remove(assistantType);
+                else
+                    contentManager.removeContent(content, true);
+            }
+        }
+    }
+
+    private static void addEnabledChatSystems(ArrayList<? extends AssistantType> assistantTypesToAdd, ToolWindow toolWindow, ContentManager contentManager) {
+        var settings = GeneralSettings.getInstance();
+        assistantTypesToAdd.forEach(type -> ChatToolWindowFactory.addToolWindowContent(toolWindow, type, settings));
+
+        Content[] contents = contentManager.getContents();
+        if (contents.length > 0) {
+            contentManager.setSelectedContent(contents[contents.length - 1]);
         }
     }
 }
