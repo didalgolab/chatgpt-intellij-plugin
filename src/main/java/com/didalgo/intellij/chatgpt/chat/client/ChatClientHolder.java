@@ -7,7 +7,7 @@ package com.didalgo.intellij.chatgpt.chat.client;
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.ArrayList;
@@ -15,21 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChatModelHolder {
+public class ChatClientHolder {
 
-    private static final Logger log = Logger.getInstance(ChatModelHolder.class);
+    private static final Logger log = Logger.getInstance(ChatClientHolder.class);
 
-    private static final Map<AssistantType, ChatModel> chatModels = new ConcurrentHashMap<>();
+    private static final Map<AssistantType, ChatClient> chatClients = new ConcurrentHashMap<>();
 
 
-    public static synchronized ChatModel getChatModel(AssistantType type) {
-        return chatModels.computeIfAbsent(type, __ -> createChatModel(type));
+    public static synchronized ChatClient getChatClient(AssistantType type) {
+        return chatClients.computeIfAbsent(type, __ -> createChatClient(type));
     }
 
     public static synchronized void refresh() {
-        List<ChatModel> models = new ArrayList<>(chatModels.values());
-        chatModels.clear();
-        models.forEach(client -> {
+        List<ChatClient> clients = new ArrayList<>(chatClients.values());
+        chatClients.clear();
+        clients.forEach(client -> {
             if (client instanceof DisposableBean disposable) {
                 try {
                     disposable.destroy();
@@ -40,7 +40,7 @@ public class ChatModelHolder {
         });
     }
 
-    protected static ChatModel createChatModel(AssistantType type) {
-        return ApplicationManager.getApplication().getService(ChatModelFactory.class).create(type);
+    protected static ChatClient createChatClient(AssistantType type) {
+        return ApplicationManager.getApplication().getService(ChatClientFactory.class).create(type);
     }
 }

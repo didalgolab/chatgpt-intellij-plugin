@@ -6,15 +6,16 @@ package com.didalgo.intellij.chatgpt.chat.client;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
-import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.client.ChatClient;
 
-public class ChatModelFactory {
+public class ChatClientFactory {
 
-    public ChatModel create(AssistantType type) {
+    public ChatClient create(AssistantType type) {
         return create(type, GeneralSettings.getInstance());
     }
 
-    public ChatModel create(AssistantType type, GeneralSettings settings) {
-        return type.getFamily().createChatModel(settings.getAssistantOptions(type));
+    public ChatClient create(AssistantType type, GeneralSettings settings) {
+        var chatModel = type.getFamily().createChatModel(settings.getAssistantOptions(type));
+        return ChatClient.create(chatModel);
     }
 }

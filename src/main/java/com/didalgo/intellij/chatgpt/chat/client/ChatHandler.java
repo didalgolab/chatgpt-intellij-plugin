@@ -24,19 +24,19 @@ public class ChatHandler {
     private static final Logger LOG = Logger.getInstance(ChatHandler.class);
 
     public Flux<?> handle(ConversationContext ctx, ChatMessageEvent.Initiating event, ChatMessageListener listener) {
-        var chatModel = ChatModelHolder.getChatModel(ctx.getAssistantType());
+        var chatClient = ChatClientHolder.getChatClient(ctx.getAssistantType());
         var flowHandler = new ChatCompletionHandler(listener);
         var prompt = event.getPrompt().orElseThrow(() -> new IllegalArgumentException("Prompt is required"));
 
         try {
-            return chatModel.stream(prompt)
+            return chatClient.prompt(prompt).stream().chatResponse()
                     .doOnSubscribe(flowHandler.onSubscribe(event))
                     .doOnError(flowHandler.onError())
                     .doOnComplete(flowHandler.onComplete(ctx))
                     .doOnNext(flowHandler.onNextChunk());
         }
         catch (UnsupportedOperationException e) {
-            return Mono.fromCallable(() -> chatModel.call(prompt))
+            return Mono.fromCallable(() -> chatClient.prompt(prompt).call().chatResponse())
                     .flux()
                     .doOnSubscribe(flowHandler.onSubscribe(event))
                     .doOnError(flowHandler.onError())

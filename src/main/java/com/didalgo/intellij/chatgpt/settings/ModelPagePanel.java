@@ -8,8 +8,8 @@ import com.didalgo.intellij.chatgpt.ChatGptBundle;
 import com.didalgo.intellij.chatgpt.Errors;
 import com.didalgo.intellij.chatgpt.StartupHandler;
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
-import com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory;
-import com.didalgo.intellij.chatgpt.chat.client.ChatModelHolder;
+import com.didalgo.intellij.chatgpt.chat.client.ChatClientFactory;
+import com.didalgo.intellij.chatgpt.chat.client.ChatClientHolder;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings.AssistantOptions;
@@ -26,7 +26,6 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.ai.chat.client.ChatClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -201,7 +200,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         apply(options);
         maskApiKeyOnSave(options, isFirstUse);
 
-        ChatModelHolder.refresh();
+        ChatClientHolder.refresh();
     }
 
     protected void apply(AssistantOptions config) {
@@ -271,9 +270,8 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
 
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             try {
-                var chatModel = ApplicationManager.getApplication().getService(ChatModelFactory.class).create(type, copyOfSettings);
-
-                ChatClient.create(chatModel).prompt()
+                ApplicationManager.getApplication().getService(ChatClientFactory.class).create(type, copyOfSettings)
+                        .prompt()
                         .user(ChatGptBundle.message("llm.test.msg"))
                         .stream()
                         .content()

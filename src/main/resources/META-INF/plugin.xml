@@ -37,7 +37,7 @@
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.ui.ContextAwareSnippetizer" serviceImplementation="com.didalgo.intellij.chatgpt.ui.TextEditorSelectionAwareSnippetizer"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.settings.GeneralSettings"/>
         <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatHandler"/>
-        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory"/>
+        <applicationService serviceImplementation="com.didalgo.intellij.chatgpt.chat.client.ChatClientFactory"/>
         <projectService serviceImplementation="com.didalgo.intellij.chatgpt.core.StandardTextSubstitutor" serviceInterface="com.didalgo.intellij.chatgpt.core.TextSubstitutor"/>
         <postStartupActivity implementation="com.didalgo.intellij.chatgpt.StartupHandler"/>
         <iconMapper mappingFile="ChatGPTIconMappings.json"/>

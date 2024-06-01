@@ -5,7 +5,7 @@
 package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
-import com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory;
+import com.didalgo.intellij.chatgpt.chat.client.ChatClientFactory;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.impl.ApplicationImpl;
@@ -18,10 +18,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 import org.opentest4j.AssertionFailedError;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
-import org.springframework.ai.chat.model.StreamingChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import reactor.core.publisher.Flux;
 
@@ -37,13 +37,11 @@ import static org.mockito.Mockito.*;
 @TestApplication
 class ChatPanelTest {
 
-    public interface VersatileChatModel extends ChatModel, StreamingChatModel { }
-
-    private VersatileChatModel chatModel;
+    private ChatModel chatModel;
 
     @BeforeEach
     void setUp() {
-        chatModel = mockChatModel(VersatileChatModel.class);
+        chatModel = mockChatModel(ChatModel.class);
     }
 
     @ParameterizedTest
@@ -114,11 +112,11 @@ class ChatPanelTest {
         var chatModel = Mockito.mock(clazz);
         var application = (ApplicationImpl) ApplicationManager.getApplication();
         application.registerServiceInstance(
-                ChatModelFactory.class,
-                new ChatModelFactory() {
+                ChatClientFactory.class,
+                new ChatClientFactory() {
                     @Override
-                    public ChatModel create(AssistantType type, GeneralSettings settings) {
-                        return chatModel;
+                    public ChatClient create(AssistantType type, GeneralSettings settings) {
+                        return ChatClient.create(chatModel);
                     }
                 },
                 new DefaultPluginDescriptor("com.didalgo.chatgpt"));
