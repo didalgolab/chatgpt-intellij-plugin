@@ -8,19 +8,18 @@ import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.AssistantConfiguration;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
-import com.intellij.credentialStore.CredentialAttributes;
-import com.intellij.credentialStore.CredentialAttributesKt;
-import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.didalgo.intellij.chatgpt.settings.auth.CredentialStore;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.serviceContainer.NonInjectable;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.Transient;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +29,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
 import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.*;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /**
  * Supports storing the application settings in a persistent way.
@@ -80,12 +80,17 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
     }
 
     public GeneralSettings() {
-        setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, StandardModel.GPT_3_5_TURBO.id()));
-        setGpt4Config(AssistantOptions.forAssistantType(GPT_4, StandardModel.GPT_4_O.id()));
-        setAzureOpenAiConfig(AssistantOptions.forAssistantType(AZURE_OPENAI, StandardModel.GPT_4.id()));
-        setClaudeConfig(AssistantOptions.forAssistantType(CLAUDE));
-        setGeminiConfig(AssistantOptions.forAssistantType(GEMINI));
-        setOllamaConfig(AssistantOptions.forAssistantType(OLLAMA, "llama3"));
+        this((CredentialStore) null);
+    }
+
+    @NonInjectable
+    protected GeneralSettings(CredentialStore credStore) {
+        setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, credStore, StandardModel.GPT_3_5_TURBO.id()));
+        setGpt4Config(AssistantOptions.forAssistantType(GPT_4, credStore, StandardModel.GPT_4_O.id()));
+        setAzureOpenAiConfig(AssistantOptions.forAssistantType(AZURE_OPENAI, credStore, StandardModel.GPT_4.id()));
+        setClaudeConfig(AssistantOptions.forAssistantType(CLAUDE, credStore));
+        setGeminiConfig(AssistantOptions.forAssistantType(GEMINI, credStore));
+        setOllamaConfig(AssistantOptions.forAssistantType(OLLAMA, credStore, "llama3"));
     }
 
     public void setGpt35Config(AssistantOptions gpt35Config) {
@@ -131,6 +136,7 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
     @Setter
     @Tag("ApiConfig") // for backward compatibility
     public static class AssistantOptions implements AssistantConfiguration {
+        private final @Getter(AccessLevel.NONE) CredentialStore credentialStore;
         private volatile AssistantType assistantType;
         private volatile String modelName;
         private volatile String apiKeyMasked = "";
@@ -146,16 +152,24 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
         private volatile String azureDeploymentName = "";
         private volatile List<String> apiEndpointUrlHistory = List.of(apiEndpointUrl);
 
-        public AssistantOptions() { }
-
-        public static AssistantOptions forAssistantType(AssistantType assistantType) {
-            var modelName = StandardModel.findFirstAvailableModelInFamily(assistantType.getFamily())
-                    .map(ModelType::id).orElse(null);
-            return forAssistantType(assistantType, modelName);
+        public AssistantOptions() {
+            this((CredentialStore) null);
         }
 
-        public static AssistantOptions forAssistantType(AssistantType assistantType, String modelName) {
-            var options = new AssistantOptions();
+        @NonInjectable
+        private AssistantOptions(CredentialStore credStore) {
+            this.credentialStore = credStore;
+        }
+
+        public static AssistantOptions forAssistantType(AssistantType assistantType, CredentialStore credStore) {
+            var firstModel = StandardModel.findFirstAvailableModelInFamily(assistantType.getFamily())
+                    .map(ModelType::id).orElse(null);
+
+            return forAssistantType(assistantType, credStore, firstModel);
+        }
+
+        public static AssistantOptions forAssistantType(AssistantType assistantType, CredentialStore credStore, String modelName) {
+            var options = new AssistantOptions(credStore);
             options.setAssistantType(assistantType);
             options.setApiEndpointUrl(assistantType.getFamily().getDefaultApiEndpointUrl());
             options.setModelName(modelName);
@@ -216,30 +230,34 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
             return () -> "";
         }
 
+        private CredentialStore credentialStore() {
+            return (credentialStore != null) ? credentialStore : CredentialStore.systemCredentialStore();
+        }
+
         @Transient
         public String getApiKey() {
-            var apiKey = PasswordSafe.getInstance().getPassword(createCredentialAttributes(getAssistantType().name()));
-            if (apiKey == null)
+            CredentialStore currStore = credentialStore(), systemStore = CredentialStore.systemCredentialStore();
+
+            var apiKey = currStore.getPassword(getAssistantType().name());
+            if (apiKey == null && currStore != systemStore) {
+                apiKey = systemStore.getPassword(getAssistantType().name());
+            }
+            if (apiKey == null) {
                 apiKey = "";
+            }
 
             return apiKey;
         }
 
         public void setApiKey(String apiKey) {
-            var credentialAttributes = createCredentialAttributes(getAssistantType().name());
-            PasswordSafe.getInstance().setPassword(credentialAttributes, apiKey);
-            setApiKeyMasked(maskText(StringUtils.defaultIfEmpty(PasswordSafe.getInstance().getPassword(credentialAttributes), "")));
+            setApiKeyMasked(maskText(defaultIfEmpty(
+                    credentialStore().setAndGetPassword(getAssistantType().name(), apiKey), "")));
         }
 
         private static String maskText(String text) {
             final int maskStart = 3;
             final int maskEnd = 4;
             return (text.length() <= maskStart + maskEnd) ? text : text.substring(0, maskStart) + "..." + text.substring(text.length() - maskEnd);
-        }
-
-        @NotNull
-        private static CredentialAttributes createCredentialAttributes(@NotNull String modelPage) {
-            return new CredentialAttributes(CredentialAttributesKt.generateServiceName("com.didalgo.ChatGPT", modelPage), null);
         }
     }
 

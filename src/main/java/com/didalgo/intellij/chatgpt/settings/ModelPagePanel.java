@@ -5,28 +5,37 @@
 package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.ChatGptBundle;
+import com.didalgo.intellij.chatgpt.Errors;
 import com.didalgo.intellij.chatgpt.StartupHandler;
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
+import com.didalgo.intellij.chatgpt.chat.client.ChatModelFactory;
 import com.didalgo.intellij.chatgpt.chat.client.ChatModelHolder;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
+import com.didalgo.intellij.chatgpt.settings.GeneralSettings.AssistantOptions;
+import com.didalgo.intellij.chatgpt.settings.auth.InMemoryCredentialStore;
+import com.didalgo.intellij.chatgpt.ui.GUIKit;
 import com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindow;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.TextFieldWithHistory;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.UIUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.ai.chat.client.ChatClient;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.function.Predicate;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public abstract class ModelPagePanel implements Configurable, Configurable.Composite {
     protected JPanel myMainPanel;
@@ -47,6 +56,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     private JLabel azureApiEndpointLabel;
     private JLabel azureDeploymentNameLabel;
     private JPanel customizeServerLabel;
+    private JButton testConnectionButton;
 
     private final AssistantType type;
 
@@ -75,6 +85,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         topPSpinner.setModel(new SpinnerNumberModel(0.95, 0.0, 1.0, 0.01));
         comboCombobox.setEditable(isModelNameEditable());
         comboCombobox.removeAllItems();
+        testConnectionButton.addActionListener(this::testConnection);
         initHelp();
         configureAzureServerOptions(isAzureCompatible());
     }
@@ -140,14 +151,14 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         UIUtil.setEnabled(customizeServerOptions, enabled, true);
     }
 
-    protected GeneralSettings.AssistantOptions getAssistantOptions(GeneralSettings state) {
+    protected AssistantOptions getAssistantOptions(GeneralSettings state) {
         return state.getAssistantOptions(type);
     }
 
     @Override
     public void reset() {
         GeneralSettings state = GeneralSettings.getInstance();
-        GeneralSettings.AssistantOptions config = getAssistantOptions(state);
+        AssistantOptions config = getAssistantOptions(state);
         setApiKeyMasked(apiKeyField, config);
         comboCombobox.setSelectedItem(config.getModelName());
         temperatureSpinner.setValue(config.getTemperature());
@@ -168,7 +179,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     @Override
     public boolean isModified() {
         GeneralSettings state = GeneralSettings.getInstance();
-        GeneralSettings.AssistantOptions config = getAssistantOptions(state);
+        AssistantOptions config = getAssistantOptions(state);
 
         return !apiKeyField.getText().isEmpty() ||
                 !config.getModelName().equals(comboCombobox.getSelectedItem()) ||
@@ -183,16 +194,19 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
 
     @Override
     public void apply() {
-        GeneralSettings state = GeneralSettings.getInstance();
-        GeneralSettings.AssistantOptions config = getAssistantOptions(state);
+        var settings = GeneralSettings.getInstance();
+        var options = getAssistantOptions(settings);
 
+        boolean isFirstUse = isEmpty(options.getApiKeyMasked());
+        apply(options);
+        maskApiKeyOnSave(options, isFirstUse);
+
+        ChatModelHolder.refresh();
+    }
+
+    protected void apply(AssistantOptions config) {
         if (apiKeyField.getPassword().length > 0) {
-            boolean onFirstSet = StringUtils.isEmpty(config.getApiKeyMasked());
             config.setApiKey(String.valueOf(apiKeyField.getPassword()));
-            setApiKeyMasked(apiKeyField, config);
-            if (onFirstSet) {
-                setEnabledInToolWindow(true);
-            }
         }
         config.setModelName(comboCombobox.getSelectedItem().toString());
         config.setTemperature((double) temperatureSpinner.getValue());
@@ -205,11 +219,17 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         if (!config.getApiEndpointUrlHistory().contains(config.getApiEndpointUrl()))
             customizeServerField.addCurrentTextToHistory();
         config.setApiEndpointUrlHistory(customizeServerField.getHistory());
-
-        ChatModelHolder.refresh();
     }
 
-    private void setApiKeyMasked(JBPasswordField apiKeyField, GeneralSettings.AssistantOptions config) {
+    private void maskApiKeyOnSave(AssistantOptions config, boolean isFirstUse) {
+        if (apiKeyField.getPassword().length > 0) {
+            setApiKeyMasked(apiKeyField, config);
+            if (isFirstUse)
+                setEnabledInToolWindow(true);
+        }
+    }
+
+    private void setApiKeyMasked(JBPasswordField apiKeyField, AssistantOptions config) {
         apiKeyField.setText("");
         apiKeyField.getEmptyText().setText(config.getApiKeyMasked());
         if (config.getApiKeyMasked().isEmpty() && !isApiKeyOptional())
@@ -240,6 +260,45 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         //Color smallFontForeground = UIUtil.getContextHelpForeground();
 
         // Placeholder for future configuration options
+    }
+
+    public void testConnection(ActionEvent event) {
+        var copyOfSettings = new GeneralSettings(new InMemoryCredentialStore());
+        apply(getAssistantOptions(copyOfSettings));
+
+        var source = (JComponent) event.getSource();
+        source.setEnabled(false);
+
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            try {
+                var chatModel = ApplicationManager.getApplication().getService(ChatModelFactory.class).create(type, copyOfSettings);
+
+                ChatClient.create(chatModel).prompt()
+                        .user(ChatGptBundle.message("llm.test.msg"))
+                        .stream()
+                        .content()
+                        .collectList()
+                        .doOnError(cause -> {
+                            SwingUtilities.invokeLater(() -> {
+                                GUIKit.showCallout(source, Errors.getWebClientErrorMessage(cause), MessageType.ERROR);
+                            });
+                        })
+                        .doOnSuccess(resp -> {
+                            String respMessage = String.join("", resp);
+                            SwingUtilities.invokeLater(() -> {
+                                GUIKit.showCallout(source, ChatGptBundle.message("llm.test.out", respMessage), MessageType.INFO);
+                            });
+                        })
+                        .doFinally(__ -> SwingUtilities.invokeLater(() -> source.setEnabled(true)))
+                        .subscribe();
+
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> {
+                    source.setEnabled(true);
+                    GUIKit.showCallout(source, Errors.getWebClientErrorMessage(e), MessageType.ERROR);
+                });
+            }
+        });
     }
 
     @Override

@@ -4,6 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.ui.tool.window;
 
+import com.didalgo.intellij.chatgpt.Errors;
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.chat.models.ModelFamily;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
@@ -288,32 +289,9 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
     @Override
     public void exchangeFailed(ChatMessageEvent.Failed event) {
         if (answer != null) {
-            answer.setErrorContent(getErrorResponseMessage(event.getCause()));
+            answer.setErrorContent(Errors.getWebClientErrorMessage(event.getCause()));
         }
         aroundRequest(false);
-    }
-
-    private String getErrorResponseMessage(Throwable cause) {
-        String errorMessage = getErrorMessage(cause);
-        return errorMessage + (errorMessage.isEmpty() ? "" : "\n\n") + getErrorResponseBody(cause);
-    }
-
-    private String getErrorResponseBody(Throwable cause) {
-        var restEx = (cause instanceof WebClientResponseException wcre) ? wcre
-                : (cause.getCause() instanceof WebClientResponseException wcre) ? wcre : null;
-        return (restEx != null) ? restEx.getResponseBodyAsString() : "";
-    }
-
-    private String getErrorMessage(Throwable cause) {
-        if (cause == null)
-            return "";
-
-        var errorMessage = isEmpty(cause.getMessage()) ? "" : cause.getMessage();
-        var causeMessage = getErrorMessage(cause.getCause());
-        if (errorMessage.isEmpty() || causeMessage.contains(errorMessage))
-            return causeMessage;
-        else
-            return errorMessage;
     }
 
     @Override
