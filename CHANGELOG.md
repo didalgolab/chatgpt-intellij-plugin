@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [1.0.1]
++ Fix: broken paste action on some IDEs, e.g. Rider (#23)
+
 ## [1.0.0]
 + Added support for gpt-4o.
 + Added support for Google Gemini models, disabled by default. Enter API Key from AI Studio in the configuration settings to enable Chat with Gemini API.
