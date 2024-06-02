@@ -42,19 +42,19 @@ dependencies {
     implementation("com.vladsch.flexmark:flexmark-ext-tables:0.64.8")
     implementation("com.vladsch.flexmark:flexmark-html2md-converter:0.64.8")
     implementation("org.projectlombok:lombok:1.18.26")
-    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-M1") {
+    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M1") {
+    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
-    implementation("org.springframework.ai:spring-ai-azure-openai-spring-boot-starter:1.0.0-M1") {
+    implementation("org.springframework.ai:spring-ai-azure-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
-    implementation("org.springframework.ai:spring-ai-anthropic-spring-boot-starter:1.0.0-M1") {
+    implementation("org.springframework.ai:spring-ai-anthropic-spring-boot-starter:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
-    implementation("org.springframework.ai:spring-ai-ollama:1.0.0-M1") {
+    implementation("org.springframework.ai:spring-ai-ollama:1.0.0-SNAPSHOT") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
     testImplementation("org.junit.platform:junit-platform-launcher:1.9.2")
