@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.tool.window;
 
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
+import com.didalgo.intellij.chatgpt.chat.metadata.ImmutableUsage;
 import com.didalgo.intellij.chatgpt.event.ListenerList;
 import com.didalgo.intellij.chatgpt.event.ListenerList.Subscription;
 import com.didalgo.intellij.chatgpt.ui.text.ExpandableTextFieldExt;
@@ -33,6 +34,8 @@ import com.intellij.util.ui.UIUtil;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.metadata.EmptyUsage;
+import org.springframework.ai.chat.metadata.Usage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +48,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
     private final JBScrollPane myScrollPane = new JBScrollPane(myList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                                       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     private int myScrollValue = 0;
+    private UsagePanel usagePanel;
     private JBTextField systemRole;
     private final Project project;
     private final ChatLink chatLink;
@@ -104,10 +108,12 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
         myTitle.setForeground(JBColor.namedColor("Label.infoForeground", new JBColor(Gray.x80, Gray.x8C)));
         myTitle.setFont(JBFont.label());
 
+        this.usagePanel = new UsagePanel();
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(JBUI.Borders.empty(0,10,10,0));
 
-        panel.add(myTitle, BorderLayout.WEST);
+        //panel.add(myTitle, BorderLayout.WEST);
 
         LinkLabel<String> newChat = new LinkLabel<>("New chat", null);
         newChat.addMouseListener(new MouseAdapter() {
@@ -118,12 +124,14 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
                 myList.updateUI();
                 chatLink.getConversationContext().clear();
                 onChatMemoryCleared.fire().run();
+                usagePanel.updateUsage(ImmutableUsage.empty());
             }
         });
 
         newChat.setFont(JBFont.label());
         newChat.setBorder(JBUI.Borders.emptyRight(20));
         panel.add(newChat, BorderLayout.EAST);
+        panel.add(usagePanel, BorderLayout.WEST);
         mainPanel.add(panel, BorderLayout.NORTH);
 
         myList.setOpaque(true);
@@ -242,5 +250,9 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
     @Override
     public String getSystemMessage() {
         return systemRole.getText();
+    }
+
+    public void updateUsage(Usage usage) {
+        usagePanel.updateUsage(usage);
     }
 }

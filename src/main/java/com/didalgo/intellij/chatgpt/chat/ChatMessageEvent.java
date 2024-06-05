@@ -117,9 +117,9 @@ public abstract class ChatMessageEvent extends EventObject {
             return new ResponseArriving(this, responseChunk, partialResponseChoices);
         }
 
-        public ResponseArrived responseArrived(List<Generation> responseChoices) {
-            requireNonNull(responseChoices, "responseChoices");
-            return new ResponseArrived(this, responseChoices);
+        public ResponseArrived responseArrived(ChatResponse response) {
+            requireNonNull(response.getResults(), "responseChoices");
+            return new ResponseArrived(this, response);
         }
     }
 
@@ -162,15 +162,19 @@ public abstract class ChatMessageEvent extends EventObject {
     }
 
     public static class ResponseArrived extends Started {
-        private final List<Generation> responseChoices;
+        private final ChatResponse response;
 
-        protected ResponseArrived(Started sourceEvent, List<Generation> responseChoices) {
+        protected ResponseArrived(Started sourceEvent, ChatResponse response) {
             super(sourceEvent);
-            this.responseChoices = responseChoices;
+            this.response = response;
         }
 
-        public final List<Generation> getResponseChoices() {
-            return responseChoices;
+        public final ChatResponse getResponse() {
+            return response;
+        }
+
+        public final List<Generation> getGenerations() {
+            return response.getResults();
         }
     }
 }

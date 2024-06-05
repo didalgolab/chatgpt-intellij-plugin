@@ -36,8 +36,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Subscription;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.Generation;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
 
 import javax.swing.*;
@@ -273,9 +273,12 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
 
     @Override
     public void responseArrived(ChatMessageEvent.ResponseArrived event) {
-        setContent(event.getResponseChoices());
+        setContent(event.getGenerations());
+
+        Usage usage = event.getResponse().getMetadata().getUsage();
         SwingUtilities.invokeLater(() -> {
             aroundRequest(false);
+            contentPanel.updateUsage(usage);
         });
     }
 
