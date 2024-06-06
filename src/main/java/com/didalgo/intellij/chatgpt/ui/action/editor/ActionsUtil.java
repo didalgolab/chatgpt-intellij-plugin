@@ -21,6 +21,7 @@ public class ActionsUtil {
             group.add(new TokenCountAction());
             group.add(new CustomPromptAction());
             group.addSeparator();
+            group.add(new FixCompilationErrorsAction());
             group.add(new ExplainAction());
             group.add(new FindBugAction());
             group.add(new OptimizeAction());
