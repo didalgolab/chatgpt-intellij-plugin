@@ -11,7 +11,6 @@ import com.intellij.openapi.ui.cellvalidators.*;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.*;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.ColumnInfo;
@@ -29,10 +28,7 @@ import java.util.List;
 
 public class CustomActionsPanel implements Configurable {
 
-    private JPanel myMainPanel;
-
-    private JPanel customActionsTitledBorderBox;
-    private final Disposable myDisposable = Disposer.newDisposable();
+    private Disposable myDisposable;
     private final ListTableModel<CustomAction> myModel = new ListTableModel<>() {
         @Override
         public void addRow() {
@@ -52,12 +48,6 @@ public class CustomActionsPanel implements Configurable {
     };
 
     public CustomActionsPanel() {
-        init();
-    }
-
-    private void init() {
-        myMainPanel.add(new JBLabel("Double click to edit it."), BorderLayout.NORTH);
-        myMainPanel.add(createComponent(), BorderLayout.CENTER);
     }
 
     @Override
@@ -67,6 +57,7 @@ public class CustomActionsPanel implements Configurable {
 
     @Override
     public @Nullable JComponent createComponent() {
+        myDisposable = Disposer.newDisposable();
         myModel.setColumnInfos(new ColumnInfo[] { new ColumnInfo<CustomAction, String>("Name") {
 
             @Override
@@ -133,7 +124,7 @@ public class CustomActionsPanel implements Configurable {
         myTable.setShowGrid(false);
         myTable.getEmptyText().setText("No prefix configured");
         myTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        myTable.setToolTipText("Double click to edit it");
+        myTable.setToolTipText("Double click to edit");
 
         ExtendableTextField cellEditor = new ExtendableTextField();
         DefaultCellEditor editor = new StatefulValidatingCellEditor(cellEditor, myDisposable).
@@ -156,7 +147,7 @@ public class CustomActionsPanel implements Configurable {
                     } else {
                         append(action.getCommand(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     }
-                    setToolTipText("Double click to edit it.");
+                    setToolTipText("Double click to edit");
                 }
             }
 
@@ -192,11 +183,9 @@ public class CustomActionsPanel implements Configurable {
     }
 
     private void createUIComponents() {
-        customActionsTitledBorderBox = new JPanel(new BorderLayout());
+        JPanel customActionsTitledBorderBox = new JPanel(new BorderLayout());
         TitledSeparator tsUrl = new TitledSeparator("Custom Actions Settings");
         customActionsTitledBorderBox.add(tsUrl,BorderLayout.CENTER);
-
-        myMainPanel = new JPanel(new BorderLayout());
     }
 
     @Override

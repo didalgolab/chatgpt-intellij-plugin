@@ -30,7 +30,8 @@
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.OllamaPanel"
                                  id="com.didalgo.chatgpt.settings.Ollama"
                                  displayName="Ollama"/>
-        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.CustomActionsPanel"
+        <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings"
+                                 instance="com.didalgo.intellij.chatgpt.settings.CustomActionsPanel"
                                  id="com.didalgo.chatgpt.settings.commandActions"
                                  displayName="Custom Actions"/>
         <applicationService serviceInterface="com.didalgo.intellij.chatgpt.chat.ChatMessageComposer" serviceImplementation="com.didalgo.intellij.chatgpt.chat.DefaultChatMessageComposer"/>
