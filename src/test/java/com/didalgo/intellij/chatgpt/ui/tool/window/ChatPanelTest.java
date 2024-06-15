@@ -74,6 +74,7 @@ class ChatPanelTest {
         @ParameterizedTest
         @EnumSource(value = AssistantType.System.class, mode = EXCLUDE, names = "ONLINE")
         void can_converse_with_non_streaming_api_too(AssistantType.System type) throws Throwable {
+            when(nonStreamingChatModel.stream(any(Prompt.class))).thenThrow(UnsupportedOperationException.class);
             when(nonStreamingChatModel.call(any(Prompt.class)))
                     .thenReturn(new ChatResponse(List.of(new Generation("something"))));
 
