@@ -24,4 +24,14 @@ public class GPT35TurboPanel extends ModelPagePanel implements Configurable {
     public String getDisplayName() {
         return ChatGptBundle.message("ui.setting.menu.text");
     }
+
+    @Override
+    protected boolean isModelNameEditable() {
+        return true;
+    }
+
+    @Override
+    protected boolean isStreamOptionsApiAvailable() {
+        return true;
+    }
 }

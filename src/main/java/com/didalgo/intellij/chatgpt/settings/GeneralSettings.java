@@ -6,6 +6,7 @@ package com.didalgo.intellij.chatgpt.settings;
 
 import com.didalgo.intellij.chatgpt.chat.AssistantType;
 import com.didalgo.intellij.chatgpt.chat.AssistantConfiguration;
+import com.didalgo.intellij.chatgpt.chat.models.CustomModel;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.didalgo.intellij.chatgpt.settings.auth.CredentialStore;
@@ -23,12 +24,14 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.System;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 
 import static com.didalgo.intellij.chatgpt.chat.AssistantType.System.*;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
 /**
@@ -146,11 +149,13 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
         private volatile boolean enableContext = true;
         private volatile boolean enableTokenConsumption = true;
         private volatile boolean enableStreamResponse = true;
+        private volatile boolean enableStreamOptions = true;
         private volatile boolean enableCustomApiEndpointUrl = false;
         private volatile String apiEndpointUrl = "";
         private volatile String azureApiEndpoint = "";
         private volatile String azureDeploymentName = "";
         private volatile List<String> apiEndpointUrlHistory = List.of(apiEndpointUrl);
+        private volatile List<CustomModel> apiModels = List.of();
 
         public AssistantOptions() {
             this((CredentialStore) null);
@@ -194,10 +199,12 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
                     topP,
                     enableTokenConsumption,
                     enableStreamResponse,
+                    enableStreamOptions,
                     enableCustomApiEndpointUrl,
                     apiEndpointUrl,
                     azureApiEndpoint,
-                    azureDeploymentName
+                    azureDeploymentName,
+                    defaultIfNull(apiModels, List.of())
             );
         }
 
@@ -211,10 +218,12 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
                         && Objects.equals(topP, that.topP)
                         && Objects.equals(enableTokenConsumption, that.enableTokenConsumption)
                         && Objects.equals(enableStreamResponse, that.enableStreamResponse)
+                        && Objects.equals(enableStreamOptions, that.enableStreamOptions)
                         && Objects.equals(enableCustomApiEndpointUrl, that.enableCustomApiEndpointUrl)
+                        && Objects.equals(apiEndpointUrl, that.apiEndpointUrl)
                         && Objects.equals(azureApiEndpoint, that.azureApiEndpoint)
                         && Objects.equals(azureDeploymentName, that.azureDeploymentName)
-                        && Objects.equals(apiEndpointUrl, that.apiEndpointUrl);
+                        && Objects.equals(defaultIfNull(apiModels, List.of()), defaultIfNull(that.apiModels, List.of()));
             }
             return false;
         }
@@ -223,6 +232,22 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
         @Transient
         public AssistantType getAssistantType() {
             return assistantType;
+        }
+
+        @Transient
+        public ModelType getModelType() {
+            String modelName = getModelName();
+            try {
+                return StandardModel.of(modelName);
+            } catch (IllegalArgumentException e) {
+                var customModels = getApiModels();
+                if (customModels != null)
+                    for (var model : customModels)
+                        if (modelName.equals(model.id()))
+                            return model;
+
+                return new CustomModel(modelName, assistantType.getFamily(), Integer.MAX_VALUE);
+            }
         }
 
         @Override

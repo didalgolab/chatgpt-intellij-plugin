@@ -9,6 +9,9 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.ApiUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionRequest.StreamOptions;
+
+import java.util.List;
 
 public class OpenAiModelFamily implements ModelFamily {
 
@@ -20,6 +23,7 @@ public class OpenAiModelFamily implements ModelFamily {
         var options = OpenAiChatOptions.builder()
                 .withModel(config.getModelName())
                 .withTemperature((float) config.getTemperature())
+                .withStreamOptions(config.isEnableStreamOptions() ? StreamOptions.INCLUDE_USAGE : null)
                 .withTopP((float) config.getTopP())
                 .withN(1)
                 .build();
@@ -29,6 +33,15 @@ public class OpenAiModelFamily implements ModelFamily {
     @Override
     public String getDefaultApiEndpointUrl() {
         return ApiUtils.DEFAULT_BASE_URL;
+    }
+
+    @Override
+    public List<String> getCompatibleApiEndpointUrls() {
+        return List.of(
+                "https://api.groq.com/openai",
+                "https://api.mistral.ai",
+                "https://openrouter.ai/api"
+        );
     }
 
     @Override

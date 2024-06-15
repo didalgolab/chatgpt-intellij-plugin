@@ -78,6 +78,8 @@ public class ChatHandler {
             return chunk -> {
                 if (chunk.getResult() != null) {
                     listener.responseArriving(event.responseArriving(chunk, formResponse(chunk, chunk.getResult())));
+                } else if (chunk.getMetadata() != null) {
+                    lastMetadata.put(0, chunk.getMetadata());
                 }
             };
         }

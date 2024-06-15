@@ -25,4 +25,8 @@ public class ClaudePanel extends ModelPagePanel implements Configurable {
         return ChatGptBundle.message("ui.setting.menu.text");
     }
 
+    @Override
+    protected boolean isModelCatalogAvailable() {
+        return false;
+    }
 }

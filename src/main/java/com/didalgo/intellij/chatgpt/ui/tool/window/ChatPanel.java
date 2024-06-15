@@ -278,7 +278,7 @@ public class ChatPanel implements ChatMessageListener, ChatLinkProvider {
         Usage usage = event.getResponse().getMetadata().getUsage();
         SwingUtilities.invokeLater(() -> {
             aroundRequest(false);
-            contentPanel.updateUsage(usage);
+            contentPanel.updateUsage(usage, getChatLink().getConversationContext().getModelType());
         });
     }
 

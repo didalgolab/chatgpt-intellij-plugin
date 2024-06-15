@@ -25,4 +25,13 @@ public class GPT4Panel extends ModelPagePanel implements Configurable {
         return ChatGptBundle.message("ui.setting.menu.text");
     }
 
+    @Override
+    protected boolean isModelNameEditable() {
+        return true;
+    }
+
+    @Override
+    protected boolean isStreamOptionsApiAvailable() {
+        return true;
+    }
 }

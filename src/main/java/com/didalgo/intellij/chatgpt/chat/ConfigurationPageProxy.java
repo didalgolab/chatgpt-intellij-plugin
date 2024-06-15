@@ -4,6 +4,8 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
+
 import java.util.function.Supplier;
 
 class ConfigurationPageProxy implements AssistantConfiguration {
@@ -25,6 +27,11 @@ class ConfigurationPageProxy implements AssistantConfiguration {
     @Override
     public String getModelName() {
         return getDelegate().getModelName();
+    }
+
+    @Override
+    public ModelType getModelType() {
+        return getDelegate().getModelType();
     }
 
     @Override

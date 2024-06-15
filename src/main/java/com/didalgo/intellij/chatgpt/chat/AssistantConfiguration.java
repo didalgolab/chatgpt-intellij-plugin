@@ -4,6 +4,8 @@
  */
 package com.didalgo.intellij.chatgpt.chat;
 
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
+
 import java.util.function.Supplier;
 
 public interface AssistantConfiguration {
@@ -11,6 +13,8 @@ public interface AssistantConfiguration {
     AssistantType getAssistantType();
 
     String getModelName();
+
+    ModelType getModelType();
 
     Supplier<String> getSystemPrompt();
 

@@ -85,12 +85,7 @@ public class ChatLinkState implements ConversationContext {
 
     @Override
     public ModelType getModelType() {
-        String modelName = getModelConfiguration().getModelName();
-        try {
-            return StandardModel.of(modelName);
-        } catch (IllegalArgumentException e) {
-            return new CustomModel(modelName, getModelConfiguration().getAssistantType().getFamily(), Integer.MAX_VALUE);
-        }
+        return getModelConfiguration().getModelType();
     }
 
     @Override

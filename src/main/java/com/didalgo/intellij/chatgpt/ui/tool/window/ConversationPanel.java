@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.ui.tool.window;
 import com.didalgo.intellij.chatgpt.SystemMessageHolder;
 import com.didalgo.intellij.chatgpt.chat.ChatLink;
 import com.didalgo.intellij.chatgpt.chat.metadata.ImmutableUsage;
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.didalgo.intellij.chatgpt.event.ListenerList;
 import com.didalgo.intellij.chatgpt.event.ListenerList.Subscription;
 import com.didalgo.intellij.chatgpt.ui.text.ExpandableTextFieldExt;
@@ -34,7 +35,6 @@ import com.intellij.util.ui.UIUtil;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.metadata.EmptyUsage;
 import org.springframework.ai.chat.metadata.Usage;
 
 import javax.swing.*;
@@ -124,7 +124,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
                 myList.updateUI();
                 chatLink.getConversationContext().clear();
                 onChatMemoryCleared.fire().run();
-                usagePanel.updateUsage(ImmutableUsage.empty());
+                usagePanel.updateUsage(ImmutableUsage.empty(), chatLink.getConversationContext().getModelType());
             }
         });
 
@@ -252,7 +252,7 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
         return systemRole.getText();
     }
 
-    public void updateUsage(Usage usage) {
-        usagePanel.updateUsage(usage);
+    public void updateUsage(Usage usage, ModelType model) {
+        usagePanel.updateUsage(usage, model);
     }
 }
