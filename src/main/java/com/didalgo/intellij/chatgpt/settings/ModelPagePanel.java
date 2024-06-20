@@ -175,7 +175,6 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
         @Override
         public void actionPerformed(ActionEvent e) {
             apiModels = null;
-            comboCombobox.removeAllItems();
             configureAvailableModels(modelFilter);
         }
     }
@@ -208,6 +207,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
     }
 
     protected void configureAvailableModels(Predicate<ModelType> modelFilter) {
+        comboCombobox.removeAllItems();
         StandardModel.getAvailableModels().stream()
                 .filter(modelFilter)
                 .forEach(model -> comboCombobox.addItem(model.id()));
