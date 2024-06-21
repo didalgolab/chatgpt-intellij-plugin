@@ -7,9 +7,9 @@ package com.didalgo.intellij.chatgpt.chat.models;
 import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.ApiUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionRequest.StreamOptions;
+import org.springframework.ai.openai.api.common.OpenAiApiConstants;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class OpenAiModelFamily implements ModelFamily {
 
     @Override
     public String getDefaultApiEndpointUrl() {
-        return ApiUtils.DEFAULT_BASE_URL;
+        return OpenAiApiConstants.DEFAULT_BASE_URL;
     }
 
     @Override
