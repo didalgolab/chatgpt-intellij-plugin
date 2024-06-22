@@ -23,7 +23,7 @@ public class OpenAiModelFamily implements ModelFamily {
         var options = OpenAiChatOptions.builder()
                 .withModel(config.getModelName())
                 .withTemperature((float) config.getTemperature())
-                .withStreamOptions(config.isEnableStreamOptions() ? StreamOptions.INCLUDE_USAGE : null)
+                .withStreamUsage(config.isEnableStreamOptions())
                 .withTopP((float) config.getTopP())
                 .withN(1)
                 .build();
