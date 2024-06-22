@@ -169,9 +169,9 @@ tasks {
     }
 
     signPlugin {
-        certificateChainFile.set(file(project.property("JetBrains.signPlugin.certificateChain") as String))
-        privateKeyFile.set(file(project.property("JetBrains.signPlugin.privateKey") as String))
-        password.set(project.property("JetBrains.signPlugin.password") as String?)
+        certificateChain = System.getenv("CERTIFICATE_CHAIN") ?: findProperty("JetBrains.signPlugin.certificateChain")?.let { file(it).readText() }
+        privateKey = System.getenv("PRIVATE_KEY") ?: findProperty("JetBrains.signPlugin.privateKey")?.let { file(it).readText() }
+        password = findProperty("JetBrains.signPlugin.password")?.toString() ?: System.getenv("PRIVATE_KEY_PASSWORD")
     }
 
     publishPlugin {
