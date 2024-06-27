@@ -15,7 +15,7 @@ public enum StandardModel implements ModelType {
     CLAUDE_3_SONNET("claude-3-sonnet-20240229", ModelFamily.ANTHROPIC, 200000),
     CLAUDE_3_HAIKU("claude-3-haiku-20240307", ModelFamily.ANTHROPIC, 200000),
 
-    GEMINI_1_5_PRO_LATEST("gemini-1.5-pro-latest", ModelFamily.GEMINI, 1048576),
+    GEMINI_1_5_PRO_LATEST("gemini-1.5-pro-latest", ModelFamily.GEMINI, 2097152),
     GEMINI_1_5_FLASH_LATEST("gemini-1.5-flash-latest", ModelFamily.GEMINI, 1048576),
 
     GPT_3_5_TURBO("gpt-3.5-turbo", ModelFamily.OPEN_AI, 16385),
