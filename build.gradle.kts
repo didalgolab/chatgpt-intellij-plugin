@@ -42,7 +42,7 @@ dependencies {
     implementation("com.vladsch.flexmark:flexmark-ext-tables:0.64.8")
     implementation("com.vladsch.flexmark:flexmark-html2md-converter:0.64.8")
     implementation("org.projectlombok:lombok:1.18.26")
-    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-SNAPSHOT") {
+    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-M1.1") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
     implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
@@ -169,9 +169,9 @@ tasks {
     }
 
     signPlugin {
-        certificateChainFile.set(file(project.property("JetBrains.signPlugin.certificateChain") as String))
-        privateKeyFile.set(file(project.property("JetBrains.signPlugin.privateKey") as String))
-        password.set(project.property("JetBrains.signPlugin.password") as String?)
+        certificateChain = System.getenv("CERTIFICATE_CHAIN") ?: findProperty("JetBrains.signPlugin.certificateChain")?.let { file(it).readText() }
+        privateKey = System.getenv("PRIVATE_KEY") ?: findProperty("JetBrains.signPlugin.privateKey")?.let { file(it).readText() }
+        password = findProperty("JetBrains.signPlugin.password")?.toString() ?: System.getenv("PRIVATE_KEY_PASSWORD")
     }
 
     publishPlugin {
