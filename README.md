@@ -7,8 +7,10 @@ This project is a plugin that provides integration with OpenAI ChatGPT API to ru
 
 ## Features
 
-- [x] Ask ChatGPT (supports GPT-3.5-Turbo API, GPT-4 API and Online Chat simultaneously)
-- [x] Password-Safe storage of API keys
+Code generation, code interaction, contexts and others.
+
+- [x] Ask ChatGPT (supports multiple models)
+- [x] Vision support; directly paste screenshots or images into the prompt field
 - [x] Azure OpenAI endpoints support
 - [x] Claude 3, Gemini 1.5, and Ollama models support
 - [x] Select a code fragment in the editor and Ask ChatGPT (selected code will be automatically appended to the prompt)
@@ -16,7 +18,7 @@ This project is a plugin that provides integration with OpenAI ChatGPT API to ru
 - [x] Count tokens in the open file or selection
 - [x] Custom Actions from prompts
 - [x] Context snippets, with possibility to attach multiple files, selections, or contents of documentation popups to the prompt
-- [x] Vision support; directly paste screenshots or images into the prompt field
+- [x] Password-Safe storage of API keys
 
 ### Screenshots
 

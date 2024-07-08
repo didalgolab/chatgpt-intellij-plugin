@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [1.1.0]
++ Added support for Claude 3.5 Sonnet
++ Expanded Gemini 1.5 models to 2M input token limit
++ Added model list refresh and connectivity testing in settings
++ Added `Fix Compilation Errors` action
++ Added chat token usage indicator
++ Improved Groq and Open Router API compatibility
++ Fixed minor bugs
+
 ## [1.0.0]
 + Added support for gpt-4o.
 + Added support for Google Gemini models, disabled by default. Enter API Key from AI Studio in the configuration settings to enable Chat with Gemini API.
