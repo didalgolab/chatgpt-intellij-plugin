@@ -41,7 +41,6 @@ public class GroupedItemsListRenderer<E> extends GroupedElementsRenderer.List im
         return result;
     }
 
-    @ApiStatus.Internal
     protected boolean hasSeparator(E value, int index) {
         String caption = myDescriptor.getCaptionAboveOf(value);
         if (index == 0 && StringUtil.isEmptyOrSpaces(caption)) {
