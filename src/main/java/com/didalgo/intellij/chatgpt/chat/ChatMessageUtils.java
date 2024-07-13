@@ -77,7 +77,7 @@ public class ChatMessageUtils {
                 message -> message.getMessageType().getValue(),
                 Message::getContent,
                 __ -> "",
-                message -> (message.getMessageType() != MessageType.FUNCTION)
+                message -> (message.getMessageType() != MessageType.TOOL)
                         ? TokenizableFunctionCall.NONE
                         : TokenizableFunctionCall.of(message.getContent(), message.getMetadata().toString())
         ), List.of(), __ -> { throw new UnsupportedOperationException("Tokenization of functions is not supported"); }, formatDescriptor, tokenizer);
