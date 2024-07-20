@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.model.MessageAggregator;
@@ -70,7 +71,7 @@ public class MessageAggregatorExt extends MessageAggregator {
 			onAggregationComplete
 				.accept(
 						new ChatResponse(List.of(
-								new Generation(stringBufferRef.get().toString(), mapRef.get())), responseMetadataRef.get().build()));
+								new Generation(new AssistantMessage(stringBufferRef.get().toString(), mapRef.get()))), responseMetadataRef.get().build()));
 			stringBufferRef.set(new StringBuilder());
 			mapRef.set(new HashMap<>());
 			responseMetadataRef.set(new ChatResponseMetadataBuilder());

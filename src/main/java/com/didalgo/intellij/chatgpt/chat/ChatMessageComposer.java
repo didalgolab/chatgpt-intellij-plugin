@@ -5,8 +5,8 @@
 package com.didalgo.intellij.chatgpt.chat;
 
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import org.springframework.ai.chat.messages.Media;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.model.Media;
 
 import java.util.List;
 

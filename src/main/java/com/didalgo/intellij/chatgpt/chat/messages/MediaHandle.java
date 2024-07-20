@@ -4,7 +4,7 @@
  */
 package com.didalgo.intellij.chatgpt.chat.messages;
 
-import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.model.Media;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MimeType;

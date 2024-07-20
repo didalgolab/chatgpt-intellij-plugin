@@ -9,7 +9,7 @@ import com.didalgo.intellij.chatgpt.chat.InputContext;
 import com.didalgo.intellij.chatgpt.chat.messages.MediaSupport;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.MediaPromptAttachment;
 import com.intellij.icons.AllIcons;
-import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.model.Media;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

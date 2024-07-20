@@ -9,8 +9,8 @@ import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.didalgo.intellij.chatgpt.ui.prompt.context.DefaultInputContext;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import org.springframework.ai.chat.messages.Media;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.model.Media;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,7 +11,7 @@ import com.didalgo.intellij.chatgpt.chat.messages.MediaSupport;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
-import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.model.Media;
 
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;

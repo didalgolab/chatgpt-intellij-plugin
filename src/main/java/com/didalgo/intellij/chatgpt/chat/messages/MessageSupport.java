@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.chat.messages;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 
 public class MessageSupport {
@@ -30,12 +31,14 @@ public class MessageSupport {
      *                                  is thrown indicating the unsupported message type.
      */
     public static Message setContent(Message message, String content) {
-        if (message instanceof UserMessage) {
-            return new UserMessage(content, message.getMedia(), message.getMetadata());
+        if (message instanceof UserMessage userMessage) {
+            return new UserMessage(content, userMessage.getMedia(), userMessage.getMetadata());
         } else if (message instanceof SystemMessage) {
             return new SystemMessage(content);
         } else if (message instanceof AssistantMessage) {
             return new AssistantMessage(content, message.getMetadata());
+        } else if (message instanceof ToolResponseMessage toolMessage) {
+            return new ToolResponseMessage(toolMessage.getResponses(), toolMessage.getMetadata());
         } else {
             throw new IllegalArgumentException("Unsupported message type: " + message.getClass().getSimpleName());
         }

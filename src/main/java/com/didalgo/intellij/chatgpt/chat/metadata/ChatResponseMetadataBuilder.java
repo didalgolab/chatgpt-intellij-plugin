@@ -6,35 +6,39 @@ package com.didalgo.intellij.chatgpt.chat.metadata;
 
 import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.metadata.EmptyRateLimit;
-import org.springframework.ai.chat.metadata.PromptMetadata;
-import org.springframework.ai.chat.metadata.RateLimit;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class ChatResponseMetadataBuilder extends ConcurrentHashMap<String, Object>
-        implements Consumer<ChatResponseMetadata> {
+public class ChatResponseMetadataBuilder implements Consumer<ChatResponseMetadata> {
 
-    private final Map<String, Object> properties = new ConcurrentHashMap<>();
-    private final UsageAggregator usage = new UsageAggregator();
-    private PromptMetadata promptMetadata = PromptMetadata.empty();
-    private RateLimit rateLimit = new EmptyRateLimit();
+    private final ChatResponseMetadata.Builder builder = ChatResponseMetadata.builder();
+    private final UsageAggregator usageAggregator = new UsageAggregator();
 
     @Override
     public void accept(ChatResponseMetadata metadata) {
-        properties.putAll(metadata);
-        usage.accept(metadata.getUsage());
+        for (Map.Entry<String, Object> e : metadata.entrySet()) {
+            builder.withKeyValue(e.getKey(), e.getValue());
+        }
+        if (!metadata.getId().isEmpty()) {
+            builder.withId(metadata.getId());
+        }
+        if (!metadata.getModel().isEmpty()) {
+            builder.withModel(metadata.getModel());
+        }
 
+        usageAggregator.accept(metadata.getUsage());
         if (metadata.getPromptMetadata().iterator().hasNext()) {
-            promptMetadata = metadata.getPromptMetadata();
+            builder.withPromptMetadata(metadata.getPromptMetadata());
         }
         if (!(metadata.getRateLimit() instanceof EmptyRateLimit)) {
-            rateLimit = metadata.getRateLimit();
+            builder.withRateLimit(metadata.getRateLimit());
         }
     }
 
     public ChatResponseMetadata build() {
-        return new ImmutableChatResponseMetadata(properties, usage, promptMetadata, rateLimit);
+        return builder
+                .withUsage(usageAggregator.toImmutableUsage())
+                .build();
     }
 }

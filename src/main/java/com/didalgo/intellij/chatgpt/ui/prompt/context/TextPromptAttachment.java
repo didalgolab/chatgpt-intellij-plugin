@@ -6,7 +6,7 @@ package com.didalgo.intellij.chatgpt.ui.prompt.context;
 
 import com.didalgo.intellij.chatgpt.chat.PromptAttachment;
 import com.didalgo.intellij.chatgpt.text.TextContent;
-import org.springframework.ai.chat.messages.Media;
+import org.springframework.ai.model.Media;
 
 import javax.swing.*;
 import java.util.Optional;
