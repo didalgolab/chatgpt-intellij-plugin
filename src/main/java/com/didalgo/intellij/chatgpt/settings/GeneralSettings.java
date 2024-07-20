@@ -88,7 +88,7 @@ public class GeneralSettings implements PersistentStateComponent<GeneralSettings
 
     @NonInjectable
     protected GeneralSettings(CredentialStore credStore) {
-        setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, credStore, StandardModel.GPT_3_5_TURBO.id()));
+        setGpt35Config(AssistantOptions.forAssistantType(GPT_3_5, credStore, StandardModel.GPT_4_O_MINI.id()));
         setGpt4Config(AssistantOptions.forAssistantType(GPT_4, credStore, StandardModel.GPT_4_O.id()));
         setAzureOpenAiConfig(AssistantOptions.forAssistantType(AZURE_OPENAI, credStore, StandardModel.GPT_4.id()));
         setClaudeConfig(AssistantOptions.forAssistantType(CLAUDE, credStore));
