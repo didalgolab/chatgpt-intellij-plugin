@@ -15,7 +15,7 @@
 name: Build
 on:
   push:
-    branches: [ main, workflows ]
+    branches: [ main ]
   pull_request:
 
 concurrency:
@@ -140,6 +140,7 @@ jobs:
   # Run Qodana inspections and provide report
   inspectCode:
     name: Inspect code
+    if: github.event_name != 'pull_request'
     needs: [ build ]
     runs-on: ubuntu-latest
     permissions:
