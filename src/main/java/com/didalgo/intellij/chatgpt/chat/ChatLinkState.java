@@ -7,9 +7,7 @@ package com.didalgo.intellij.chatgpt.chat;
 import com.didalgo.gpt3.ChatFormatDescriptor;
 import com.didalgo.gpt3.GPT3Tokenizer;
 import com.didalgo.intellij.chatgpt.chat.messages.MessageSupport;
-import com.didalgo.intellij.chatgpt.chat.models.CustomModel;
 import com.didalgo.intellij.chatgpt.chat.models.ModelType;
-import com.didalgo.intellij.chatgpt.chat.models.StandardModel;
 import com.didalgo.intellij.chatgpt.core.TextSubstitutor;
 import com.didalgo.intellij.chatgpt.text.TextContent;
 import com.intellij.openapi.application.ApplicationInfo;
@@ -72,12 +70,10 @@ public class ChatLinkState implements ConversationContext {
     public void addChatMessage(Message message) {
         synchronized (chatMessages) {
             if (!chatMessages.isEmpty()) {
-                if (isRoleSystem(chatMessages.getLast()) && isRoleSystem(message)) {
-                    Message last = chatMessages.removeLast();
-                    message = new SystemMessage(last.getContent() + message.getContent());
-                }
-                else if (Objects.equals(chatMessages.getLast().getMessageType(), message.getMessageType()))
+                Message lastMessage = chatMessages.getLast();
+                if (Objects.equals(lastMessage.getMessageType(), message.getMessageType())) {
                     chatMessages.removeLast();
+                }
             }
             chatMessages.add(message);
         }
@@ -92,17 +88,10 @@ public class ChatLinkState implements ConversationContext {
     public List<Message> getChatMessages(ModelType model, UserMessage userMessage) {
         var chatMessages = new LinkedList<Message>();
 
-        // First add current system message
-        var systemMessage = getSystemPrompt().get();
-        if (!systemMessage.isBlank()) {
-            systemMessage = systemMessage.stripTrailing()
-                    + "\n\nCurrent IDE: " + ApplicationInfo.getInstance().getFullApplicationName()
-                    + "\nOS: " + System.getProperty("os.name");
-            chatMessages.add(new SystemMessage(systemMessage));
-        }
-        var hasSystemMessage = !chatMessages.isEmpty();
+        // Add the system prompt appropriately
+        boolean hasSystemMessage = addSystemPrompt(model, chatMessages);
 
-        // Add the rest of messages in the chat
+        // Add the rest of the messages
         synchronized (this.chatMessages) {
             if (!this.chatMessages.isEmpty())
                 chatMessages.addAll(this.chatMessages);
@@ -119,6 +108,34 @@ public class ChatLinkState implements ConversationContext {
                 this.chatMessages.remove(hasSystemMessage ? 1 : 0);
 
             return chatMessages;
+        }
+    }
+
+    private boolean addSystemPrompt(ModelType model, List<Message> messages) {
+        String systemPrompt = createSystemPrompt();
+        if (systemPrompt != null && !systemPrompt.isBlank()) {
+            messages.add(newSystemMessageWithUserMessageFallbackIfUnsupported(model, systemPrompt));
+            return true;
+        }
+        return false;
+    }
+
+    private String createSystemPrompt() {
+        var systemPrompt = getSystemPrompt().get();
+        if (systemPrompt == null || systemPrompt.isBlank())
+            return null;
+
+        return systemPrompt.stripTrailing()
+                + "\n\nCurrent IDE: " + ApplicationInfo.getInstance().getFullApplicationName()
+                + "\nOS: " + System.getProperty("os.name");
+    }
+
+
+    private Message newSystemMessageWithUserMessageFallbackIfUnsupported(ModelType model, String content) {
+        if (model.supportsSystemMessage()) {
+            return new SystemMessage(content);
+        } else {
+            return new UserMessage(content);
         }
     }
 

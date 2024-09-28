@@ -7,6 +7,7 @@ package com.didalgo.intellij.chatgpt.chat.client;
 import com.didalgo.intellij.chatgpt.chat.ChatMessageEvent;
 import com.didalgo.intellij.chatgpt.chat.ChatMessageListener;
 import com.didalgo.intellij.chatgpt.chat.ConversationContext;
+import com.didalgo.intellij.chatgpt.chat.models.ModelType;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Subscription;
@@ -14,6 +15,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
+import org.springframework.ai.chat.prompt.Prompt;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,25 +27,38 @@ public class ChatHandler {
     private static final Logger LOG = Logger.getInstance(ChatHandler.class);
 
     public Flux<?> handle(ConversationContext ctx, ChatMessageEvent.Initiating event, ChatMessageListener listener) {
+        var modelType = ctx.getModelType();
         var chatClient = ChatClientHolder.getChatClient(ctx.getAssistantType());
         var flowHandler = new ChatCompletionHandler(listener);
-        var prompt = event.getPrompt().orElseThrow(() -> new IllegalArgumentException("Prompt is required"));
+        var prompt = event.getPrompt()
+                .map(prmpt -> maybeOverrideChatOptions(modelType, prmpt))
+                .orElseThrow(() -> new IllegalArgumentException("Prompt is required"));
 
-        try {
-            return chatClient.prompt(prompt).stream().chatResponse()
-                    .doOnSubscribe(flowHandler.onSubscribe(event))
-                    .doOnError(flowHandler.onError())
-                    .doOnComplete(flowHandler.onComplete(ctx))
-                    .doOnNext(flowHandler.onNextChunk());
+        if (modelType.supportsStreaming()) {
+            try {
+                return chatClient.prompt(prompt).stream().chatResponse()
+                        .doOnSubscribe(flowHandler.onSubscribe(event))
+                        .doOnError(flowHandler.onError())
+                        .doOnComplete(flowHandler.onComplete(ctx))
+                        .doOnNext(flowHandler.onNextChunk());
+            } catch (UnsupportedOperationException ignore) {
+                // fall through
+            }
         }
-        catch (UnsupportedOperationException e) {
-            return Mono.fromCallable(() -> chatClient.prompt(prompt).call().chatResponse())
-                    .flux()
-                    .doOnSubscribe(flowHandler.onSubscribe(event))
-                    .doOnError(flowHandler.onError())
-                    .doOnComplete(flowHandler.onComplete(ctx))
-                    .doOnNext(flowHandler.onNext());
-        }
+        return Mono.fromCallable(() -> chatClient.prompt(prompt).call().chatResponse())
+                .flux()
+                .doOnSubscribe(flowHandler.onSubscribe(event))
+                .doOnError(flowHandler.onError())
+                .doOnComplete(flowHandler.onComplete(ctx))
+                .doOnNext(flowHandler.onNext());
+    }
+
+    private Prompt maybeOverrideChatOptions(ModelType modelType, Prompt prompt) {
+        var optionsOverride = modelType.incompatibleChatOptionsOverride();
+        if (optionsOverride != ModelType.OVERRIDE_NONE)
+            prompt = new Prompt(prompt.getInstructions(), optionsOverride);
+
+        return prompt;
     }
 
     static class ChatCompletionHandler {
