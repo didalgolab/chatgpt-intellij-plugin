@@ -4,6 +4,9 @@
  */
 package com.didalgo.intellij.chatgpt.chat.models;
 
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,16 +38,31 @@ public enum StandardModel implements ModelType {
     GPT_4_32K_0314("gpt-4-32k-0314", ModelFamily.OPEN_AI, 32768),
     GPT_4_32K_0613("gpt-4-32k-0613", ModelFamily.OPEN_AI, 32768),
     GPT_4_1106_PREVIEW("gpt-4-1106-preview", ModelFamily.OPEN_AI, 128000),
-    GPT_4_0125_PREVIEW("gpt-4-0125-preview", ModelFamily.OPEN_AI, 128000);
+    GPT_4_0125_PREVIEW("gpt-4-0125-preview", ModelFamily.OPEN_AI, 128000),
+
+    O1_MINI("o1-mini", ModelFamily.OPEN_AI, 128000, false, false, IncompatibleChatOptions.O1_OVERRIDE),
+    O1_MINI_2024_09_12("o1-mini-2024-09-12", ModelFamily.OPEN_AI, 128000, false, false, IncompatibleChatOptions.O1_OVERRIDE),
+    O1_PREVIEW("o1-preview", ModelFamily.OPEN_AI, 128000, false, false, IncompatibleChatOptions.O1_OVERRIDE),
+    O1_PREVIEW_2024_09_12("o1-preview-2024-09-12", ModelFamily.OPEN_AI, 128000, false, false, IncompatibleChatOptions.O1_OVERRIDE);
 
     private final ModelFamily family;
     private final String id;
     private final int inputTokenLimit;
+    private final boolean supportsStreaming;
+    private final boolean supportsSystemMessage;
+    private final ChatOptions incompatibleChatOptionsOverride;
 
     StandardModel(String id, ModelFamily family, int inputTokenLimit) {
+        this(id, family, inputTokenLimit, true, true, OVERRIDE_NONE);
+    }
+
+    StandardModel(String id, ModelFamily family, int inputTokenLimit, boolean supportsStreaming, boolean supportsSystemMessage, ChatOptions incompatibleChatOptionsOverride) {
         this.id = id;
         this.family = family;
         this.inputTokenLimit = inputTokenLimit;
+        this.supportsStreaming = supportsStreaming;
+        this.supportsSystemMessage = supportsSystemMessage;
+        this.incompatibleChatOptionsOverride = incompatibleChatOptionsOverride;
     }
 
     @Override
@@ -62,6 +80,20 @@ public enum StandardModel implements ModelType {
         return family;
     }
 
+    @Override
+    public boolean supportsStreaming() {
+        return supportsStreaming;
+    }
+
+    @Override
+    public boolean supportsSystemMessage() {
+        return supportsSystemMessage;
+    }
+
+    @Override
+    public ChatOptions incompatibleChatOptionsOverride() {
+        return incompatibleChatOptionsOverride;
+    }
 
     public static List<ModelType> getAvailableModels() {
         return Arrays.asList(values());
@@ -91,5 +123,13 @@ public enum StandardModel implements ModelType {
             }
         }
         return Optional.empty();
+    }
+
+    private static final class IncompatibleChatOptions {
+
+        private static final ChatOptions O1_OVERRIDE = ChatOptionsBuilder.builder()
+                .withTemperature(1f)
+                .withTopP(1f)
+                .build();
     }
 }
