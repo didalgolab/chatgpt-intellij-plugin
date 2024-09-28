@@ -12,7 +12,7 @@ Code generation, code interaction, contexts and others.
 - [x] Ask ChatGPT (supports multiple models)
 - [x] Vision support; directly paste screenshots or images into the prompt field
 - [x] Azure OpenAI endpoints support
-- [x] Claude 3, Gemini 1.5, and Ollama models support
+- [x] Claude 3, Gemini 1.5, OpenAI o1, and Ollama models support
 - [x] Select a code fragment in the editor and Ask ChatGPT (selected code will be automatically appended to the prompt)
 - [x] One-click copy code from ChatGPT's answer back to the editor
 - [x] Count tokens in the open file or selection
