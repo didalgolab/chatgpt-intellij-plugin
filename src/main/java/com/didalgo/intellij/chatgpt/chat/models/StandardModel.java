@@ -129,8 +129,8 @@ public enum StandardModel implements ModelType {
     private static final class IncompatibleChatOptions {
 
         private static final ChatOptions O1_OVERRIDE = ChatOptionsBuilder.builder()
-                .withTemperature(1f)
-                .withTopP(1f)
+                .withTemperature(1.0)
+                .withTopP(1.0)
                 .build();
     }
 }
