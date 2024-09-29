@@ -18,8 +18,8 @@ public class AnthropicModelFamily implements ModelFamily {
         var api = new AnthropicApi(baseUrl, apiKey);
         var options = AnthropicChatOptions.builder()
                 .withModel(config.getModelName())
-                .withTemperature((float) config.getTemperature())
-                .withTopP((float) config.getTopP())
+                .withTemperature(config.getTemperature())
+                .withTopP(config.getTopP())
                 .withMaxTokens(4096)
                 .build();
         return new AnthropicChatModel(api, options);

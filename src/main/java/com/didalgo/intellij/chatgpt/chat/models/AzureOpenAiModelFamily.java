@@ -24,8 +24,8 @@ public class AzureOpenAiModelFamily implements ModelFamily {
                 .buildClient();
         var options = AzureOpenAiChatOptions.builder()
                 .withDeploymentName(config.getAzureDeploymentName())
-                .withTemperature((float) config.getTemperature())
-                .withTopP((float) config.getTopP())
+                .withTemperature(config.getTemperature())
+                .withTopP(config.getTopP())
                 .withN(1)
                 .build();
 

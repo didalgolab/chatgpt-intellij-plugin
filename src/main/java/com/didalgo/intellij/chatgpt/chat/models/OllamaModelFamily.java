@@ -19,8 +19,8 @@ public class OllamaModelFamily implements ModelFamily {
         var api = new OllamaApi(baseUrl);
         var options = new OllamaOptions()
                 .withModel(config.getModelName())
-                .withTemperature((float) config.getTemperature())
-                .withTopP((float) config.getTopP());
+                .withTemperature(config.getTemperature())
+                .withTopP(config.getTopP());
         return new OllamaChatModel(api, options);
     }
 

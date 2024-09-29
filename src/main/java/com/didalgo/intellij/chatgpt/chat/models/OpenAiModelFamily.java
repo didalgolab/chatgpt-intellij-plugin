@@ -8,7 +8,6 @@ import com.didalgo.intellij.chatgpt.settings.GeneralSettings;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionRequest.StreamOptions;
 import org.springframework.ai.openai.api.common.OpenAiApiConstants;
 
 import java.util.List;
@@ -22,9 +21,9 @@ public class OpenAiModelFamily implements ModelFamily {
         var api = new OpenAiApi(baseUrl, apiKey);
         var options = OpenAiChatOptions.builder()
                 .withModel(config.getModelName())
-                .withTemperature((float) config.getTemperature())
+                .withTemperature(config.getTemperature())
                 .withStreamUsage(config.isEnableStreamOptions())
-                .withTopP((float) config.getTopP())
+                .withTopP(config.getTopP())
                 .withN(1)
                 .build();
         return new OpenAiChatModel(api, options);

@@ -63,7 +63,7 @@ class ChatPanelTest {
 
     @TestApplication
     @Nested
-    static class NonStreaming {
+    class NonStreaming {
         private ChatModel nonStreamingChatModel;
 
         @BeforeEach

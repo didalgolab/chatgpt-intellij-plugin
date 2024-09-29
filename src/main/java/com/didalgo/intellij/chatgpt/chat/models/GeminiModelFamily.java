@@ -19,8 +19,8 @@ public class GeminiModelFamily implements ModelFamily {
         var options = GeminiChatOptions.builder()
                 .withSafetySettings(GeminiApi.SafetySettings.BLOCK_ONLY_HIGH)
                 .withModel(config.getModelName())
-                .withTemperature((float) config.getTemperature())
-                .withTopP((float) config.getTopP())
+                .withTemperature(config.getTemperature())
+                .withTopP(config.getTopP())
                 .build();
         return new GeminiChatModel(api, options);
     }
