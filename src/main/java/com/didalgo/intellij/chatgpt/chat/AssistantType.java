@@ -31,7 +31,7 @@ public sealed interface AssistantType
     @Getter
     enum System implements AssistantType {
         GPT_4("GPT-4", ModelFamily.OPEN_AI, GPT4Panel.class),
-        GPT_3_5("GPT-3.5-Turbo", ModelFamily.OPEN_AI, GPT35TurboPanel.class),
+        GPT_3_5("GPT-4 Mini", ModelFamily.OPEN_AI, GPT35TurboPanel.class),
         AZURE_OPENAI("Azure OpenAI", ModelFamily.AZURE_OPENAI, AzureOpenAiPanel.class),
         CLAUDE("Claude", ModelFamily.ANTHROPIC, ClaudePanel.class),
         GEMINI("Gemini", ModelFamily.GEMINI, GeminiPanel.class),
