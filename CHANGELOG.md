@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.1]
++ Added support for `o1` family of models
++ Renamed `GPT-3.5-Turbo` chat panel name to `GPT-4 Mini`; upgraded default mini model to `gpt-4o-mini`
+
 ## [1.1.0]
 + Added support for Claude 3.5 Sonnet
 + Expanded Gemini 1.5 models to 2M input token limit
