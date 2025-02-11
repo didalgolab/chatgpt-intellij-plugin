@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -87,7 +88,7 @@ public class SelectedTextEditorTargetedAction extends ActionGroup {
     public void actionPerformed(@NotNull AnActionEvent e) {
         List<TextEditor> textEditors = selectedTextEditors(e.getProject(), supportedEditors).toList();
         if (textEditors.size() == 1)
-            actionFactory.apply(textEditors.get(0)).actionPerformed(e);
+            ActionUtil.performActionDumbAwareWithCallbacks(actionFactory.apply(textEditors.get(0)), e);
     }
 
     private static final AnAction[] ZERO_CHILDREN = new AnAction[0];

@@ -1,20 +1,20 @@
-# ChatGPT Integration
-Yet another JetBrains extension that allows you to use ChatGPT inside your favourite IDE
+# AI Integration
+Yet another JetBrains extension that allows you to use AI chats inside your favourite IDE
 
 ### About this project
 
-This project is a plugin that provides integration with OpenAI ChatGPT API to run on JetBrains IDEs, providing developers with a powerful tools.
+This project is a plugin that provides integration with OpenAI, Gemini, Claude and Ollama API to run on JetBrains IDEs, providing developers with a powerful tools.
 
 ## Features
 
 Code generation, code interaction, contexts and others.
 
-- [x] Ask ChatGPT (supports multiple models)
+- [x] Ask AI Assistant (supports multiple models)
 - [x] Vision support; directly paste screenshots or images into the prompt field
 - [x] Azure OpenAI endpoints support
 - [x] Claude 3, Gemini 1.5, OpenAI o1, and Ollama models support
-- [x] Select a code fragment in the editor and Ask ChatGPT (selected code will be automatically appended to the prompt)
-- [x] One-click copy code from ChatGPT's answer back to the editor
+- [x] Select a code fragment in the editor and Ask AI Assistant (selected code will be automatically appended to the prompt)
+- [x] One-click copy code from AI Chat's answer back to the editor
 - [x] Count tokens in the open file or selection
 - [x] Custom Actions from prompts
 - [x] Context snippets, with possibility to attach multiple files, selections, or contents of documentation popups to the prompt
@@ -22,7 +22,7 @@ Code generation, code interaction, contexts and others.
 
 ### Screenshots
 
-![ChatGPT IntelliJ 01](docs/images/chatgpt-intellij-01.png)
+![AI IntelliJ 01](docs/images/ai-intellij-01.png)
 
 ![Add to Context 01](docs/images/add-to-context-01.png)
 
@@ -31,8 +31,8 @@ Code generation, code interaction, contexts and others.
 ## Getting Started
 
 To use the extension, you must have a JetBrains IDE installed and configure the API key, which can be found in your [User Settings](https://platform.openai.com/account/api-keys).
-The plugin is available for installation from [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/21953-chatgpt-integration).
-To add more model providers such as Claude, Gemini, Ollama, or Azure OpenAI, go to *File -> Settings -> Tools -> ChatGPT Integration* and review the available configurations.
+The plugin is available for installation from [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/21953-ai-integration).
+To add more model providers such as Claude, Gemini, Ollama, or Azure OpenAI, go to *File -> Settings -> Tools -> AI Integration* and review the available configurations.
 
 ## Contribution
 

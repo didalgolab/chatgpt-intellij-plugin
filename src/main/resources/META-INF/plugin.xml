@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.didalgo.chatgpt</id>
-    <name>ChatGPT Integration</name>
+    <name>AI Integration</name>
     <vendor email="consulting@didalgo.com" url="https://github.com/didalgolab">didalgo</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -11,7 +11,7 @@
                     factoryClass="com.didalgo.intellij.chatgpt.ui.tool.window.ChatToolWindowFactory"/>
         <applicationConfigurable parentId="tools" instance="com.didalgo.intellij.chatgpt.settings.GeneralSettingsPanel"
                                  id="com.didalgo.chatgpt.settings.OpenAISettings"
-                                 displayName="ChatGPT Integration"/>
+                                 displayName="AI Integration"/>
         <applicationConfigurable parentId="com.didalgo.chatgpt.settings.OpenAISettings" instance="com.didalgo.intellij.chatgpt.settings.GPT4Panel"
                                  id="com.didalgo.chatgpt.settings.GPT4"
                                  displayName="GPT 4"/>
@@ -55,8 +55,8 @@
             <add-to-group group-id="EditorPopupMenu1" anchor="first"/>
             <action id="didalgo.chatgpt.AddToContextAction"
                     class="com.didalgo.intellij.chatgpt.ui.action.AddToContextAction"
-                    text="ChatGPT: Add to Context"
-                    description="Adds selected code as part of next ChatGPT prompt">
+                    text="AI Chat: Add to Context"
+                    description="Adds selected code as part of next AI Chat prompt">
                 <add-to-group group-id="Documentation.PrimaryGroup"/>
             </action>
             <separator/>

@@ -13,10 +13,11 @@ import com.didalgo.intellij.chatgpt.event.ListenerList.Subscription;
 import com.didalgo.intellij.chatgpt.ui.text.ExpandableTextFieldExt;
 import com.didalgo.intellij.chatgpt.util.ScrollingTools;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.NullableComponent;
 import com.intellij.ui.Gray;
@@ -89,9 +90,9 @@ public class ConversationPanel extends JBPanel<ConversationPanel> implements Nul
                     instance.setGpt35RoleText(BASE_PROMPT);
                 }
             });
-            ActionToolbarImpl actonPanel = new ActionToolbarImpl("System Role Toolbar",toolbarActions,true);
-            actonPanel.setTargetComponent(this);
-            rolePanel.add(actonPanel,BorderLayout.EAST);
+            ActionToolbar actonToolbar = ActionManager.getInstance().createActionToolbar("System Role Toolbar",toolbarActions,true);
+            actonToolbar.setTargetComponent(this);
+            rolePanel.add(actonToolbar.getComponent(), BorderLayout.EAST);
             panel.add(rolePanel);
             panel.setBorder(JBUI.Borders.empty(0,8,10,0));
 

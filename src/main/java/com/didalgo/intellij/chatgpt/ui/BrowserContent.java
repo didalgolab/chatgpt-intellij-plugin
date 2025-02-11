@@ -6,9 +6,10 @@ package com.didalgo.intellij.chatgpt.ui;
 
 import com.didalgo.intellij.chatgpt.chat.*;
 import com.didalgo.intellij.chatgpt.ui.action.browser.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.jcef.JBCefApp;
 import com.intellij.ui.jcef.JBCefBrowser;
@@ -57,9 +58,9 @@ public class BrowserContent implements ChatLinkProvider {
         toolbarActions.add(new ZoomInAction(browser));
         toolbarActions.add(new ZoomOutAction(browser));
         toolbarActions.add(new ZoomResetAction(browser));
-        ActionToolbarImpl browserToolbar = new ActionToolbarImpl("Browser Toolbar", toolbarActions, true);
+        ActionToolbar browserToolbar = ActionManager.getInstance().createActionToolbar("Browser Toolbar", toolbarActions, true);
         browserToolbar.setTargetComponent(null);
-        contentPanel.add(browserToolbar, BorderLayout.NORTH);
+        contentPanel.add(browserToolbar.getComponent(), BorderLayout.NORTH);
         contentPanel.add(component, BorderLayout.CENTER);
     }
 

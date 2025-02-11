@@ -1,6 +1,7 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
++ Renamed plugin name from `ChatGPT Integration` to `AI Integration`
 
 ## [1.1.1]
 + Added support for `o1` family of models
@@ -45,7 +46,7 @@
 + Fix: The issue with the custom server URL not working has been resolved (#3).
 + Fix: Code selections already included in prompts are no longer sent in chat messages.
 + Feature: Context code snippets in chat prompts are now collapsed by default for visual efficiency.
-+ Feature: After using the "ChatGPT: Add to Context" action, the prompt text field now automatically gains focus.
++ Feature: After using the "AI Chat: Add to Context" action, the prompt text field now automatically gains focus.
 
 ## [0.2.8]
 + Multiple bugfixes
@@ -54,9 +55,9 @@
 
 With this new feature, users can select and include several code snippets from different files in a single chat prompt. A code snippet can be incorporated into the context by following these steps:
 
-- Highlight a section of code within the editor, right-click on it, and select the "ChatGPT: Add to Context" option.
-- If you wish to add the entire file to the context, simply choose the "ChatGPT: Add to Context" option without highlighting any code within the editor.
-- Content of _document popups_ can be also added as a context. Just click the "More" button located in the bottom-right corner on the popup and select "ChatGPT: Add to Context" action.
+- Highlight a section of code within the editor, right-click on it, and select the "AI Chat: Add to Context" option.
+- If you wish to add the entire file to the context, simply choose the "AI Chat: Add to Context" option without highlighting any code within the editor.
+- Content of _document popups_ can be also added as a context. Just click the "More" button located in the bottom-right corner on the popup and select "AI Chat: Add to Context" action.
 - Multiple code snippets can be either added or removed before forwarding all snippets and a prompt to the chatbot.
 
 ## [0.2.7]

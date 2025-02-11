@@ -24,7 +24,7 @@ public class AddToContextAction extends AnAction {
     private static final DataKey<JBPopup> DOCUMENTATION_POPUP_KEY = DataKey.create("documentation.popup");
 
     public AddToContextAction() {
-        super("ChatGPT: Add to Context", "Adds selected code as part of next ChatGPT prompt", null);
+        super("AI Chat: Add to Context", "Adds selected code as part of next AI Chat prompt", null);
     }
 
     @Override
