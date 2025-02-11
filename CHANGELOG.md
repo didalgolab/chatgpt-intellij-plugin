@@ -1,6 +1,8 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 ## [Unreleased]
+
+## [1.2.0]
 + Renamed plugin name from `ChatGPT Integration` to `AI Integration`
 + Added support for `Gemini 2.0 Flash` model
 + Added support for `o3-mini` model
