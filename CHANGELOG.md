@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 + Renamed plugin name from `ChatGPT Integration` to `AI Integration`
++ Added support for `Gemini 2.0 Flash` model
++ Added support for `o3-mini` model
 
 ## [1.1.1]
 + Added support for `o1` family of models

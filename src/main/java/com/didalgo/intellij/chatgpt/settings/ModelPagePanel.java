@@ -32,6 +32,8 @@ import com.intellij.util.ui.UIUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.ai.chat.prompt.ChatOptionsBuilder;
+import org.springframework.ai.chat.prompt.Prompt;
 
 import javax.swing.*;
 import java.awt.*;
@@ -386,8 +388,7 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
 
     private void doTestConnection(JComponent actionSource, GeneralSettings settings) {
         ApplicationManager.getApplication().getService(ChatClientFactory.class).create(type, settings)
-                .prompt()
-                .user(ChatGptBundle.message("llm.test.msg"))
+                .prompt(getTestConnectionPrompt())
                 .stream()
                 .content()
                 .collectList()
@@ -404,6 +405,13 @@ public abstract class ModelPagePanel implements Configurable, Configurable.Compo
                 })
                 .doFinally(__ -> SwingUtilities.invokeLater(() -> actionSource.setEnabled(true)))
                 .subscribe();
+    }
+
+    private Prompt getTestConnectionPrompt() {
+        return new Prompt("Say: hello", ChatOptionsBuilder.builder()
+                .withTemperature(1.0)
+                .withTopP(1.0)
+                .build());
     }
 
     @Override

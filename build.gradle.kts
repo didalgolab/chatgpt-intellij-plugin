@@ -42,7 +42,7 @@ dependencies {
     implementation("com.vladsch.flexmark:flexmark-ext-tables:0.64.8")
     implementation("com.vladsch.flexmark:flexmark-html2md-converter:0.64.8")
     implementation("org.projectlombok:lombok:1.18.26")
-    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-M2") {
+    implementation("com.didalgo.ai:spring-ai-gemini:1.0.0-M3") {
         exclude(group = "io.rest-assured", module = "json-path")
     }
     implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-SNAPSHOT") {
