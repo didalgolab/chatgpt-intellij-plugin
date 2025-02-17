@@ -50,7 +50,7 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 public class GeneralSettings implements PersistentStateComponent<GeneralSettings> {
 
     public static final String BASE_PROMPT = "You are a professional software engineer." +
-            " Follow these rules in each response: snarky & noir & lang:${{LANG}}." +
+            " Follow these rules in each response: lang:${{LANG}}." +
             " Source code language: en. Bias towards the best solution.";
 
     public static final List<AssistantType.System> DEFAULT_ENABLED_SYSTEMS
